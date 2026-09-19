@@ -63,7 +63,7 @@ public class FormAttunerBlock extends BaseEntityBlock implements BeaconBeamBlock
     }
 
     @Override
-    public DyeColor getColor() {
+    public @NotNull DyeColor getColor() {
         return DyeColor.PURPLE;
     }
 

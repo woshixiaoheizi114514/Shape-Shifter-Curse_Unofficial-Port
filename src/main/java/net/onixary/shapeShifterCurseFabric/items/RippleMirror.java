@@ -23,7 +23,7 @@ public class RippleMirror extends Item {
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
+    public @NotNull UseAnim getUseAnimation(ItemStack stack) {
         return UseAnim.BOW;
     }
 
@@ -39,7 +39,7 @@ public class RippleMirror extends Item {
     }
 
     @Override
-    public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
+    public @NotNull ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
         // 只有选中后发送变形包时才减少物品数量
         if (!world.isClientSide) {
             ModPacketsS2CServer.sendOpenSelectSubFormMenu((ServerPlayer) user);

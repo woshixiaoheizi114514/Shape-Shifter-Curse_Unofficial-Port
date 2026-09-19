@@ -7,7 +7,6 @@ import net.onixary.shapeShifterCurseFabric.player_animation.v3.AbstractAnimState
 import net.onixary.shapeShifterCurseFabric.player_animation.v3.AbstractAnimStateControllerDP;
 import net.onixary.shapeShifterCurseFabric.player_animation.v3.AnimSystem;
 import net.onixary.shapeShifterCurseFabric.player_animation.v3.AnimUtils;
-import net.onixary.shapeShifterCurseFabric.player_animation.v3.*;
 import net.onixary.shapeShifterCurseFabric.util.util.DataDumper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

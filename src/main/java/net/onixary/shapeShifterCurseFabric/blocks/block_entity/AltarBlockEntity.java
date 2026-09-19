@@ -118,12 +118,12 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
     }
 
     @Override
-    protected Component getDefaultName() {
+    protected @NotNull Component getDefaultName() {
         return Component.translatable("block.shape-shifter-curse.altar");
     }
 
     @Override
-    protected AbstractContainerMenu createMenu(int syncId, Inventory playerInventory) {
+    protected @NotNull AbstractContainerMenu createMenu(int syncId, Inventory playerInventory) {
         return new AltarCraftUIHandler(RegMenuType.AltarCraftUI, syncId, playerInventory, this, ContainerLevelAccess.NULL, this.propertyDelegate);
     }
 

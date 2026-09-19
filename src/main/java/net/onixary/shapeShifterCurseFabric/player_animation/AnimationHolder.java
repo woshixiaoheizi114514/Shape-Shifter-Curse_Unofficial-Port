@@ -30,17 +30,17 @@ public class AnimationHolder {
 
     public @Nullable ResourceLocation animationID;
 
-    public AnimationHolder(ResourceLocation animation_id, boolean isEnabled, float speed) {
+    public AnimationHolder(@Nullable ResourceLocation animation_id, boolean isEnabled, float speed) {
         this(PlayerAnimResources.getAnimation(animation_id), isEnabled, speed, 5);
         this.animationID = animation_id;
     }
 
-    public AnimationHolder(ResourceLocation animation_id, boolean isEnabled) {
+    public AnimationHolder(@Nullable ResourceLocation animation_id, boolean isEnabled) {
         this(PlayerAnimResources.getAnimation(animation_id), isEnabled, 1.0f, 2);
         this.animationID = animation_id;
     }
 
-    public AnimationHolder(ResourceLocation animation_id, boolean isEnabled, float speed, int fade) {
+    public AnimationHolder(@Nullable ResourceLocation animation_id, boolean isEnabled, float speed, int fade) {
         this(PlayerAnimResources.getAnimation(animation_id), isEnabled, speed, fade);
         this.animationID = animation_id;
     }
