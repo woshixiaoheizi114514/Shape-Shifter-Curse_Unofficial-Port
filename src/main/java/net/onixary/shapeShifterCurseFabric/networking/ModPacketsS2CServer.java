@@ -366,6 +366,14 @@ public class ModPacketsS2CServer {
         BytePayload.registerS2C(ModPackets.MELT_AUTH_SUB_KEY);
         BytePayload.registerS2C(ModPackets.REQUEST_PATRON_AUTH_FILE);
         BytePayload.registerS2C(ModPackets.SET_SUPER_USER_LEVEL);
+        // 以下 4 个由本类 send（sendPerkAvailability / sendPerkData / sendOpenFormUpgradeMenu /
+        // sendOpenSelectSubFormMenu），此前只写在客户端 ModPacketsS2C#register 的清单里 ——
+        // 服务端编码时查不到 payload type，会抛 IllegalArgumentException("Unknown payload type: ...")，
+        // 即「一发就崩服」。与 issue #21 是同一类漏注册。
+        BytePayload.registerS2C(ModPackets.SYNC_PERK_AVAILABILITY);
+        BytePayload.registerS2C(ModPackets.SYNC_PERK_DATA);
+        BytePayload.registerS2C(ModPackets.OPEN_FORM_UPGRADE_MENU);
+        BytePayload.registerS2C(ModPackets.OPEN_SELECT_SUB_FORM_MENU);
     }
 
     public static void sendPerkAvailability(ServerPlayer player, boolean fullUpdate, HashMap<ResourceLocation, Boolean> perkAvailability) {
