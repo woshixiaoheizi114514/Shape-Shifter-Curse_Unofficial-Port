@@ -40,5 +40,8 @@ public class EnchantmentHelperMixin {
             cir.setReturnValue(getSoulSpeedLevel(entity, cir.getReturnValue()));
         }
     }
-    // TODO：hasSoulSpeed和getPossibleEntries在1.21没了，之后找替代
+    // 移植说明：1.20 上游在这里还挂了 hasSoulSpeed / getPossibleEntries 两处注入，这两个方法在 1.21 已移除。
+    // 不需要再找替代 —— 1.21 里附魔等级查询统一走 getEnchantmentLevel（本 mixin 挂的就是它）：
+    // 战利品侧已核实走这条路（EnchantedCountIncreaseFunction 取 looting 等级即调 getEnchantmentLevel），
+    // 魂速同理由附魔效果系统经同一入口取值。故这两个旧注入点无需重现。
 }

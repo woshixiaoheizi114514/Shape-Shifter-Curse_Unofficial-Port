@@ -1,6 +1,11 @@
 package net.onixary.shapeShifterCurseFabric.integration.origins.registry;
 
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+import net.onixary.shapeShifterCurseFabric.integration.origins.Origins;
+import net.onixary.shapeShifterCurseFabric.integration.origins.util.OriginLootCondition;
 
 // Enchantment loot tables can be added via JSON data files:
 //   data/origins/loot_table/...
@@ -12,11 +17,12 @@ public class ModLoot {
     private static final ResourceLocation MINESHAFT = ResourceLocation.fromNamespaceAndPath("minecraft", "chests/abandoned_mineshaft");
     private static final ResourceLocation WATER_RUIN = ResourceLocation.fromNamespaceAndPath("minecraft", "chests/underwater_ruin_small");
 
-// TODO:上游没有用到，但我后面还是重新写一下吧
-//    public static final LootConditionType ORIGIN_LOOT_CONDITION = registerLootCondition("origin", new OriginLootCondition.Serializer());
-//    private static LootConditionType registerLootCondition(String path, JsonSerializer<? extends LootCondition> serializer) {
-//        return Registry.register(Registries.LOOT_CONDITION_TYPE, Origins.identifier(path), new LootConditionType(serializer));
-//    }
+    // 上游把 OriginLootCondition 注册成战利品条件类型。1.20 的旧写法（LootConditionType + JsonSerializer）在 1.21
+    // 已不可用 —— 条件改由 MapCodec 描述。OriginLootCondition 本身已按 1.21 风格移植好（自带 CODEC + TYPE），
+    // 但一直没被注册，导致它是个死类、数据包也用不了 "type": "origins:origin"（战利品条件）。
+    // 这里补上注册，注意用的是它自己的 TYPE（LootItemConditionType 内部包着 CODEC），不要再 new 一个。
+    public static final LootItemConditionType ORIGIN_LOOT_CONDITION = Registry.register(
+            BuiltInRegistries.LOOT_CONDITION_TYPE, Origins.identifier("origin"), OriginLootCondition.TYPE);
 
     public static void registerLootTables() {
         /*NbtCompound waterProtectionLevel1 = createEnchantmentTag(ModEnchantments.WATER_PROTECTION, 1);
