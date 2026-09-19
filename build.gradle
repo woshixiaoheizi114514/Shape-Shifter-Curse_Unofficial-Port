@@ -76,8 +76,7 @@ repositories {
         }
 
     }
-
-    // (Neo)ForgeMaven
+    // CurseMaven
     exclusiveContent {
         forRepository {
             maven {
@@ -87,11 +86,6 @@ repositories {
         filter {
             includeGroup "curse.maven"
         }
-    }
-
-    maven {
-        name = "QuiltMC"
-        url = "https://maven.quiltmc.org/repository/release"
     }
     maven {
         name = "Ladysnake Mods"
@@ -152,33 +146,12 @@ repositories {
             includeGroup("software.bernie.geckolib")
         }
     }
-    maven {
-        name = 'Fabric-Hangbing_Proxy'
-        url = "https://repository.hanbings.io/proxy"
-    }
-    maven {
-        name = 'Fabric-BMCL'
-        url = 'https://bmclapi2.bangbang93.com/maven/'
-    }
-    maven {
-        name = 'Fabric-Meta'
-        url = 'https://meta.fabricmc.net/'
-    }
-    maven {
-        name = 'Fabric-Meta-BMCL'
-        url = 'https://bmclapi2.bangbang93.com/fabric-meta'
-    }
-    maven {
-        name = 'Fabric'
-        url = 'https://maven.fabricmc.net/'
-    }
 }
 
 dependencies {
 
     //要更改版本，请查看 gradle.properties 文件
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    // mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 

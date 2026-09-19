@@ -1,6 +1,3 @@
-import java.net.HttpURLConnection
-import java.net.URI
-
 plugins {
 	// 版本由根 settings.gradle 的 pluginManagement.plugins 统一提供
 	id("fabric-loom")
@@ -93,31 +90,5 @@ publishing {
 	}
 
 	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		maven("https://mvn.devos.one/releases") {
-			name = "devOS"
-			credentials {
-				username = System.getenv()["MAVEN_USER"]
-				password = System.getenv()["MAVEN_PASS"]
-			}
-		}
-	}
-}
-
-tasks.named("publishMavenJavaPublicationToDevOSRepository") {
-	onlyIf {
-		val group = project.property("maven_group") as String
-		val artifactId = project.property("archives_base_name") as String
-		val version = project.version.toString()
-
-		try {
-			val connection = URI.create("https://mvn.devos.one/releases/${group.replace(".", "/")}/${artifactId}/${version}/${artifactId}-${version}.jar").toURL().openConnection() as HttpURLConnection
-			connection.requestMethod = "GET"
-			connection.connect()
-
-			connection.responseCode != 200
-		} catch (_: Exception) {
-			false
-		}
-	}
+	repositories {}
 }

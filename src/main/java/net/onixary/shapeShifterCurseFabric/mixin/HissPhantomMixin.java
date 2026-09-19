@@ -3,6 +3,7 @@ package net.onixary.shapeShifterCurseFabric.mixin;
 import io.github.apace100.apoli.component.PowerHolderComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Phantom;
+import net.minecraft.world.entity.player.Player;
 import net.onixary.shapeShifterCurseFabric.additional_power.HissPhantomPower;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -33,9 +34,9 @@ public class HissPhantomMixin {
                 cir.setReturnValue(false);
                 return;
             }
-            List<PlayerEntity> entities = phantomEntity.level().getNonSpectatingEntities(PlayerEntity.class, livingEntity.getBoundingBox().expand(8.0f));
+            List<Player> entities = phantomEntity.level().getEntitiesOfClass(Player.class, livingEntity.getBoundingBox().inflate(8.0f));
             if (!entities.isEmpty()) {
-                for (PlayerEntity playerEntity : entities) {
+                for (Player playerEntity : entities) {
                     HissPhantomPower otherPower = PowerHolderComponent.getPowers(playerEntity, HissPhantomPower.class).stream().findFirst().orElse(null);
                     if (otherPower != null && otherPower.isActive()) {
                         otherPower.invokeAction(playerEntity, phantomEntity);
