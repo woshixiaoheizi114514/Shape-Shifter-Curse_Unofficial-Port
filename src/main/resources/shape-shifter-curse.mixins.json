@@ -46,6 +46,7 @@
     "PotionStackMixin",
     "RecipeManagerMixin",
     "ServerAdvancementMixin",
+    "ServerGamePacketListenerImplMixin",
     "ServerPlayerEntityForceInputMixin",
     "ServerPlayerEntityMixin",
     "ShearsItemMixin",
