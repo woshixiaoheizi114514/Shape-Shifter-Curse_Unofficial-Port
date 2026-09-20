@@ -319,6 +319,8 @@ public class ShapeShifterCurseFabric implements ModInitializer {
             return InteractionResult.PASS;
         });
 
+
+
         /// Debug instinct: unregister this to see instinct debug info
         //InstinctDebugHUD.register();
 
