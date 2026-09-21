@@ -9,11 +9,11 @@ import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import net.onixary.shapeShifterCurseFabric.recipes.altar.AltarRecipe;
 
 public class RecipeUtils {
-    public static final RecipeType<AltarRecipe> Altar_RECIPE = registerRecipeType(ShapeShifterCurseFabric.identifier("altar"));
+    public static final RecipeType<AltarRecipe> ALTER_RECIPE = registerRecipeType(ShapeShifterCurseFabric.identifier("altar"));
 
     public static void register() {
         // 用于加载静态注册
-    };
+    }
 
     public static <T extends Recipe<?>> RecipeType<T> registerRecipeType(ResourceLocation id) {
         return Registry.register(BuiltInRegistries.RECIPE_TYPE, id, new RecipeType<T>() {

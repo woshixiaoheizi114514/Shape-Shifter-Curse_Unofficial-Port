@@ -36,8 +36,8 @@ public class AltarCraftUI extends AbstractContainerScreen<AltarCraftUIHandler> {
     public AltarCraftUI(AltarCraftUIHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
         // 藏的还挺深 要不是我修槽位偏移我都不知道这个
-        this.backgroundWidth = WIDTH;
-        this.backgroundHeight = HEIGHT;
+        this.imageWidth = WIDTH;
+        this.imageHeight = HEIGHT;
     }
 
     protected void init() {

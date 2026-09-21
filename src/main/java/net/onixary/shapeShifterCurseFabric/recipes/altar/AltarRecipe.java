@@ -16,7 +16,7 @@ public abstract class AltarRecipe implements Recipe<RecipeInput> {
 
     @Override
     public @NotNull RecipeType<?> getType() {
-        return RecipeUtils.Altar_RECIPE;
+        return RecipeUtils.ALTER_RECIPE;
     }
 
     public abstract int recipeTime();

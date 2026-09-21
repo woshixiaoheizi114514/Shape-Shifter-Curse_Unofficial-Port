@@ -41,6 +41,7 @@
     "PlayerEntityAttackMixin",
     "PlayerEntityPoseMixin",
     "PlayerEntitySprintSwimmingMixin",
+    "PlayerListHudMixin",
     "PotionEntityMixin",
     "PotionItemMixin",
     "PotionStackMixin",
