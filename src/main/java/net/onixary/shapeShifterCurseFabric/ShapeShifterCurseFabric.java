@@ -250,6 +250,7 @@ public class ShapeShifterCurseFabric implements ModInitializer {
         ManaRegistries.register();
         DefaultAccessory.init();
         AuthServer.init();
+        RegMenuType.init();
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             // 获取主世界作为默认世界

@@ -25,7 +25,7 @@ public class AltarCraftUIHandler extends RecipeBookMenu<RecipeInput, AltarRecipe
     public final ContainerData propertyDelegate;
 
     public static AltarCraftUIHandler createMenu(int i, Inventory inventory) {
-        return new AltarCraftUIHandler(RegMenuType.AltarCraftUI, i, inventory, new SimpleContainer(11), ContainerLevelAccess.NULL, new SimpleContainerData(4));
+        return new AltarCraftUIHandler(RegMenuType.AltarCraftUI, i, inventory, new SimpleContainer(12), ContainerLevelAccess.NULL, new SimpleContainerData(3));
     }
 
     public AltarCraftUIHandler(MenuType<?> screenHandlerType, int syncId, Inventory playerInventory, Container altarBlockEntity, ContainerLevelAccess context, ContainerData propertyDelegate) {
@@ -39,21 +39,22 @@ public class AltarCraftUIHandler extends RecipeBookMenu<RecipeInput, AltarRecipe
 
         for(int i = 0; i < 3; ++i) {
             for(int j = 0; j < 3; ++j) {
-                this.addSlot(new Slot(this.altarBlockEntity, j + i * 3, 30 + j * 18, 17 + i * 18));
+                this.addSlot(new Slot(this.altarBlockEntity, j + i * 3, 26 + j * 18, 17 + i * 18));
             }
         }
 
-        this.addSlot(new Slot(this.altarBlockEntity, 9, 152, 57));
-        this.addSlot(new AltarOutputSlot(this.altarBlockEntity, 10, 124, 35));
+        this.addSlot(new Slot(this.altarBlockEntity, 9, 97, 22));
+        this.addSlot(new Slot(this.altarBlockEntity, 10, 84, 53));
+        this.addSlot(new AltarOutputSlot(this.altarBlockEntity, 11, 134, 35));
 
         for(int i = 0; i < 3; ++i) {
             for(int j = 0; j < 9; ++j) {
-                this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
+                this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 7 + j * 18, 83 + i * 18));
             }
         }
 
         for(int i = 0; i < 9; ++i) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
+            this.addSlot(new Slot(playerInventory, i, 7 + i * 18, 141));
         }
 
         this.addDataSlots(propertyDelegate);
@@ -87,7 +88,7 @@ public class AltarCraftUIHandler extends RecipeBookMenu<RecipeInput, AltarRecipe
 
     @Override
     public int getResultSlotIndex() {
-        return 10;
+        return 11;
     }
 
     @Override
@@ -102,7 +103,7 @@ public class AltarCraftUIHandler extends RecipeBookMenu<RecipeInput, AltarRecipe
 
     @Override
     public int getSize() {
-        return 11;
+        return 12;
     }
 
     @Override
@@ -125,23 +126,23 @@ public class AltarCraftUIHandler extends RecipeBookMenu<RecipeInput, AltarRecipe
         Slot slot = this.slots.get(slotIndex);
         ItemStack slotItem = slot.hasItem() ? slot.getItem() : ItemStack.EMPTY;
         ItemStack slotItemCopy = slotItem.copy();
-        if (slotIndex >= 0 && slotIndex < 11) {
-            if (!this.moveItemStackTo(slotItem, 11, 47, slotIndex == 10)) {
+        if (slotIndex >= 0 && slotIndex < 12) {
+            if (!this.moveItemStackTo(slotItem, 12, 47, slotIndex == 10)) {
                 return ItemStack.EMPTY;
             }
             if (slotIndex == 0) {
                 slot.onQuickCraft(slotItem, slotItemCopy);
             }
         }
-        else if (slotIndex >= 11 && slotIndex < 47) {
+        else if (slotIndex >= 12 && slotIndex < 48) {
             if (AltarBlockEntity.canFuel(slotItem)) {
-                if (!this.moveItemStackTo(slotItem, 9, 10, false)) {
-                    if (!this.moveItemStackTo(slotItem, 0, 9, false)) {
+                if (!this.moveItemStackTo(slotItem, 10, 11, false)) {
+                    if (!this.moveItemStackTo(slotItem, 0, 10, false)) {
                         return ItemStack.EMPTY;
                     }
                 }
             }
-            if (!this.moveItemStackTo(slotItem, 0, 9, false)) {
+            if (!this.moveItemStackTo(slotItem, 0, 10, false)) {
                 return ItemStack.EMPTY;
             }
         }

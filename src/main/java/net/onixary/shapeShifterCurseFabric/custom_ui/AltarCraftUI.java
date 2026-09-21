@@ -12,10 +12,22 @@ import static net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric.MOD_ID
 public class AltarCraftUI extends AbstractContainerScreen<AltarCraftUIHandler> {
 
     private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(MOD_ID,"textures/gui/altar_craft_ui.png");
-    private static final int WIDTH = 176;
+    private static final int WIDTH = 174;
     private static final int HEIGHT = 166;
-    private static final int TEXTURE_WIDTH = 200;
-    private static final int TEXTURE_HEIGHT = 166;
+    private static final int TEXTURE_WIDTH = 256;
+    private static final int TEXTURE_HEIGHT = 256;
+    private static final int PROCESS_BAR_ORIG_X = 84;
+    private static final int PROCESS_BAR_ORIG_Y = 39;
+    private static final int PROCESS_BAR_FULL_X = 174;
+    private static final int PROCESS_BAR_FULL_Y = 0;
+    private static final int PROCESS_BAR_W = 43;
+    private static final int PROCESS_BAR_H = 9;
+    private static final int FUEL_BAR_ORIG_X = 84;
+    private static final int FUEL_BAR_ORIG_Y = 49;
+    private static final int FUEL_BAR_FULL_X = 174;
+    private static final int FUEL_BAR_FULL_Y = 9;
+    private static final int FUEL_BAR_W = 43;
+    private static final int FUEL_BAR_H = 3;
     private int baseX;
     private int baseY;
 
@@ -23,6 +35,9 @@ public class AltarCraftUI extends AbstractContainerScreen<AltarCraftUIHandler> {
 
     public AltarCraftUI(AltarCraftUIHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
+        // 藏的还挺深 要不是我修槽位偏移我都不知道这个
+        this.backgroundWidth = WIDTH;
+        this.backgroundHeight = HEIGHT;
     }
 
     protected void init() {
@@ -35,7 +50,8 @@ public class AltarCraftUI extends AbstractContainerScreen<AltarCraftUIHandler> {
         this.renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
         this.renderTooltip(context, mouseX, mouseY);
-        this.drawBar(context);
+        this.drawProcess(context);
+        this.drawFuel(context);
     }
 
     @Override
@@ -43,21 +59,21 @@ public class AltarCraftUI extends AbstractContainerScreen<AltarCraftUIHandler> {
         context.blit(BACKGROUND, baseX, baseY, 0, 0, WIDTH, HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
-    public void drawBar(GuiGraphics context) {
+    public void drawProcess(GuiGraphics context) {
         AltarCraftUIHandler uiHandler = this.getMenu();
         int maxProgress = uiHandler.getMaxProgress();
         if (maxProgress > 0) {
-            // clamp 到 [0,24]：防止 ratio>1 时 ProcessWidth>24，blit 采样 u1=(176+w)/200>1.0 越过纹理右缘 wrap（视觉"反转到左侧"）
-            int ProcessWidth = (int) (24 * ((float) uiHandler.getNowProgress() / (float) maxProgress));
-            ProcessWidth = Math.clamp(ProcessWidth, 0, 24);
-            context.blit(BACKGROUND, baseX+89, baseY+35, 176, 0, ProcessWidth, 17, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            int ProcessWidth = (int) (PROCESS_BAR_W * ((float) uiHandler.getNowProgress() / (float) maxProgress));
+            context.blit(BACKGROUND, baseX + PROCESS_BAR_ORIG_X, baseY + PROCESS_BAR_ORIG_Y, PROCESS_BAR_FULL_X, PROCESS_BAR_FULL_Y, ProcessWidth, PROCESS_BAR_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
+    }
+
+    public void drawFuel(GuiGraphics context) {
+        AltarCraftUIHandler uiHandler = this.getMenu();
         int maxFuel = AltarBlockEntity.maxFuel;
         if (maxFuel > 0) {
-            // clamp 到 [0,54]：防止 FuelWidth 越界(负值/超值)导致 fill 左端脱离 baseX+90(视觉"反转到增长起始点左侧")
-            int FuelWidth = (int) (54 * ((float) uiHandler.getNowFuel() / (float) maxFuel));
-            FuelWidth = Math.clamp(FuelWidth, 0, 54);
-            context.fill(baseX + 90, baseY + 60, baseX + 90 + FuelWidth, baseY + 60 + 10, 0xFFFF00FF);
+            int FuelWidth = (int) (FUEL_BAR_W * ((float) uiHandler.getNowFuel() / (float) maxFuel));
+            context.blit(BACKGROUND, baseX + FUEL_BAR_ORIG_X, baseY + FUEL_BAR_ORIG_Y, FUEL_BAR_FULL_X, FUEL_BAR_FULL_Y, FuelWidth, FUEL_BAR_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
     }
 }
