@@ -7,10 +7,9 @@ import net.minecraft.world.item.*;
 import java.util.List;
 
 // 形态专属工具只应用耐久度逻辑，其他逻辑由形态Power+手持道具condition实现
-public class DiamondMiningClaw extends PickaxeItem {
-
-    public DiamondMiningClaw(Tier material, int attackDamage, float attackSpeed, Properties settings) {
-        super(material, settings);
+public class DiamondMiningClaw extends DiggerItem {
+    public DiamondMiningClaw(Tier material, int attackDamage, float attackSpeed, Settings settings) {
+        super((float)attackDamage, attackSpeed, material, ModTags.CLAW_EFFECTIVE_TAG, settings);
     }
 
     @Override

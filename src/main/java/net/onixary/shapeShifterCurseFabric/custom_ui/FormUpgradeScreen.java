@@ -27,6 +27,61 @@ import java.util.Objects;
 // 标记 UNTESTED 代表这个函数没测试 测试完了就删(估计最后得有一堆没测试函数 还是标一下大概率炸的函数吧)
 
 public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX {
+    public static final Identifier TEXTURE = ShapeShifterCurseFabric.identifier("textures/gui/shape_shifter_tuner_ui.png");
+    public static final int TEXTURE_WIDTH = 420;
+    public static final int TEXTURE_HEIGHT = 190;
+
+    public static final int BACKGROUND_WIDTH = 420;
+    public static final int BACKGROUND_HEIGHT = 190;
+
+    public static final int FORM_MODEL_REVIEW_X = 8;
+    public static final int FORM_MODEL_REVIEW_Y = 30;
+    public static final int FORM_MODEL_REVIEW_WIDTH = 100;
+    public static final int FORM_MODEL_REVIEW_HEIGHT = 130;
+
+    public static final int PERK_UI_X = 110;
+    public static final int PERK_UI_Y = 8;
+    public static final int PERK_UI_WIDTH = 200;
+    public static final int PERK_UI_HEIGHT = 174;
+
+    public static final int PERK_UI_ICON_X = 123;
+    public static final int PERK_UI_ICON_Y = 10;
+    public static final int PERK_UI_ICON_WIDTH = 17;
+    public static final int PERK_UI_ICON_HEIGHT = 17;
+
+    public static final int LEVEL_ICON_Y = 5;  // 以摄像机中心计算
+    public static final int LEVEL_ICON_DRAW_X = -5;
+    public static final int LEVEL_ICON_WIDTH = 11;
+    public static final int LEVEL_ICON_HEIGHT = 11;
+
+    public static final int PERK_INFO_NAME_X = 316;
+    public static final int PERK_INFO_NAME_Y = 12;
+    public static final int PERK_INFO_NAME_WIDTH = 91;
+    public static final int PERK_INFO_NAME_HEIGHT = 14;
+
+    public static final int PERK_INFO_DESC_X = 316;
+    public static final int PERK_INFO_DESC_Y = 28;
+    public static final int PERK_INFO_DESC_WIDTH = 91;
+    public static final int PERK_INFO_DESC_HEIGHT = 115;
+
+    public static final int PERK_INFO_XP_ICON_X = 316;
+    public static final int PERK_INFO_XP_ICON_Y = 145;
+    public static final int PERK_INFO_XP_ICON_WIDTH = 16;
+    public static final int PERK_INFO_XP_ICON_HEIGHT = 17;
+
+    public static final int PERK_INFO_XP_COST_X = 334;
+    public static final int PERK_INFO_XP_COST_Y = 145;
+    public static final int PERK_INFO_XP_COST_WIDTH = 73;
+    public static final int PERK_INFO_XP_COST_HEIGHT = 17;
+
+    public static final int PERK_INFO_GAIN_BUTTON_X = 316;
+    public static final int PERK_INFO_GAIN_BUTTON_Y = 164;
+    public static final int PERK_INFO_GAIN_BUTTON_WIDTH = 91;
+    public static final int PERK_INFO_GAIN_BUTTON_HEIGHT = 14;
+
+    public int baseX = 0;
+    public int baseY = 0;
+
     public static final ResourceLocation LABEL_GAINED = ShapeShifterCurseFabric.identifier("textures/perk/system/gained.png");
     public static final ResourceLocation LABEL_SELECT = ShapeShifterCurseFabric.identifier("textures/perk/system/select.png");
     public static final ResourceLocation LABEL_SELECTED = ShapeShifterCurseFabric.identifier("textures/perk/system/selected.png");
@@ -49,8 +104,6 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
 
     public int nodeWindowX = 0;
     public int nodeWindowY = 0;
-    public static final int nodeWindowWidth = 250;
-    public static final int nodeWindowHeight = 200;
 
     // 基础渲染原点(左上) -> cameraCenter(中心) -> nodeCenter(左中)
     public Vector2i cameraCenter = new Vector2i(0, 0);
@@ -77,6 +130,8 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     public ScaleScrollTextWidget PerkDescWidget;
     public Button AcquirePerkButton;
 
+    public int MaxPerkLevel = 0;
+
     @Override
     public WidgetEXUtils.WidgetRect getRect() {
         return null;
@@ -95,14 +150,19 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         this.perkTree = perkTree != null ? perkTree : Objects.requireNonNull(RegPerks.getPerkTree(RegPerks.EMPTY_PERK_TREE));
         ModPacketsS2C.sendRequestPerkAvailability();
         ModPacketsS2C.sendRequestPerkData();
+        for (PerkTree.PerkNode node : this.perkTree.getAllNodes()) {
+            if (node.tier > MaxPerkLevel) {
+                MaxPerkLevel = node.tier;
+            }
+        }
     }
 
     @Override
     public void init() {
-        int InfoPosX = this.width / 2 + nodeWindowWidth / 2 + 10;
-        int InfoPosY = this.height / 2 - nodeWindowHeight / 2;
-        this.PerkNameWidget = new StringWidget(InfoPosX, InfoPosY, 100, 9, Component.literal(""), this.font);
-        this.PerkDescWidget = new ScaleScrollTextWidget(InfoPosX, InfoPosY + 12, 100, 160, 1.0f, Component.literal(""), this.font);
+        baseX = this.width / 2 - BACKGROUND_WIDTH / 2;
+        baseY = this.height / 2 - BACKGROUND_HEIGHT / 2;
+        this.PerkNameWidget = new StringWidget(baseX + PERK_INFO_NAME_X, baseY + PERK_INFO_NAME_Y, PERK_INFO_NAME_WIDTH, PERK_INFO_NAME_HEIGHT, Component.literal(""), this.font);
+        this.PerkDescWidget = new ScaleScrollTextWidget(baseX + PERK_INFO_DESC_X, baseY + PERK_INFO_DESC_Y, PERK_INFO_DESC_WIDTH, PERK_INFO_DESC_HEIGHT, 1.0f, Component.literal(""), this.font);
         this.PerkDescWidget.setEnableScrollableIconRender(true);
         this.WidgetList.add(this.PerkDescWidget);
         this.AcquirePerkButton = Button.builder(Component.literal("GET"), button -> {
@@ -110,7 +170,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
                 PerkUtils.addPerk(Minecraft.getInstance().player, this.perkTree.getID(), this.nowSelectNode.perkID);
                 ModPacketsS2C.sendRequestPerkAvailability();
             }
-        }).pos(InfoPosX + 20, InfoPosY + 180).size(60, 10).build();
+        }).pos(baseX + PERK_INFO_GAIN_BUTTON_X, baseY + PERK_INFO_GAIN_BUTTON_Y).size(PERK_INFO_GAIN_BUTTON_WIDTH, PERK_INFO_GAIN_BUTTON_HEIGHT).build();
         this.addRenderableWidget(this.PerkNameWidget);
         this.addRenderableWidget(this.PerkDescWidget);
         this.addRenderableWidget(this.AcquirePerkButton);
@@ -146,11 +206,14 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        nodeWindowX = this.width / 2 - nodeWindowWidth / 2;
-        nodeWindowY = this.height / 2 - nodeWindowHeight / 2;
-        cameraCenter = new Vector2i(nodeWindowX + nodeWindowWidth / 2, nodeWindowY + nodeWindowHeight / 2);
-        nodeCenter = new Vector2i( -nodeWindowWidth / 2, 0);
-        context.fill(nodeWindowX, nodeWindowY, nodeWindowX + nodeWindowWidth, nodeWindowY + nodeWindowHeight, 0xFF000000);
+        baseX = this.width / 2 - BACKGROUND_WIDTH / 2;
+        baseY = this.height / 2 - BACKGROUND_HEIGHT / 2;
+        context.drawTexture(TEXTURE, baseX, baseY, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        nodeWindowX = baseX + PERK_UI_X;
+        nodeWindowY = baseY + PERK_UI_Y;
+        cameraCenter = new Vector2i(nodeWindowX + PERK_UI_WIDTH / 2, nodeWindowY + PERK_UI_HEIGHT / 2);
+        nodeCenter = new Vector2i( -PERK_UI_WIDTH / 2, 0);
+        context.fill(baseX + PERK_UI_ICON_X, baseY + PERK_UI_ICON_Y, baseX + PERK_UI_ICON_X + PERK_UI_ICON_WIDTH, baseY + PERK_UI_ICON_Y + PERK_UI_ICON_HEIGHT, 0xFFFFFFFF);
         this.drawAllNode(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
     }
@@ -258,8 +321,27 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
 
     public void drawAllNode(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (this.minecraft == null) return;
-        context.enableScissor(nodeWindowX, nodeWindowY, nodeWindowX + nodeWindowWidth, nodeWindowY + nodeWindowHeight);
+        context.enableScissor(nodeWindowX, nodeWindowY, nodeWindowX + PERK_UI_WIDTH, nodeWindowY + PERK_UI_HEIGHT);
         PoseStack matrixStack = context.pose();
+        int firstX = nodeBaseX + nodeCenter.x;
+        int firstY = nodeWindowY + LEVEL_ICON_Y;
+        for (int tierIndex = 1; tierIndex <= this.MaxPerkLevel; tierIndex++) {
+            int localLineX = firstX + tierIndex * posXPerTier;
+            float iconCenterScreenX =
+                    cameraCenter.x + cameraPosX + cameraScale * (localLineX + 1.0f);
+            int lineLeftX = Math.round(iconCenterScreenX - 0.5f);
+            context.fill(
+                    lineLeftX, nodeWindowY,
+                    lineLeftX + 1, nodeWindowY + PERK_UI_HEIGHT,
+                    LineColor
+            );
+            int screenIconX = lineLeftX - (LEVEL_ICON_WIDTH - 1) / 2;
+            context.fill(
+                    screenIconX, firstY,
+                    screenIconX + LEVEL_ICON_WIDTH, firstY + LEVEL_ICON_HEIGHT,
+                    LineColor
+            );
+        }
         matrixStack.pushPose();
         matrixStack.translate(cameraCenter.x + cameraPosX, cameraCenter.y + cameraPosY, 0);
         matrixStack.scale(cameraScale, cameraScale, 1.0f);
@@ -293,7 +375,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     }
 
     public void NodeScreenMouseClickHandler(int mouseX, int mouseY, int mode) {
-        if (mouseX < nodeWindowX || mouseX >= nodeWindowX + nodeWindowWidth || mouseY < nodeWindowY || mouseY >= nodeWindowY + nodeWindowHeight) {
+        if (mouseX < nodeWindowX || mouseX >= nodeWindowX + PERK_UI_WIDTH || mouseY < nodeWindowY || mouseY >= nodeWindowY + PERK_UI_HEIGHT) {
             return;
         }
         Vector2i trueMousePos = getVirtualMousePos(mouseX, mouseY);
@@ -306,7 +388,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     public double totalDragY = 0;
 
     public void NodeScreenMouseDragHandler(int mouseX, int mouseY, int mode, double deltaX, double deltaY) {
-        if (mouseX < nodeWindowX || mouseX >= nodeWindowX + nodeWindowWidth || mouseY < nodeWindowY || mouseY >= nodeWindowY + nodeWindowHeight) {
+        if (mouseX < nodeWindowX || mouseX >= nodeWindowX + PERK_UI_WIDTH || mouseY < nodeWindowY || mouseY >= nodeWindowY + PERK_UI_HEIGHT) {
             return;
         }
         if (mode == 0) {
@@ -324,8 +406,8 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     }
 
     public void NodeScreenMouseScrollHandler(int mouseX, int mouseY, double scroll) {
-        if (mouseX < nodeWindowX || mouseX >= nodeWindowX + nodeWindowWidth
-                || mouseY < nodeWindowY || mouseY >= nodeWindowY + nodeWindowHeight) {
+        if (mouseX < nodeWindowX || mouseX >= nodeWindowX + PERK_UI_WIDTH
+                || mouseY < nodeWindowY || mouseY >= nodeWindowY + PERK_UI_HEIGHT) {
             return;
         }
         if (scroll == 0) return;

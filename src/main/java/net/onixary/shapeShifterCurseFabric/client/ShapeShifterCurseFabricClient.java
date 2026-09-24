@@ -50,6 +50,7 @@ import net.onixary.shapeShifterCurseFabric.util.FormColorData;
 import net.onixary.shapeShifterCurseFabric.util.PatronUtils;
 import net.onixary.shapeShifterCurseFabric.util.TickManager;
 import net.onixary.shapeShifterCurseFabric.util.Verify.AuthClient;
+import net.onixary.shapeShifterCurseFabric.util.test.NetWorkTest;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -341,6 +342,8 @@ public class ShapeShifterCurseFabricClient implements ClientModInitializer {
 		RegMenuScreen.init();
 
 		BlockEntityRenderers.register(RegCustomBlock.FORM_ATTUNER_BLOCK_ENTITY, FormAttunerBeamRenderer::new);
+
+		// NetWorkTest.init();
 	}
 
 	public static ShaderInstance getFurGradientShader() {

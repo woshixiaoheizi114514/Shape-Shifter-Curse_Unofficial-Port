@@ -149,7 +149,7 @@ public class FormUtils {
                 }
                 component.setOrigin(layer, TechnicalFormOrigin);
                 component.setOrigin(layer, origin);
-                component.sync();
+                // component.sync();
             }
         }
         applyExtraPower(player, layerData);
@@ -212,7 +212,25 @@ public class FormUtils {
         }
     }
 
-    public static void _loadForm(Player player, IForm form) {
+    // 这个函数性能占用比较大 不要频繁调用
+    public static void reApplyPower(Player player) {
+        PlayerFormComponent playerFormComponent = PlayerFormComponent.COMPONENT.get(player);
+        IForm form = playerFormComponent.nowForm;
+        form.applyScale(player);
+        Pair<Identifier, Identifier> layerPair = form.getFormLayer();
+        applyLayer(player, layerPair);
+        form.afterApplyLayer(player);
+        playerFormComponent.nowPerkTree = form.getPerkTreeID();
+        PerkUtils.loadAllPerk(player, PerkUtils.getPlayerNowPerkTreeID(player));
+        TrinketUtils.ReApplyAccessoryPowerOnPlayerFormChange(player);
+        form.onApplyPowerEnd(player);
+        AnimUtils.stopPowerAnim(player, AnimUtils.AnimationSendSideType.ONLY_SERVER);
+        ModComponents.ORIGIN.get(player).sync();
+        // 应该不会有人修改IForm里的数据吧 虽然理论可行 但我是反对这种写法的
+        // TransformManager.sendClientFirstPersonReset(player);
+    }
+
+    public static void _loadForm(PlayerEntity player, IForm form) {
         PlayerFormComponent playerFormComponent = PlayerFormComponent.COMPONENT.get(player);
         IForm oldForm = playerFormComponent.nowForm;
         playerFormComponent.setForm(form);
@@ -242,16 +260,8 @@ public class FormUtils {
                 ShapeShifterCurseFabric.LOGGER.error("Failed to send form change notification: ", e);
             }
         }
+        ModComponents.ORIGIN.get(player).sync();
 
-        // 执行次数不多 不用做线程池或其他操作 容易导致性能更差
-        new Thread(() -> {
-            try {
-                Thread.sleep(3000);  // 3s后同步一次
-                ModComponents.ORIGIN.sync(player);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
     }
 
     public static void _setForm(Player player, IForm form) {
