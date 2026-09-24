@@ -217,7 +217,7 @@ public class FormUtils {
         PlayerFormComponent playerFormComponent = PlayerFormComponent.COMPONENT.get(player);
         IForm form = playerFormComponent.nowForm;
         form.applyScale(player);
-        Pair<Identifier, Identifier> layerPair = form.getFormLayer();
+        Tuple<ResourceLocation, ResourceLocation> layerPair = form.getFormLayer();
         applyLayer(player, layerPair);
         form.afterApplyLayer(player);
         playerFormComponent.nowPerkTree = form.getPerkTreeID();
@@ -230,7 +230,7 @@ public class FormUtils {
         // TransformManager.sendClientFirstPersonReset(player);
     }
 
-    public static void _loadForm(PlayerEntity player, IForm form) {
+    public static void _loadForm(Player player, IForm form) {
         PlayerFormComponent playerFormComponent = PlayerFormComponent.COMPONENT.get(player);
         IForm oldForm = playerFormComponent.nowForm;
         playerFormComponent.setForm(form);

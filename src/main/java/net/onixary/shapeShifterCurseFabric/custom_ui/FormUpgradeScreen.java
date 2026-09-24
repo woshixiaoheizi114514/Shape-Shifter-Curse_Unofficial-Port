@@ -27,7 +27,7 @@ import java.util.Objects;
 // 标记 UNTESTED 代表这个函数没测试 测试完了就删(估计最后得有一堆没测试函数 还是标一下大概率炸的函数吧)
 
 public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX {
-    public static final Identifier TEXTURE = ShapeShifterCurseFabric.identifier("textures/gui/shape_shifter_tuner_ui.png");
+    public static final ResourceLocation TEXTURE = ShapeShifterCurseFabric.identifier("textures/gui/shape_shifter_tuner_ui.png");
     public static final int TEXTURE_WIDTH = 420;
     public static final int TEXTURE_HEIGHT = 190;
 
@@ -208,7 +208,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         baseX = this.width / 2 - BACKGROUND_WIDTH / 2;
         baseY = this.height / 2 - BACKGROUND_HEIGHT / 2;
-        context.drawTexture(TEXTURE, baseX, baseY, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        context.blit(TEXTURE, baseX, baseY, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         nodeWindowX = baseX + PERK_UI_X;
         nodeWindowY = baseY + PERK_UI_Y;
         cameraCenter = new Vector2i(nodeWindowX + PERK_UI_WIDTH / 2, nodeWindowY + PERK_UI_HEIGHT / 2);
