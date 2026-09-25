@@ -754,6 +754,12 @@ public class DefaultModelAnimationSystem implements IModelAnimationSystem, IModi
         td.tailDragAmount -= (float) (Math.toRadians((player.yBodyRot - player.yBodyRotO)) * 0.55F);
         td.tailDragAmount = Mth.clamp(td.tailDragAmount, -1.6F, 1.6F);
         float verticalSpeed = (float) player.getDeltaMovement().y;
+        // 连动量都没同步好 MC到底都同步了什么
+        if (!player.isLocalPlayer() && player instanceof ICanGetLastPos iCanGetLastPos) {
+            double nowPosY = player.getDismountPoses().y;
+            double prevPosY = iCanGetLastPos.shape_shifter_curse_fabric$getLastPosY();
+            verticalSpeed = (float) (nowPosY - prevPosY);
+        }
         float targetVerticalDrag = Mth.clamp(verticalSpeed * 1.5f, -1.6f, 1.6f);
         td.tailDragAmountVertical *= 0.8F;
         td.tailDragAmountVertical += targetVerticalDrag * 0.15F;
