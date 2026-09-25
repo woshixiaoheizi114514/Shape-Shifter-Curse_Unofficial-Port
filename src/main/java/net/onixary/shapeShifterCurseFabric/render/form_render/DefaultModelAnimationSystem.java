@@ -756,7 +756,7 @@ public class DefaultModelAnimationSystem implements IModelAnimationSystem, IModi
         float verticalSpeed = (float) player.getDeltaMovement().y;
         // 连动量都没同步好 MC到底都同步了什么
         if (!player.isLocalPlayer() && player instanceof ICanGetLastPos iCanGetLastPos) {
-            double nowPosY = player.getDismountPoses().y;
+            double nowPosY = player.position().y;
             double prevPosY = iCanGetLastPos.shape_shifter_curse_fabric$getLastPosY();
             verticalSpeed = (float) (nowPosY - prevPosY);
         }

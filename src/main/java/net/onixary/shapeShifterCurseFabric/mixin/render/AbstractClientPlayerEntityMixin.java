@@ -48,7 +48,7 @@ public class AbstractClientPlayerEntityMixin implements ICanGetLastPos {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void shape_shifter_curse$lastPos(CallbackInfo ci) {
-        lastPos = ((AbstractClientPlayer) (Object) this).getPos();
+        lastPos = ((AbstractClientPlayer) (Object) this).position();
     }
 
     @Override
