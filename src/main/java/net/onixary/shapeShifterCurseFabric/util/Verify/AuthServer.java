@@ -18,21 +18,21 @@ public final class AuthServer {
     private static boolean isInit = false;
 
     static {
-        VerifyEvent.ON_KEY_MELT.register((player, keySegment, newKeySegment) -> {
-            if (!(player instanceof ServerPlayer serverPlayerEntity)) {
-                return;
-            }
-            MinecraftServer server = player.getServer();
-            if (server != null) {
-                for (ServerPlayer otherServerPlayerEntity : serverPlayerEntity.getServer().getPlayerList().getPlayers()) {
-                    ModPacketsS2CServer.sendNewSubKey(otherServerPlayerEntity, newKeySegment);
-                }
-            }
-            return;
-        });
+        // VerifyEvent.ON_KEY_MELT.register((player, keySegment, newKeySegment) -> {
+        //     if (!(player instanceof ServerPlayerEntity serverPlayerEntity)) {
+        //         return;
+        //     }
+        //     MinecraftServer server = player.getServer();
+        //     if (server != null) {
+        //         for (ServerPlayerEntity otherServerPlayerEntity : serverPlayerEntity.getServer().getPlayerManager().getPlayerList()) {
+        //             ModPacketsS2CServer.sendNewSubKey(otherServerPlayerEntity, newKeySegment);
+        //         }
+        //     }
+        //     return;
+        // });
     }
 
-    public static void loadPatronAuthFile(ServerPlayer player, FriendlyByteBuf buf) {
+    public static void loadAuthFile(ServerPlayer player, FriendlyByteBuf buf) {
         AuthFile authFile = AuthUtils.readAuthFile(buf);
         if (authFile == null) {
             return;
@@ -44,12 +44,12 @@ public final class AuthServer {
         AuthUtils.keyManager.loadKey(player, keySegment);
     }
 
-    public static void checkPatronStatus(Player player) {
-        IForm nowForm = FormUtils.getPlayerForm(player);
-        if (!FormUtils.isFormCanUse(player, nowForm)) {
-            FormUtils.applyFallback(player);
-        }
-    }
+    // public static void checkPatronStatus(PlayerEntity player) {
+    //     IForm nowForm = FormUtils.getPlayerForm(player);
+    //     if (!FormUtils.isFormCanUse(player, nowForm)) {
+    //         FormUtils.applyFallback(player);
+    //     }
+    // }
 
     public static void init() {
         if (isInit) {
@@ -57,23 +57,23 @@ public final class AuthServer {
         }
         isInit = true;
         AuthUtils.init();
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
-            long nowTick = server.getTickCount();
-            if (nowTick % 300 == 0) {  // 15sec
-                VerifyEvent.CHECK_AUTH.invoker().onEndTick(server);
-            }
-        });
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            ServerPlayer player = handler.getPlayer();
-            ModPacketsS2CServer.requestPatronAuthFile(player, false);
-            new Thread(() -> {
-                try {
-                    Thread.sleep(30 * 1000);  // 30s
-                } catch (InterruptedException e) {
-                    checkPatronStatus(handler.getPlayer());
-                }
-                checkPatronStatus(handler.getPlayer());
-            }).start();
-        });
+        // ServerTickEvents.END_SERVER_TICK.register(server -> {
+        //     long nowTick = server.getTicks();
+        //     if (nowTick % 300 == 0) {  // 15sec
+        //         VerifyEvent.CHECK_AUTH.invoker().onEndTick(server);
+        //     }
+        // });
+        // ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+        //     ServerPlayerEntity player = handler.getPlayer();
+        //     ModPacketsS2CServer.requestPatronAuthFile(player, false);
+        //     new Thread(() -> {
+        //         try {
+        //             Thread.sleep(30 * 1000);  // 30s
+        //         } catch (InterruptedException e) {
+        //             checkPatronStatus(handler.getPlayer());
+        //         }
+        //         checkPatronStatus(handler.getPlayer());
+        //     }).start();
+        // });
     }
 }

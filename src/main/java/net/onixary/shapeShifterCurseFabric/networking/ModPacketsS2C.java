@@ -621,8 +621,10 @@ public class ModPacketsS2C {
     }
 
     private static void receiveNewSubKey(BytePayload payload, ClientPlayNetworking.Context ctx) {
-        FriendlyByteBuf keyBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(payload.data().readByteArray()));
-        ctx.client().execute(() -> AuthClient.loadServerKey(keyBuf));
+        // PacketByteBuf keyBuf = new PacketByteBuf(Unpooled.wrappedBuffer(buf.readByteArray()));
+        // client.execute(() -> {
+        //     AuthClient.loadServerKey(keyBuf);
+        // });
     }
 
     private static void receiveSetSuperUserLevel(BytePayload payload, ClientPlayNetworking.Context ctx) {

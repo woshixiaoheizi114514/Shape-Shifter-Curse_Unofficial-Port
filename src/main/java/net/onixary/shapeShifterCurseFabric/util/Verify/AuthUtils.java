@@ -5,6 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Tuple;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import net.onixary.shapeShifterCurseFabric.util.Verify.KeyManager.RootKeyManager;
+// import net.onixary.shapeShifterCurseFabric.util.Verify.PatronDataSegment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,6 +63,8 @@ import java.util.function.BiPredicate;
 // AuthFile仅进行验证和熔断 但数据段熔断后如何操作由数据段处理
 // AuthUtils只存储秘钥 forgiveKeySegments逻辑由对应DataSegment处理
 
+
+// 赞助者子形态功能被废除了 不过感觉验证系统还有点用(比如OTA系统之类的) 先不彻底删除吧
 
 public final class AuthUtils {
     // 密钥处理部分
@@ -228,8 +231,8 @@ public final class AuthUtils {
     }
 
     static {
-        registerDataReader((type, version) -> type == 1 && version == 0, PatronDataSegment::new);
-        registerDataReader((type, version) -> type == 2 && version == 0, DebuggerDataSegment::new);
+        // registerDataReader((type, version) -> type == 1 && version == 0, PatronDataSegment::new);
+        if (!ShapeShifterCurseFabric.commonConfig.disableAllDebug) registerDataReader((type, version) -> type == 2 && version == 0, DebuggerDataSegment::new);
     }
 
     public static void init() { }
