@@ -115,6 +115,11 @@ repositories {
     maven {
         url = "https://jitpack.io"
     }
+    // PlayerAnimator（可选依赖）
+    maven {
+        name = "KosmX's maven"
+        url = "https://maven.kosmx.dev/"
+    }
 
     //ModMenu
     maven {
@@ -202,6 +207,9 @@ dependencies {
     modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
     // Player Animation Library
     modImplementation "com.zigythebird.playeranim:PlayerAnimationLibFabric:$pal_version"
+
+    // PlayerAnimator
+    modCompileOnly "dev.kosmx.player-anim:player-animation-lib-fabric:${project.player_anim}"
 
     // Trinkets
     modCompileOnly "dev.emi:trinkets:${project.trinkets_version}"

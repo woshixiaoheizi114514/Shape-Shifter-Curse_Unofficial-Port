@@ -17,6 +17,7 @@ import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import net.onixary.shapeShifterCurseFabric.player_animation.AnimationHolder;
 import net.onixary.shapeShifterCurseFabric.player_animation.v3.AnimFSM.FSMUtils;
 import net.onixary.shapeShifterCurseFabric.player_animation.v3.AnimStateController.TransformingController;
+import net.onixary.shapeShifterCurseFabric.player_animator.PlayerAnimatorCompat;
 import net.onixary.shapeShifterCurseFabric.player_form.IForm;
 import net.onixary.shapeShifterCurseFabric.player_form.RegPlayerForms;
 import net.onixary.shapeShifterCurseFabric.player_form.utils.PlayerFormComponent;
@@ -250,6 +251,14 @@ public class AnimSystem {
     }
 
 	public static @NotNull Vec3f getPlayerBone3DTransform(Player player, @NotNull String boneName, @NotNull TransformType type, @NotNull Vec3f defaultValue) {
+		// PlayerAnimator 兼容分支：装了 PA 时 SSCU 的形态动画跑在 PA 的 stack 上，骨骼必须去 PA 查。
+		// 注意这里传的是**原始骨骼名**（extra_parts_map 的 camelCase key），不做归一化 —— 归一化只对 PAL
+		// 有意义（见下方注释）；PA 的骨骼 key 本来就是 camelCase，GeckoLibSerializer 的 snake2Camel
+		// 对 SSCU 这批名字是恒等映射。
+		if (PlayerAnimatorCompat.available()) {
+			return PlayerAnimatorCompat.getBoneTransform(player, boneName, type, defaultValue);
+		}
+		// ↓↓↓ 以下为 PAL 路径 ↓↓↓
 		if (!(player instanceof AbstractClientPlayer clientPlayer) || !(clientPlayer instanceof IAnimatedPlayer animatedPlayer))
 			return defaultValue;
 		PlayerAnimManager manager = animatedPlayer.playerAnimLib$getAnimManager();
