@@ -21,6 +21,7 @@ import net.onixary.shapeShifterCurseFabric.player_form.RegPlayerForms;
 import net.onixary.shapeShifterCurseFabric.player_form.utils.FormUtils;
 import net.onixary.shapeShifterCurseFabric.util.FormTextureUtils;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -82,9 +83,9 @@ public class SubFormSelectScreen extends Screen implements WidgetEXUtils.IWidget
         int baseX = (this.width - BG_WIDTH) / 2;
         int baseY = (this.height - BG_HEIGHT) / 2;
         // 152 32 116 14 - Label
-        this.addDrawableChild(new StringWidget(baseX + 152, baseY + 32, 116, 14, Component.literal("Sub Form Select Menu"), this.font));
+        this.addRenderableWidget(new StringWidget(baseX + 152, baseY + 32, 116, 14, Component.literal("Sub Form Select Menu"), this.font));
         // 393 7 20 20 - Close
-        this.addDrawableChild(Button.builder(Component.literal("X"), button -> this.onClose()).pos(baseX + 393, baseY + 7).size(20, 20).build());
+        this.addRenderableWidget(Button.builder(Component.literal("X"), button -> this.onClose()).pos(baseX + 393, baseY + 7).size(20, 20).build());
 
         // 223 58 77 14 - FormName
         formNameText = new StringWidget(baseX + 223, baseY + 58, 77, 14, Component.literal(""), this.font);
@@ -119,11 +120,11 @@ public class SubFormSelectScreen extends Screen implements WidgetEXUtils.IWidget
         prevFormButton.active = false;
         nextFormButton.active = false;
 
-        this.addDrawableChild(formNameText);
-        this.addDrawableChild(formDescText);
-        this.addDrawableChild(selectFormButton);
-        this.addDrawableChild(prevFormButton);
-        this.addDrawableChild(nextFormButton);
+        this.addRenderableWidget(formNameText);
+        this.addRenderableWidget(formDescText);
+        this.addRenderableWidget(selectFormButton);
+        this.addRenderableWidget(prevFormButton);
+        this.addRenderableWidget(nextFormButton);
 
         this.updatePageButtons();
         this.updateInfo();
@@ -154,22 +155,22 @@ public class SubFormSelectScreen extends Screen implements WidgetEXUtils.IWidget
         Quaternionf quaternionf2 = (new Quaternionf()).rotateX(g * 20.0F * 0.017453292F);
         quaternionf.mul(quaternionf2);
         float h = entity.yBodyRot;
-        float i = entity.lerpTargetYRot();
-        float j = entity.lerpTargetXRot();
+        float i = entity.getYRot();
+        float j = entity.getXRot();
         float k = entity.yHeadRotO;
         float l = entity.yHeadRot;
         float m = entity.yBodyRotO;
         entity.yBodyRot = 180.0F + f * 20.0F;
         entity.yBodyRotO = entity.yBodyRot;
-        entity.setYaw(180.0F + f * 40.0F);
-        entity.setPitch(-g * 20.0F);
-        entity.yHeadRot = entity.lerpTargetYRot();
-        entity.yHeadRotO = entity.lerpTargetYRot();
-        InventoryScreen.renderEntityInInventory(context, x, y, size, quaternionf, quaternionf2, entity);
+        entity.setYRot(180.0F + f * 40.0F);
+        entity.setXRot(-g * 20.0F);
+        entity.yHeadRot = entity.getYRot();
+        entity.yHeadRotO = entity.getYRot();
+        InventoryScreen.renderEntityInInventory(context, x, y, size, new Vector3f(), quaternionf, quaternionf2, entity);
         entity.yBodyRot = h;
         entity.yBodyRotO = m;
-        entity.setYaw(i);
-        entity.setPitch(j);
+        entity.setYRot(i);
+        entity.setXRot(j);
         entity.yHeadRotO = k;
         entity.yHeadRot = l;
     }

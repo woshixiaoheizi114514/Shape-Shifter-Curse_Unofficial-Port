@@ -10,6 +10,7 @@ import mezz.jei.api.runtime.IIngredientManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import net.onixary.shapeShifterCurseFabric.blocks.RegCustomBlock;
@@ -48,7 +49,10 @@ public class SSC_JEI_Plugin implements IModPlugin {
             return;
         }
         RecipeManager rm = client.getConnection().getRecipeManager();
-        List<AltarRecipe> all = rm.getAllRecipesFor(RecipeUtils.ALTER_RECIPE);
+        // 1.21.1: getAllRecipesFor 返回 List<RecipeHolder<T>>，需解包
+        List<AltarRecipe> all = rm.getAllRecipesFor(RecipeUtils.ALTER_RECIPE).stream()
+                .map(RecipeHolder::value)
+                .toList();
 
         List<AltarShapedRecipe> shaped = all.stream()
                 .filter(r -> r instanceof AltarShapedRecipe)

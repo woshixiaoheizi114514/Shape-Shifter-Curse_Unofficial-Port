@@ -4,14 +4,14 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.onixary.shapeShifterCurseFabric.custom_ui.AltarCraftUIHandler;
 import net.onixary.shapeShifterCurseFabric.custom_ui.RegMenuType;
 import net.onixary.shapeShifterCurseFabric.recipes.altar.AltarShapelessRecipe;
@@ -30,7 +30,7 @@ public class AltarShapelessTransferHandler implements IRecipeTransferHandler<Alt
     }
 
     @Override
-    public @NotNull Optional<ScreenHandlerType<AltarCraftUIHandler>> getMenuType() {
+    public @NotNull Optional<MenuType<AltarCraftUIHandler>> getMenuType() {
         return Optional.of(RegMenuType.AltarCraftUI);
     }
 
@@ -44,7 +44,7 @@ public class AltarShapelessTransferHandler implements IRecipeTransferHandler<Alt
             @NotNull AltarCraftUIHandler container,
             @NotNull AltarShapelessRecipe recipe,
             @NotNull IRecipeSlotsView recipeSlots,
-            @NotNull PlayerEntity player,
+            @NotNull Player player,
             boolean maxTransfer,
             boolean doTransfer) {
 
@@ -52,13 +52,13 @@ public class AltarShapelessTransferHandler implements IRecipeTransferHandler<Alt
             return null;
         }
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        ClientPlayerInteractionManager im = client.interactionManager;
+        Minecraft client = Minecraft.getInstance();
+        MultiPlayerGameMode im = client.gameMode;
         if (im == null) {
             return null;
         }
 
-        int syncId = container.syncId;
+        int syncId = container.containerId;
 
         clearAltarSlots(container, im, player, syncId);
 
@@ -84,16 +84,16 @@ public class AltarShapelessTransferHandler implements IRecipeTransferHandler<Alt
         return null;
     }
 
-    private void clearAltarSlots(AltarCraftUIHandler container, ClientPlayerInteractionManager im, PlayerEntity player, int syncId) {
+    private void clearAltarSlots(AltarCraftUIHandler container, MultiPlayerGameMode im, Player player, int syncId) {
         for (int i = 0; i <= 9; i++) {
             Slot slot = container.getSlot(i);
-            if (slot.hasStack()) {
-                im.clickSlot(syncId, i, 0, SlotActionType.PICKUP, player);
+            if (slot.hasItem()) {
+                im.handleInventoryMouseClick(syncId, i, 0, ClickType.PICKUP, player);
                 int emptyPlayerSlot = findEmptyPlayerSlot(container);
                 if (emptyPlayerSlot != -1) {
-                    im.clickSlot(syncId, emptyPlayerSlot, 0, SlotActionType.PICKUP, player);
+                    im.handleInventoryMouseClick(syncId, emptyPlayerSlot, 0, ClickType.PICKUP, player);
                 } else {
-                    im.clickSlot(syncId, -999, 0, SlotActionType.PICKUP, player);
+                    im.handleInventoryMouseClick(syncId, -999, 0, ClickType.PICKUP, player);
                 }
             }
         }
@@ -101,7 +101,7 @@ public class AltarShapelessTransferHandler implements IRecipeTransferHandler<Alt
 
     private int findEmptyPlayerSlot(AltarCraftUIHandler container) {
         for (int i = 12; i < 48; i++) {
-            if (!container.getSlot(i).hasStack()) {
+            if (!container.getSlot(i).hasItem()) {
                 return i;
             }
         }
@@ -120,7 +120,7 @@ public class AltarShapelessTransferHandler implements IRecipeTransferHandler<Alt
     private int countInPlayer(AltarCraftUIHandler container, Ingredient ing) {
         int count = 0;
         for (int i = 12; i < 48; i++) {
-            ItemStack stack = container.getSlot(i).getStack();
+            ItemStack stack = container.getSlot(i).getItem();
             if (!stack.isEmpty() && ing.test(stack)) {
                 count += stack.getCount();
             }
@@ -128,30 +128,30 @@ public class AltarShapelessTransferHandler implements IRecipeTransferHandler<Alt
         return count;
     }
 
-    private void moveNTo(AltarCraftUIHandler container, ClientPlayerInteractionManager im,
-                         PlayerEntity player, int syncId, Ingredient ing, int targetSlot, int n) {
+    private void moveNTo(AltarCraftUIHandler container, MultiPlayerGameMode im,
+                         Player player, int syncId, Ingredient ing, int targetSlot, int n) {
         if (n <= 0) {
             return;
         }
         int remaining = n;
         for (int i = 12; i < 48 && remaining > 0; i++) {
             Slot slot = container.getSlot(i);
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (stack.isEmpty() || !ing.test(stack)) {
                 continue;
             }
             int available = stack.getCount();
             int take = Math.min(remaining, available);
 
-            im.clickSlot(syncId, i, 0, SlotActionType.PICKUP, player);
+            im.handleInventoryMouseClick(syncId, i, 0, ClickType.PICKUP, player);
 
             if (take == available) {
-                im.clickSlot(syncId, targetSlot, 0, SlotActionType.PICKUP, player);
+                im.handleInventoryMouseClick(syncId, targetSlot, 0, ClickType.PICKUP, player);
             } else {
                 for (int j = 0; j < take; j++) {
-                    im.clickSlot(syncId, targetSlot, 1, SlotActionType.PICKUP, player);
+                    im.handleInventoryMouseClick(syncId, targetSlot, 1, ClickType.PICKUP, player);
                 }
-                im.clickSlot(syncId, i, 0, SlotActionType.PICKUP, player);
+                im.handleInventoryMouseClick(syncId, i, 0, ClickType.PICKUP, player);
             }
 
             remaining -= take;

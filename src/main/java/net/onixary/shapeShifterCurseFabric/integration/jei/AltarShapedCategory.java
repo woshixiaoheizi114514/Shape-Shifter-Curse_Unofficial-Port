@@ -7,29 +7,31 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
-import net.minecraft.advancement.Advancement;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.advancements.DisplayInfo;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import net.onixary.shapeShifterCurseFabric.blocks.RegCustomBlock;
 import net.onixary.shapeShifterCurseFabric.items.RegCustomItem;
 import net.onixary.shapeShifterCurseFabric.recipes.altar.AltarShapedRecipe;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public class AltarShapedCategory extends AbstractRecipeCategory<AltarShapedRecipe> {
-    private static final Identifier TEXTURE = ShapeShifterCurseFabric.identifier("textures/gui/altar_craft_ui.png");
+    private static final ResourceLocation TEXTURE = ShapeShifterCurseFabric.identifier("textures/gui/altar_craft_ui.png");
 
     private final IDrawable background;
     private final IDrawable arrow;
 
     public AltarShapedCategory(IGuiHelper guiHelper) {
         super(SSC_JEI_Plugin.ALTAR_SHAPED,
-                Text.translatable("gui.shape_shifter_curse.category.altar_shaped"),
+                Component.translatable("gui.shape_shifter_curse.category.altar_shaped"),
                 guiHelper.createDrawableItemLike(RegCustomBlock.ALTER_BLOCK),
                 174, 79);
         this.background = guiHelper.createDrawable(TEXTURE, 0, 0, 174, 79);
@@ -42,7 +44,7 @@ public class AltarShapedCategory extends AbstractRecipeCategory<AltarShapedRecip
     }
 
     @Override
-    public void draw(@NotNull AltarShapedRecipe recipe, @NotNull IRecipeSlotsView recipeSlotsView, @NotNull DrawContext drawContext, double mouseX, double mouseY) {
+    public void draw(@NotNull AltarShapedRecipe recipe, @NotNull IRecipeSlotsView recipeSlotsView, @NotNull GuiGraphics drawContext, double mouseX, double mouseY) {
         background.draw(drawContext, 0, 0);
         arrow.draw(drawContext, 84, 39);
     }
@@ -53,8 +55,8 @@ public class AltarShapedCategory extends AbstractRecipeCategory<AltarShapedRecip
             for (int col = 0; col < 3; col++) {
                 int x = 26 + col * 18;
                 int y = 17 + row * 18;
-                if (row < recipe.height && col < recipe.width) {
-                    Ingredient ing = recipe.input.get(col + row * recipe.width);
+                if (row < recipe.pattern.height() && col < recipe.pattern.width()) {
+                    Ingredient ing = recipe.pattern.ingredients().get(col + row * recipe.pattern.width());
                     if (!ing.isEmpty()) {
                         builder.addInputSlot(x, y).addIngredients(ing);
                         continue;
@@ -76,30 +78,31 @@ public class AltarShapedCategory extends AbstractRecipeCategory<AltarShapedRecip
             builder.addInputSlot(84, 53);
         }
 
-        DynamicRegistryManager drm = MinecraftClient.getInstance().world != null
-                ? MinecraftClient.getInstance().world.getRegistryManager()
-                : DynamicRegistryManager.EMPTY;
-        builder.addOutputSlot(134, 35).addItemStack(recipe.getOutput(drm));
+        RegistryAccess drm = Minecraft.getInstance().level != null
+                ? Minecraft.getInstance().level.registryAccess()
+                : RegistryAccess.EMPTY;
+        builder.addOutputSlot(134, 35).addItemStack(recipe.getResultItem(drm));
     }
 
     @Override
     public void getTooltip(@NotNull ITooltipBuilder tooltip, @NotNull AltarShapedRecipe recipe, @NotNull IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
         if (mouseX >= 84 && mouseX <= 127 && mouseY >= 39 && mouseY <= 48) {
-            tooltip.add(Text.translatable("gui.shape_shifter_curse.jei.altar.recipe_id", recipe.getId().toString()));
+            tooltip.add(Component.translatable("gui.shape_shifter_curse.jei.altar.recipe_id", recipe.getSerializer().toString()));
             if (recipe.requireAdvancement != null) {
-                tooltip.add(Text.translatable("gui.shape_shifter_curse.jei.altar.requires_advancement", getAdvancementName(recipe.requireAdvancement)));
+                tooltip.add(Component.translatable("gui.shape_shifter_curse.jei.altar.requires_advancement", getAdvancementName(recipe.requireAdvancement)));
             }
         }
     }
 
-    private Text getAdvancementName(Identifier id) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.getNetworkHandler() != null) {
-            Advancement adv = client.getNetworkHandler().getAdvancementHandler().getManager().get(id);
-            if (adv != null && adv.getDisplay() != null) {
-                return adv.getDisplay().getTitle();
-            }
+    private Component getAdvancementName(ResourceLocation id) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.getConnection() != null) {
+            // 1.21.1: Advancement 是 record，display() 返回 Optional<DisplayInfo>；进度未加载时 get(id) 返回 null
+            return Optional.ofNullable(client.getConnection().getAdvancements().getTree().get(id))
+                    .flatMap(node -> node.advancement().display())
+                    .map(DisplayInfo::getTitle)
+                    .orElse(Component.literal(id.toString()));
         }
-        return Text.literal(id.toString());
+        return Component.literal(id.toString());
     }
 }

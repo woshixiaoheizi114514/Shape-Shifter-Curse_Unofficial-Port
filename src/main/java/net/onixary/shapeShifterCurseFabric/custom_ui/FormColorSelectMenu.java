@@ -34,6 +34,7 @@ import net.onixary.shapeShifterCurseFabric.util.FormTextureUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.*;
 
@@ -1047,7 +1048,7 @@ public class FormColorSelectMenu extends Screen implements FormTextureUtils.Temp
         entity.setXRot(-g * 20.0F);
         entity.yHeadRot = entity.getYRot();
         entity.yHeadRotO = entity.getYRot();
-        InventoryScreen.renderEntityInInventory(context, x, y, size, new org.joml.Vector3f(), quaternionf, quaternionf2, entity);
+        InventoryScreen.renderEntityInInventory(context, x, y, size, new Vector3f(), quaternionf, quaternionf2, entity);
         entity.yBodyRot = h;
         entity.yBodyRotO = m;
         entity.setYRot(i);

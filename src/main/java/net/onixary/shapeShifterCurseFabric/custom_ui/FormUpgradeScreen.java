@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector2i;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -221,22 +222,22 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         Quaternionf quaternionf2 = (new Quaternionf()).rotateX(g * 20.0F * 0.017453292F);
         quaternionf.mul(quaternionf2);
         float h = entity.yBodyRot;
-        float i = entity.lerpTargetYRot();
-        float j = entity.lerpTargetXRot();
+        float i = entity.getYRot();
+        float j = entity.getXRot();
         float k = entity.yHeadRotO;
         float l = entity.yHeadRot;
         float m = entity.yBodyRotO;
         entity.yBodyRot = 180.0F + f * 20.0F;
         entity.yBodyRotO = entity.yBodyRot;
-        entity.setYaw(180.0F + f * 40.0F);
-        entity.setPitch(-g * 20.0F);
-        entity.yHeadRot = entity.lerpTargetYRot();
-        entity.yHeadRotO = entity.lerpTargetYRot();
-        InventoryScreen.renderEntityInInventory(context, x, y, size, quaternionf, quaternionf2, entity);
+        entity.setYRot(180.0F + f * 40.0F);
+        entity.setXRot(-g * 20.0F);
+        entity.yHeadRot = entity.getYRot();
+        entity.yHeadRotO = entity.getYRot();
+        InventoryScreen.renderEntityInInventory(context, x, y, size, new Vector3f(), quaternionf, quaternionf2, entity);
         entity.yBodyRot = h;
         entity.yBodyRotO = m;
-        entity.setYaw(i);
-        entity.setPitch(j);
+        entity.setYRot(i);
+        entity.setXRot(j);
         entity.yHeadRotO = k;
         entity.yHeadRot = l;
     }
@@ -522,7 +523,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
             if (playerGainedPerk == null) return false;
             for (ResourceLocation dependentPerkID : this.nowSelectNode.dependentPerkIDs) if (!playerGainedPerk.contains(dependentPerkID)) return false;
         }
-        int requireXp = this.minecraft.player.getAbilities().creativeMode ? 0 : perkXpCostMap.getOrDefault(this.nowSelectNode.perkID, 0);
+        int requireXp = this.minecraft.player.getAbilities().instabuild ? 0 : perkXpCostMap.getOrDefault(this.nowSelectNode.perkID, 0);
         if (this.minecraft.player.totalExperience < requireXp) {
             return false;
         }
