@@ -7,9 +7,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
+import net.onixary.shapeShifterCurseFabric.additional_power.ActionOnJumpPower;
 import net.onixary.shapeShifterCurseFabric.additional_power.BatBlockAttachPower;
 import net.onixary.shapeShifterCurseFabric.additional_power.JumpEventCondition;
 import net.onixary.shapeShifterCurseFabric.additional_power.SlowdownPercentPower;
+import net.onixary.shapeShifterCurseFabric.additional_power.SneakingJumpClashPower;
 import net.onixary.shapeShifterCurseFabric.additional_power.SprintingStateTracker;
 import net.onixary.shapeShifterCurseFabric.networking.BytePayload;
 import net.onixary.shapeShifterCurseFabric.networking.ModPackets;
@@ -97,10 +99,20 @@ public class PlayerMovementControlMixin implements IMoveController {
         // handle jump_event condition
         JumpEventCondition.setJumping(player, true);
 
-        // 发送网络包到服务器
         if (player.level().isClientSide()) {
+            // 客户端：发包通知服务端。
+            // ⚠ 注意这条路径在普通跳跃时基本走不到 —— LocalPlayer 里唯一的 jumpFromGround() 调用点在
+            // 「切换飞行能力」分支内（外层 if (abilities.mayfly)），地面起跳并不经过它。
             FriendlyByteBuf buf = PacketByteBufs.create();
             ClientPlayNetworking.send(new BytePayload(BytePayload.id(ModPackets.JUMP_EVENT_ID), buf));
+        } else {
+            // 服务端权威执行，不要依赖 JUMP_EVENT 包往返。
+            // 服务端 jumpFromGround 由 ServerGamePacketListenerImpl 在处理 ServerboundMovePlayerPacket 时调用
+            //（以 player.onGround() 为真为前提），此刻玩家仍在地面，entity_condition 里的 apoli:on_block 能通过。
+            // 若只靠「客户端发包 → 服务端收包后执行」：包到达时跳跃已被应用、玩家已离地，on_block 必然为假，
+            // ActionOnJumpPower 永不执行 —— 表现为跳跃技能的粒子/音效/加速全部消失（SneakingJumpClashPower 同理）。
+            PowerHolderComponent.getPowers(player, ActionOnJumpPower.class).forEach(ActionOnJumpPower::executeAction);
+            PowerHolderComponent.getPowers(player, SneakingJumpClashPower.class).forEach(sneakingJumpClashPower -> sneakingJumpClashPower.jumpTicks = 5);
         }
     }
 
