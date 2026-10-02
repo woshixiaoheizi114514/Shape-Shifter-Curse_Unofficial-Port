@@ -25,7 +25,10 @@ public class AltarCraftUIHandler extends RecipeBookMenu<RecipeInput, AltarRecipe
     public final ContainerData propertyDelegate;
 
     public static AltarCraftUIHandler createMenu(int i, Inventory inventory) {
-        return new AltarCraftUIHandler(RegMenuType.AltarCraftUI, i, inventory, new SimpleContainer(12), ContainerLevelAccess.NULL, new SimpleContainerData(3));
+        // ⚠ 槽数必须与 AltarBlockEntity.propertyDelegate 的 getCount() 一致（现为 4）：
+        //   slot2=fuelTime 低16位、slot3=高16位。此处若只给 3，服务端广播的 slot3 会在客户端越界
+        //   （ClientboundContainerSetDataPacket 处理失败），且 getNowFuel() 读 slot3 时直接崩渲染。
+        return new AltarCraftUIHandler(RegMenuType.AltarCraftUI, i, inventory, new SimpleContainer(12), ContainerLevelAccess.NULL, new SimpleContainerData(4));
     }
 
     public AltarCraftUIHandler(MenuType<?> screenHandlerType, int syncId, Inventory playerInventory, Container altarBlockEntity, ContainerLevelAccess context, ContainerData propertyDelegate) {
