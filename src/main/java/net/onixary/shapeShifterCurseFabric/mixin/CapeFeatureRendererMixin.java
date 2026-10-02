@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(CapeLayer.class)
 public class CapeFeatureRendererMixin {
 
+    @Unique
     private AbstractClientPlayer currentPlayer;
 
     @Inject(method = "render*", at = @At("HEAD"))

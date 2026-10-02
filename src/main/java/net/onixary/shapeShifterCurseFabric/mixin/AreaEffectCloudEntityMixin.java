@@ -25,12 +25,12 @@ public class AreaEffectCloudEntityMixin implements CTPUtils.CTPFormIDHolder {
     private Map<Entity, Integer> victims;
 
     @Override
-    public ResourceLocation getCTPFormID() {
+    public ResourceLocation shape_Shifter_Curse_Unofficial_Port$getCTPFormID() {
         return this.ctpFormID;
     }
 
     @Override
-    public void setCTPFormID(ResourceLocation formID) {
+    public void shape_Shifter_Curse_Unofficial_Port$setCTPFormID(ResourceLocation formID) {
         this.ctpFormID = formID;
     }
 

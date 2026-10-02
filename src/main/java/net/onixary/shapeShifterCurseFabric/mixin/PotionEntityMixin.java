@@ -40,7 +40,7 @@ public class PotionEntityMixin {
         if (customData != null) {
             ResourceLocation CTPFormID = CTPUtils.getCTPFormIDFromNBT(customData.copyTag());
             if (CTPFormID != null && areaEffectCloudEntity instanceof CTPUtils.CTPFormIDHolder) {
-                ((CTPUtils.CTPFormIDHolder) areaEffectCloudEntity).setCTPFormID(CTPFormID);
+                ((CTPUtils.CTPFormIDHolder) areaEffectCloudEntity).shape_Shifter_Curse_Unofficial_Port$setCTPFormID(CTPFormID);
             }
         }
     }

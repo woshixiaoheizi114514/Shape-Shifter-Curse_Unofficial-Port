@@ -13,8 +13,8 @@ import net.onixary.shapeShifterCurseFabric.player_form.utils.RegPlayerFormCompon
 // Custom Transformative Potion Utils (CTP)
 public class CTPUtils {
     public interface CTPFormIDHolder {
-        ResourceLocation getCTPFormID();
-        void setCTPFormID(ResourceLocation formID);
+        ResourceLocation shape_Shifter_Curse_Unofficial_Port$getCTPFormID();
+        void shape_Shifter_Curse_Unofficial_Port$setCTPFormID(ResourceLocation formID);
     }
 
     public static IForm getTransformativePotionForm(Player player) {
