@@ -18,6 +18,8 @@ import net.onixary.shapeShifterCurseFabric.networking.ModPacketsS2C;
 import net.onixary.shapeShifterCurseFabric.perk.PerkTree;
 import net.onixary.shapeShifterCurseFabric.perk.PerkUtils;
 import net.onixary.shapeShifterCurseFabric.perk.RegPerks;
+import net.onixary.shapeShifterCurseFabric.util.menu.BaseSprite;
+import net.onixary.shapeShifterCurseFabric.util.menu.ISprite;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -34,8 +36,22 @@ import java.util.Objects;
 
 public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX {
     public static final ResourceLocation TEXTURE = ShapeShifterCurseFabric.identifier("textures/gui/shape_shifter_tuner_ui.png");
+    public static final HashMap<Integer, ISprite> levelSprites = new HashMap<>();
     public static final int TEXTURE_WIDTH = 420;
     public static final int TEXTURE_HEIGHT = 190;
+
+    static {
+        levelSprites.put(1, new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 420, 0, 11, 11));
+        levelSprites.put(2, new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 420, 11, 11, 11));
+        levelSprites.put(3, new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 420, 22, 11, 11));
+        levelSprites.put(4, new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 420, 33, 11, 11));
+        levelSprites.put(5, new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 420, 44, 11, 11));
+        levelSprites.put(6, new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 420, 55, 11, 11));
+        levelSprites.put(7, new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 420, 66, 11, 11));
+        levelSprites.put(8, new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 420, 77, 11, 11));
+        levelSprites.put(9, new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 420, 88, 11, 11));
+        levelSprites.put(10, new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 420, 99, 11, 11));
+    }
 
     public static final int BACKGROUND_WIDTH = 420;
     public static final int BACKGROUND_HEIGHT = 190;
@@ -256,12 +272,16 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         baseX = this.width / 2 - BACKGROUND_WIDTH / 2;
         baseY = this.height / 2 - BACKGROUND_HEIGHT / 2;
-        context.blit(TEXTURE, baseX, baseY, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        context.drawTexture(TEXTURE, baseX, baseY, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         nodeWindowX = baseX + PERK_UI_X;
         nodeWindowY = baseY + PERK_UI_Y;
         cameraCenter = new Vector2i(nodeWindowX + PERK_UI_WIDTH / 2, nodeWindowY + PERK_UI_HEIGHT / 2);
         nodeCenter = new Vector2i( -PERK_UI_WIDTH / 2, 0);
-        context.fill(baseX + PERK_UI_ICON_X, baseY + PERK_UI_ICON_Y, baseX + PERK_UI_ICON_X + PERK_UI_ICON_WIDTH, baseY + PERK_UI_ICON_Y + PERK_UI_ICON_HEIGHT, 0xFFFFFFFF);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        context.drawTexture(TEXTURE, baseX + PERK_UI_ICON_X, baseY + PERK_UI_ICON_Y, 434, 0, PERK_UI_ICON_WIDTH, PERK_UI_ICON_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        RenderSystem.disableBlend();
         this.drawAllNode(context, mouseX, mouseY, delta);
 
         if (minecraft.player != null) {
@@ -403,7 +423,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     public void drawAllNode(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (this.minecraft == null) return;
         context.enableScissor(nodeWindowX, nodeWindowY, nodeWindowX + PERK_UI_WIDTH, nodeWindowY + PERK_UI_HEIGHT);
-        PoseStack matrixStack = context.pose();
+        MatrixStack matrixStack = context.getMatrices();
         int firstX = nodeBaseX + nodeCenter.x;
         int firstY = nodeWindowY + LEVEL_ICON_Y;
         for (int tierIndex = 1; tierIndex <= this.MaxPerkLevel; tierIndex++) {
@@ -411,18 +431,25 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
             float iconCenterScreenX =
                     cameraCenter.x + cameraPosX + cameraScale * (localLineX + 1.0f);
             int lineLeftX = Math.round(iconCenterScreenX - 0.5f);
-            context.fill(
-                    lineLeftX, nodeWindowY,
-                    lineLeftX + 1, nodeWindowY + PERK_UI_HEIGHT,
-                    LineColor
-            );
+            // context.fill(
+            //         lineLeftX, nodeWindowY,
+            //         lineLeftX + 1, nodeWindowY + PERK_UI_HEIGHT,
+            //         LineColor
+            // );
+            context.drawTexture(TEXTURE, lineLeftX - 1, nodeWindowY, 431, 0, 3, PERK_UI_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
             int screenIconX = lineLeftX - (LEVEL_ICON_WIDTH - 1) / 2;
-            context.fill(
-                    screenIconX, firstY,
-                    screenIconX + LEVEL_ICON_WIDTH, firstY + LEVEL_ICON_HEIGHT,
-                    LineColor
-            );
+            ISprite icon = levelSprites.get(tierIndex);
+            if (icon != null) {
+                icon.draw(context, screenIconX, firstY);
+            } else {
+                context.fill(
+                        screenIconX, firstY,
+                        screenIconX + LEVEL_ICON_WIDTH, firstY + LEVEL_ICON_HEIGHT,
+                        LineColor
+                );
+            }
         }
+        RenderSystem.disableBlend();
         context.disableScissor();
         context.enableScissor(nodeWindowX, nodeWindowY + PERK_UI_VIEW_Y, nodeWindowX + PERK_UI_WIDTH, nodeWindowY + PERK_UI_HEIGHT);
         matrixStack.pushPose();

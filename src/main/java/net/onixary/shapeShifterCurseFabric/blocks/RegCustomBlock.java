@@ -28,8 +28,8 @@ public final class RegCustomBlock {
     public static final Block WEB_COMPOSTER = register("web_composter", new WebComposterBlock(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).strength(0.6F).sound(SoundType.AZALEA).noOcclusion()));
     public static final Block DEW_COVERED_COBWEB = register("dew_covered_cobweb", new DewCoveredCobwebBlock(BlockBehaviour.Properties.of().mapColor(MapColor.WOOL).instrument(NoteBlockInstrument.BELL).strength(1.0F).sound(SoundType.WOOL).noCollission().noOcclusion()));
 
-    public static final Block ALTER_BLOCK = register("altar", new AltarBlock(BlockBehaviour.Properties.of().mapColor(MapColor.WOOL).instrument(NoteBlockInstrument.BELL).strength(4.0F, 10.0F).sound(SoundType.AMETHYST).noOcclusion()));
-    public static final BlockEntityType<AltarBlockEntity> ALTER_BLOCK_ENTITY = registerBlockEntity("altar_block_entity", BlockEntityType.Builder.of(AltarBlockEntity::new, ALTER_BLOCK).build(null));
+    public static final Block ALTAR_BLOCK = register("altar", new AltarBlock(BlockBehaviour.Properties.of().mapColor(MapColor.WOOL).instrument(NoteBlockInstrument.BELL).strength(4.0F, 10.0F).sound(SoundType.AMETHYST).noOcclusion()));
+    public static final BlockEntityType<AltarBlockEntity> ALTAR_BLOCK_ENTITY = registerBlockEntity("altar_block_entity", BlockEntityType.Builder.of(AltarBlockEntity::new, ALTAR_BLOCK).build(null));
 
     public static final Block FORM_ATTUNER_BLOCK = register("form_attuner", new FormAttunerBlock(BlockBehaviour.Properties.of().mapColor(MapColor.WOOL).instrument(NoteBlockInstrument.BELL).lightLevel((state) -> 15).strength(4.0F, 10.0F).sound(SoundType.GLASS).noOcclusion()));
     public static final BlockEntityType<FormAttunerBlockEntity> FORM_ATTUNER_BLOCK_ENTITY = registerBlockEntity("form_attuner_block_entity", BlockEntityType.Builder.of(FormAttunerBlockEntity::new, FORM_ATTUNER_BLOCK).build(null));
@@ -39,7 +39,7 @@ public final class RegCustomBlock {
         BlockRenderLayerMap.INSTANCE.putBlock(TEMP_WEB_BRIDGE, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(WEB_COMPOSTER, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(DEW_COVERED_COBWEB, RenderType.cutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(ALTER_BLOCK, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ALTAR_BLOCK, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(FORM_ATTUNER_BLOCK, RenderType.cutout());
     }
 

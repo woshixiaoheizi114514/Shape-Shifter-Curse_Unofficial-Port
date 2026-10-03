@@ -77,9 +77,9 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
     }
 
     public AltarBlockEntity(BlockPos blockPos, BlockState blockState) {
-        super(RegCustomBlock.ALTER_BLOCK_ENTITY, blockPos, blockState);
+        super(RegCustomBlock.ALTAR_BLOCK_ENTITY, blockPos, blockState);
         this.inventory = NonNullList.withSize(12, ItemStack.EMPTY);
-        this.matchGetter = RecipeManager.createCheck(RecipeUtils.ALTER_RECIPE);
+        this.matchGetter = RecipeManager.createCheck(RecipeUtils.ALTAR_RECIPE);
         this.propertyDelegate = new ContainerData() {
             public int get(int index) {
                 switch (index) {

@@ -175,7 +175,7 @@ public class BuiltinAltarRecipe extends AltarRecipe {
 
     @Override
     public @NotNull RecipeSerializer<?> getSerializer() {
-        return RecipeSerializerRegister.BUILTIN_Altar_RECIPE;
+        return RecipeSerializerRegister.BUILTIN_ALTAR_RECIPE;
     }
 
     public static class Serializer implements RecipeSerializer<BuiltinAltarRecipe> {

@@ -242,8 +242,9 @@ dependencies {
      modCompileOnly "maven.modrinth:biomes-o-plenty:fhyqphwv"
 
     // 官方Maven仓库速度太慢 改为CurseMaven的源
-     modImplementation "maven.modrinth:jei:HWSzfi9w" //JEI 19.44.0.401 for Fabric 1.21.1
-//    modImplementation "curse.maven:jei-238222:8622779"
+    modImplementation "maven.modrinth:jei:HWSzfi9w"
+    // 调用频率有点高 所以直接项目依赖吧
+    modImplementation "maven.modrinth:carry-on:2.2.6-fabric,1.21.1"
 }
 
 processResources {

@@ -158,7 +158,7 @@ public class AltarShapelessRecipe extends AltarRecipe {
 
         @Override
         public @NotNull StreamCodec<RegistryFriendlyByteBuf, AltarShapelessRecipe> streamCodec() {
-            return STREAM_CODEC;
+            return RecipeSerializerRegister.ALTAR_SHAPELESS_RECIPE.streamCodec();
         }
 
         private static AltarShapelessRecipe fromNetwork(RegistryFriendlyByteBuf buf) {

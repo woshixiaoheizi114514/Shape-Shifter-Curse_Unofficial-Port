@@ -50,7 +50,7 @@ public class SSC_JEI_Plugin implements IModPlugin {
         }
         RecipeManager rm = client.getConnection().getRecipeManager();
         // 1.21.1: getAllRecipesFor 返回 List<RecipeHolder<T>>，需解包
-        List<AltarRecipe> all = rm.getAllRecipesFor(RecipeUtils.ALTER_RECIPE).stream()
+        List<AltarRecipe> all = rm.getAllRecipesFor(RecipeUtils.ALTAR_RECIPE).stream()
                 .map(RecipeHolder::value)
                 .toList();
 
@@ -69,7 +69,7 @@ public class SSC_JEI_Plugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(RegCustomBlock.ALTER_BLOCK), ALTAR_SHAPED, ALTAR_SHAPELESS);
+        registration.addRecipeCatalyst(new ItemStack(RegCustomBlock.ALTAR_BLOCK), ALTAR_SHAPED, ALTAR_SHAPELESS);
     }
 
     @Override
