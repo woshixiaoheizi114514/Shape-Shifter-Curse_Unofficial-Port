@@ -9,6 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -36,18 +37,22 @@ public class AltarShapedRecipe extends AltarRecipe {
     public final int fuelCostPerTick;
     public final @Nullable ResourceLocation requireAdvancement;
 
-    public AltarShapedRecipe(ShapedRecipePattern pattern, ItemStack output, @Nullable Ingredient catalyst, int recipeTime, int fuelCostPerTick, @Nullable ResourceLocation requireAdvancement) {
+    public AltarShapedRecipe(ShapedRecipePattern pattern, ItemStack output, @Nullable Ingredient catalyst, int recipeTime, int fuelCostPerTick, @Nullable ResourceLocation requireAdvancement, int totalFuelCost) {
         this.pattern = pattern;
         this.output = output;
         this.catalyst = catalyst;
         this.recipeTime = recipeTime;
         this.fuelCostPerTick = fuelCostPerTick;
         this.requireAdvancement = requireAdvancement;
+        // 精确燃料预算（单位 fuel unit，1 个月尘 = 800）；-1 表示未指定，走 legacy 的逐 tick fuel_cost。
+        this.totalFuelCost = totalFuelCost;
     }
 
     @Override
-    public DefaultedList<Ingredient> getIngredients() {
-        return input;
+    public @NotNull NonNullList<Ingredient> getIngredients() {
+        // 本类存的是 ShapedRecipePattern（字段名 pattern），没有上游那种 input 字段
+        // ——此前误把 AltarShapelessRecipe 的写法拷了过来。
+        return this.pattern.ingredients();
     }
 
     @Override
@@ -152,9 +157,14 @@ public class AltarShapedRecipe extends AltarRecipe {
                 Ingredient.CODEC_NONEMPTY.optionalFieldOf("catalyst").forGetter(r -> Optional.ofNullable(r.catalyst)),
                 Codec.INT.optionalFieldOf("time", 200).forGetter(r -> r.recipeTime),
                 Codec.INT.optionalFieldOf("fuel_cost", 1).forGetter(r -> r.fuelCostPerTick),
-                ResourceLocation.CODEC.optionalFieldOf("require_advancement").forGetter(r -> Optional.ofNullable(r.requireAdvancement))
-            ).apply(instance, (pattern, output, catalyst, time, fuelCost, requireAdvancement) ->
-                new AltarShapedRecipe(pattern, output, catalyst.orElse(null), time, fuelCost, requireAdvancement.orElse(null)))
+                ResourceLocation.CODEC.optionalFieldOf("require_advancement").forGetter(r -> Optional.ofNullable(r.requireAdvancement)),
+                // 数据包用「月尘个数」表达燃料预算，内部换算成 fuel unit（1 个尘 = 800）。
+                // 缺省 0 表示未指定 → totalFuelCost 保持 -1，退回逐 tick fuel_cost 的老行为。
+                Codec.INT.optionalFieldOf("moondust_cost", 0)
+                        .forGetter(r -> r.totalFuelCost > 0 ? r.totalFuelCost / 800 : 0)
+            ).apply(instance, (pattern, output, catalyst, time, fuelCost, requireAdvancement, moondustCost) ->
+                new AltarShapedRecipe(pattern, output, catalyst.orElse(null), time, fuelCost, requireAdvancement.orElse(null),
+                        moondustCost > 0 ? moondustCost * 800 : -1))
         );
 
         private static final StreamCodec<RegistryFriendlyByteBuf, AltarShapedRecipe> STREAM_CODEC = StreamCodec.of(
@@ -254,7 +264,10 @@ public class AltarShapedRecipe extends AltarRecipe {
             ItemStack output = ItemStack.STREAM_CODEC.decode(buf);
             int time = buf.readVarInt();
             int fuelCost = buf.readVarInt();
-            return new AltarShapedRecipe(pattern, output, catalyst, time, fuelCost, requireAdvancement);
+            // 必须与 toNetwork 的写入顺序严格对应 —— 那边最后还写了 totalFuelCost，
+            // 这里此前漏读，会让后续读到的字节整体错位。
+            int totalFuelCost = buf.readVarInt();
+            return new AltarShapedRecipe(pattern, output, catalyst, time, fuelCost, requireAdvancement, totalFuelCost);
         }
 
         private static void toNetwork(RegistryFriendlyByteBuf packetByteBuf, AltarShapedRecipe altarRecipe) {
@@ -262,13 +275,13 @@ public class AltarShapedRecipe extends AltarRecipe {
                 packetByteBuf.writeBoolean(true);
                 Ingredient.CONTENTS_STREAM_CODEC.encode(packetByteBuf, altarRecipe.catalyst);
             } else {
-                buf.writeBoolean(false);
+                packetByteBuf.writeBoolean(false);
             }
-            if (r.requireAdvancement != null) {
-                buf.writeBoolean(true);
-                ResourceLocation.STREAM_CODEC.encode(buf, r.requireAdvancement);
+            if (altarRecipe.requireAdvancement != null) {
+                packetByteBuf.writeBoolean(true);
+                ResourceLocation.STREAM_CODEC.encode(packetByteBuf, altarRecipe.requireAdvancement);
             } else {
-                buf.writeBoolean(false);
+                packetByteBuf.writeBoolean(false);
             }
             ShapedRecipePattern.STREAM_CODEC.encode(packetByteBuf, altarRecipe.pattern);
             ItemStack.STREAM_CODEC.encode(packetByteBuf, altarRecipe.output);

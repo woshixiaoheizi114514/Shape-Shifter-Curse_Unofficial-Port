@@ -3,6 +3,7 @@ package net.onixary.shapeShifterCurseFabric.recipes.altar;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -10,8 +11,8 @@ import net.onixary.shapeShifterCurseFabric.recipes.RecipeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AltarRecipe implements Recipe<RecipeInput> {
     // Optional exact fuel budget, in fuel units (one moondust = 800).
@@ -52,14 +53,14 @@ public abstract class AltarRecipe implements Recipe<RecipeInput> {
         for (int i = 0; i < 9; i++) {
             ItemStack input = inventory.getItem(i);
             ItemStack remainder = inputRemainder(input);
-            input.decrement(1);
+            input.shrink(1);
             if (input.isEmpty() && !remainder.isEmpty()) {
-                inventory.setStack(i, remainder);
+                inventory.setItem(i, remainder);
             }
         }
     }
 
-    public List<ItemStack> getExtraOutput(SidedInventory inventory) {
+    public List<ItemStack> getExtraOutput(WorldlyContainer inventory) {
         List<ItemStack> remainders = new ArrayList<>();
         for (int i = 0; i < 9; i++) {
             ItemStack input = inventory.getItem(i);
@@ -73,11 +74,11 @@ public abstract class AltarRecipe implements Recipe<RecipeInput> {
 
     private static ItemStack inputRemainder(ItemStack input) {
         // Unlike fluid buckets, vanilla's powder snow bucket declares no recipe remainder.
-        if (input.isOf(Items.POWDER_SNOW_BUCKET)) {
+        if (input.is(Items.POWDER_SNOW_BUCKET)) {
             return new ItemStack(Items.BUCKET);
         }
-        return input.getItem().hasRecipeRemainder()
-                ? new ItemStack(input.getItem().getRecipeRemainder()) : ItemStack.EMPTY;
+        return input.getItem().hasCraftingRemainingItem()
+                ? new ItemStack(input.getItem().getRecipeRemainder(input).getItem()) : ItemStack.EMPTY;
     }
 
     public int fuelUsage() {

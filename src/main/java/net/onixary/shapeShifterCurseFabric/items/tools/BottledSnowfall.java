@@ -15,6 +15,6 @@ public class BottledSnowfall extends SwordItem {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag type) {
-        tooltip.add(Component.translatable(getTranslationKey() + ".tooltip").withStyle(ChatFormatting.YELLOW));
+        tooltip.add(Component.translatable(getDescriptionId() + ".tooltip").withStyle(ChatFormatting.YELLOW));
     }
 }

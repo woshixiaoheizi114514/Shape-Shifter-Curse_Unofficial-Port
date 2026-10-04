@@ -177,7 +177,9 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
     // 故改用自定义 AltarRecipeInput 线性映射 inventory 0-9（0-8 键材 + slot 9 燃料/催化剂）。
     // AltarBlockEntity 自身不 implements RecipeInput，避免与 WorldlyContainer 的 getItem/isEmpty 双接口在 remap 时二义。
     public RecipeInput craftInput() {
-        return new AltarRecipeInput(this.inventory);
+        // 带上 owner：BuiltinAltarRecipe 需要拿回 BE 才能跑它的运行时匹配/产出函数
+        //（BE 本身不是 RecipeInput，见上方注释）。
+        return new AltarRecipeInput(this.inventory, this);
     }
 
     @Override
@@ -280,7 +282,8 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
             this.nowRecipeHolder = null;
             this.totalProgress = 0;
         }
-        this.progress = this.nowRecipe != null && this.nowRecipe.getId().equals(savedRecipe)
+        // 1.21.1: Recipe 不再自带 id（改由 RecipeHolder 管理），所以判 holder 而不是 recipe。
+        this.progress = this.nowRecipeHolder != null && this.nowRecipeHolder.id().equals(savedRecipe)
                 && savedTotal == this.totalProgress
                 ? Math.max(0, Math.min(savedProgress, this.totalProgress - 1)) : 0;
     }
@@ -343,7 +346,7 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
     }
 
     public void tick(Level world, BlockPos pos, BlockState state, AltarBlockEntity blockEntity) {
-        if (needCheckRecipe || (this.nowRecipe != null && !canCraftRecipe(world.getRegistryManager()))) {
+        if (needCheckRecipe || (this.nowRecipe != null && !canCraftRecipe(world.registryAccess()))) {
             this.checkRecipe();
             needCheckRecipe = false;
         }
@@ -362,7 +365,7 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
             if (this.fuelTime >= fuelCost) {
                 this.fuelTime -= fuelCost;
                 this.progress++;
-                this.markDirty();
+                this.setChanged();
             }
             // With no fuel, pause rather than charging again for completed work.
 
@@ -392,7 +395,7 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
         this.fuelTime = nbt.getInt("FuelTime");
         this.progress = nbt.getInt("Process");
         this.totalProgress = nbt.getInt("TotalProcess");
-        this.resumeRecipeId = Identifier.tryParse(nbt.getString("Recipe"));
+        this.resumeRecipeId = ResourceLocation.tryParse(nbt.getString("Recipe"));
         this.nowRecipe = null;
         this.needCheckRecipe = true;
     }
@@ -406,7 +409,7 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
         nbt.putInt("FuelTime", this.fuelTime);
         nbt.putInt("Process", this.progress);
         nbt.putInt("TotalProcess", this.totalProgress);
-        Identifier recipeId = this.nowRecipe != null ? this.nowRecipe.getId() : this.resumeRecipeId;
+        ResourceLocation recipeId = this.nowRecipeHolder != null ? this.nowRecipeHolder.id() : this.resumeRecipeId;
         if (recipeId != null) {
             nbt.putString("Recipe", recipeId.toString());
         }

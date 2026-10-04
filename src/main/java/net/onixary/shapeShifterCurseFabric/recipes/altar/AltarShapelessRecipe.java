@@ -35,18 +35,22 @@ public class AltarShapelessRecipe extends AltarRecipe {
 
     public final @Nullable ResourceLocation requireAdvancement;
 
-    public AltarShapelessRecipe(ItemStack output, NonNullList<Ingredient> input, @Nullable Ingredient catalyst, int recipeTime, int fuelCostPerTick, @Nullable ResourceLocation requireAdvancement) {
+    public AltarShapelessRecipe(ItemStack output, NonNullList<Ingredient> input, @Nullable Ingredient catalyst, int recipeTime, int fuelCostPerTick, @Nullable ResourceLocation requireAdvancement, int totalFuelCost) {
         this.output = output;
         this.input = input;
         this.recipeTime = recipeTime;
         this.catalyst = catalyst;
         this.fuelCostPerTick = fuelCostPerTick;
         this.requireAdvancement = requireAdvancement;
+        // 精确燃料预算（单位 fuel unit，1 个月尘 = 800）；-1 表示未指定，走 legacy 的逐 tick fuel_cost。
+        this.totalFuelCost = totalFuelCost;
     }
 
+    // [1.21.1 修复] Recipe.getIngredients() 默认返回空 NonNullList，StackedContents.canCraft 会读空 ingredients →
+    // shapeless 配方匹配必失败。改为返回 input。
     @Override
-    public DefaultedList<Ingredient> getIngredients() {
-        return input;
+    public @NotNull NonNullList<Ingredient> getIngredients() {
+        return this.input;
     }
 
     @Override
@@ -96,13 +100,6 @@ public class AltarShapelessRecipe extends AltarRecipe {
         return i == this.input.size() && recipeMatcher.canCraft(this, null);
     }
 
-    // [1.21.1 修复] Recipe.getIngredients() 默认返回空 NonNullList，StackedContents.canCraft 会读空 ingredients →
-    // shapeless 配方匹配必失败。改为返回 input。
-    @Override
-    public @NotNull NonNullList<Ingredient> getIngredients() {
-        return this.input;
-    }
-
     @Override
     public int fuelUsage() {
         return fuelCostPerTick;
@@ -147,9 +144,14 @@ public class AltarShapelessRecipe extends AltarRecipe {
                 Ingredient.CODEC_NONEMPTY.optionalFieldOf("catalyst").forGetter(r -> Optional.ofNullable(r.catalyst)),
                 Codec.INT.optionalFieldOf("time", 200).forGetter(r -> r.recipeTime),
                 Codec.INT.optionalFieldOf("fuel_cost", 1).forGetter(r -> r.fuelCostPerTick),
-                ResourceLocation.CODEC.optionalFieldOf("require_advancement").forGetter(r -> Optional.ofNullable(r.requireAdvancement))
-            ).apply(instance, (output, input, catalyst, time, fuelCost, requireAdvancement) ->
-                new AltarShapelessRecipe(output, input, catalyst.orElse(null), time, fuelCost, requireAdvancement.orElse(null)))
+                ResourceLocation.CODEC.optionalFieldOf("require_advancement").forGetter(r -> Optional.ofNullable(r.requireAdvancement)),
+                // 数据包用「月尘个数」表达燃料预算，内部换算成 fuel unit（1 个尘 = 800）。
+                // 缺省 0 表示未指定 → totalFuelCost 保持 -1，退回逐 tick fuel_cost 的老行为。
+                Codec.INT.optionalFieldOf("moondust_cost", 0)
+                        .forGetter(r -> r.totalFuelCost > 0 ? r.totalFuelCost / 800 : 0)
+            ).apply(instance, (output, input, catalyst, time, fuelCost, requireAdvancement, moondustCost) ->
+                new AltarShapelessRecipe(output, input, catalyst.orElse(null), time, fuelCost, requireAdvancement.orElse(null),
+                        moondustCost > 0 ? moondustCost * 800 : -1))
         );
 
         private static final StreamCodec<RegistryFriendlyByteBuf, AltarShapelessRecipe> STREAM_CODEC = StreamCodec.of(
@@ -163,7 +165,9 @@ public class AltarShapelessRecipe extends AltarRecipe {
 
         @Override
         public @NotNull StreamCodec<RegistryFriendlyByteBuf, AltarShapelessRecipe> streamCodec() {
-            return RecipeSerializerRegister.ALTAR_SHAPELESS_RECIPE.streamCodec();
+            // 必须返回本地 STREAM_CODEC —— 此前写的是 RecipeSerializerRegister.ALTAR_SHAPELESS_RECIPE.streamCodec()，
+            // 也就是它自己，构成无限递归。AltarShapedRecipe 的写法是对的。
+            return STREAM_CODEC;
         }
 
         private static AltarShapelessRecipe fromNetwork(RegistryFriendlyByteBuf buf) {
@@ -181,7 +185,10 @@ public class AltarShapelessRecipe extends AltarRecipe {
             ItemStack output = ItemStack.STREAM_CODEC.decode(buf);
             int time = buf.readVarInt();
             int fuelCost = buf.readVarInt();
-            return new AltarShapelessRecipe(output, list, catalyst, time, fuelCost, requireAdvancement);
+            // 必须与 toNetwork 的写入顺序严格对应 —— 那边最后还写了 totalFuelCost，
+            // 这里此前漏读，会让后续读到的字节整体错位。
+            int totalFuelCost = buf.readVarInt();
+            return new AltarShapelessRecipe(output, list, catalyst, time, fuelCost, requireAdvancement, totalFuelCost);
         }
 
         private static void toNetwork(RegistryFriendlyByteBuf packetByteBuf, AltarShapelessRecipe shapelessRecipe) {
@@ -195,11 +202,11 @@ public class AltarShapelessRecipe extends AltarRecipe {
                 packetByteBuf.writeBoolean(true);
                 ResourceLocation.STREAM_CODEC.encode(packetByteBuf, shapelessRecipe.requireAdvancement);
             } else {
-                buf.writeBoolean(false);
+                packetByteBuf.writeBoolean(false);
             }
-            buf.writeVarInt(r.input.size());
-            for (Ingredient ingredient : r.input) {
-                Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
+            packetByteBuf.writeVarInt(shapelessRecipe.input.size());
+            for (Ingredient ingredient : shapelessRecipe.input) {
+                Ingredient.CONTENTS_STREAM_CODEC.encode(packetByteBuf, ingredient);
             }
             ItemStack.STREAM_CODEC.encode(packetByteBuf, shapelessRecipe.output);
             packetByteBuf.writeVarInt(shapelessRecipe.recipeTime);

@@ -333,6 +333,13 @@ tasks.matching { it.name in ["jar", "sourcesJar", "remapJar", "remapSourcesJar"]
     }
 }
 
+// src/test 下只有 Fabric GameTest（@GameTest，在游戏内跑、由 checkAltarRecipes 驱动），
+// 没有 JUnit 测试。Gradle 9 遇到「有测试源码但扫不到测试」会直接让 :test 失败，
+// 这里显式关掉该校验 —— 不是配置错误，是有意为之。
+tasks.named('test') {
+    failOnNoDiscoveredTests = false
+}
+
 // configure the maven publication
 tasks.register('checkAltarRecipes') {
     dependsOn 'runAltarCheck'
