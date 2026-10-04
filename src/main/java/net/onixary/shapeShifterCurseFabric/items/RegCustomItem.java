@@ -72,7 +72,29 @@ public class RegCustomItem {
     public static final Item RESONANT_CORE = register("resonant_core", new ResonantCoreTrinket(new Item.Properties()));
     public static final Item VENOM_SPINDLE = register("venom_spindle", new VenomSpindle(new Item.Properties()));
 
-    public static final Item TRANSFORMATIVE_AXOLOTL_BUCKET = register("transformative_axolotl_bucket", new MobBucketItem(ShapeShifterCurseFabric.T_AXOLOTL, Fluids.WATER, SoundEvents.BUCKET_EMPTY_AXOLOTL, (new Item.Properties()).stacksTo(1)));
+    public static final Item CHARM_OF_NIGHT_CRYSTAL_PLUS = register("charm_of_night_crystal_plus", new FormTrinket(new Item.Settings().rarity(Rarity.RARE)));
+    public static final Item CHARM_OF_HOLLOW_FANG_PLUS = register("charm_of_hollow_fang_plus", new FormTrinket(new Item.Settings().rarity(Rarity.RARE)));
+    public static final Item ATTACH_HOOK_PLUS = register("attach_hook_plus", new FormTrinket(new Item.Settings().rarity(Rarity.RARE)));
+    public static final Item CHARM_OF_REVERSE_THERMOMETER_PLUS = register("charm_of_reverse_thermometer_plus", new FormTrinket(new Item.Settings().rarity(Rarity.RARE)));
+    public static final Item FROST_PAWGLOVE_PLUS = register("frost_pawglove_plus", new FormTrinket(new Item.Settings().rarity(Rarity.RARE)));
+    public static final Item VENOM_SPINDLE_PLUS = register("venom_spindle_plus", new FormTrinket(new Item.Settings().rarity(Rarity.RARE)));
+    public static final Item COLLAR_OF_WHISKERS_PLUS = register("collar_of_whiskers_plus", new FormTrinket(new Item.Settings().rarity(Rarity.RARE)));
+    public static final Item DIGESTION_FIBER_BALL_PLUS = register("digestion_fiber_ball_plus", new FormTrinket(new Item.Settings().rarity(Rarity.RARE)));
+    public static final Item WITHERED_BANDAGE_PLUS = register("withered_bandage_plus", new FormTrinket(new Item.Settings().rarity(Rarity.RARE)));
+    public static final Item FOUNTAIN_BELT_PLUS = register("fountain_belt_plus", new FormTrinket(new Item.Settings().rarity(Rarity.RARE)));
+    public static final Item AMULET_BRACELET_PLUS = register("amulet_bracelet_plus", new FormTrinket(new Item.Settings().rarity(Rarity.RARE)));
+    public static final ToolItem BOTTLED_SNOWFALL_PLUS = register("bottled_snowfall_plus", new BottledSnowfall(BottledSnowfallToolMaterial.INSTANCE, 1, 1, new Item.Settings().rarity(Rarity.RARE)));
+    public static final Item EXPLOSIVE_CHARM_PAPER = register("explosive_charm_paper", new Item(new Item.Settings()));
+    public static final Item GLINT_PRISM = register("glint_prism", new Item(new Item.Settings()));
+    public static final Item JUNGLE_CATALYST_CORE = register("jungle_catalyst_core", new Item(new Item.Settings().maxCount(1).rarity(Rarity.RARE)));
+    public static final Item WEB_CATALYST_CORE = register("web_catalyst_core", new Item(new Item.Settings().maxCount(1).rarity(Rarity.RARE)));
+    public static final Item FROST_CATALYST_CORE = register("frost_catalyst_core", new Item(new Item.Settings().maxCount(1).rarity(Rarity.RARE)));
+    public static final Item FOXFIRE_CATALYST_CORE = register("foxfire_catalyst_core", new Item(new Item.Settings().maxCount(1).rarity(Rarity.RARE)));
+    public static final Item SURGE_CATALYST_CORE = register("surge_catalyst_core", new Item(new Item.Settings().maxCount(1).rarity(Rarity.RARE)));
+    public static final Item DUNE_CATALYST_CORE = register("dune_catalyst_core", new Item(new Item.Settings().maxCount(1).rarity(Rarity.RARE)));
+    public static final Item NIGHT_CATALYST_CORE = register("night_catalyst_core", new Item(new Item.Settings().maxCount(1).rarity(Rarity.RARE)));
+
+    public static final Item TRANSFORMATIVE_AXOLOTL_BUCKET = register("transformative_axolotl_bucket", new EntityBucketItem(ShapeShifterCurseFabric.T_AXOLOTL, Fluids.WATER, SoundEvents.ITEM_BUCKET_EMPTY_AXOLOTL, (new Item.Settings()).maxCount(1)));
     // 减少非蜘蛛玩家食用的中毒量，做到实在没东西吃的时候也能硬着头皮吃的感觉
     public static final Item SPIDER_FLUID_COCOON = register("spider_fluid_cocoon", new SpiderFluidCocoon(new Item.Properties()));
 
@@ -133,6 +155,27 @@ public class RegCustomItem {
                 entries.accept(FOUNTAIN_BELT);
                 entries.accept(RESONANT_CORE);
                 entries.accept(VENOM_SPINDLE);
+                entries.accept(CHARM_OF_NIGHT_CRYSTAL_PLUS);
+                entries.accept(CHARM_OF_HOLLOW_FANG_PLUS);
+                entries.accept(ATTACH_HOOK_PLUS);
+                entries.accept(CHARM_OF_REVERSE_THERMOMETER_PLUS);
+                entries.accept(FROST_PAWGLOVE_PLUS);
+                entries.accept(VENOM_SPINDLE_PLUS);
+                entries.accept(COLLAR_OF_WHISKERS_PLUS);
+                entries.accept(DIGESTION_FIBER_BALL_PLUS);
+                entries.accept(WITHERED_BANDAGE_PLUS);
+                entries.accept(FOUNTAIN_BELT_PLUS);
+                entries.accept(AMULET_BRACELET_PLUS);
+                entries.accept(BOTTLED_SNOWFALL_PLUS);
+                entries.accept(EXPLOSIVE_CHARM_PAPER);
+                entries.accept(GLINT_PRISM);
+                entries.accept(JUNGLE_CATALYST_CORE);
+                entries.accept(WEB_CATALYST_CORE);
+                entries.accept(FROST_CATALYST_CORE);
+                entries.accept(FOXFIRE_CATALYST_CORE);
+                entries.accept(SURGE_CATALYST_CORE);
+                entries.accept(DUNE_CATALYST_CORE);
+                entries.accept(NIGHT_CATALYST_CORE);
                 entries.accept(CUSTOM_TRINKET);
                 entries.accept(FIRE_CHARM_PAPER);
                 entries.accept(TRANSFORMATIVE_AXOLOTL_BUCKET);

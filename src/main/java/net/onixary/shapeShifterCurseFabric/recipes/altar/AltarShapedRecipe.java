@@ -46,6 +46,11 @@ public class AltarShapedRecipe extends AltarRecipe {
     }
 
     @Override
+    public DefaultedList<Ingredient> getIngredients() {
+        return input;
+    }
+
+    @Override
     public int recipeTime() {
         return recipeTime;
     }
@@ -252,10 +257,10 @@ public class AltarShapedRecipe extends AltarRecipe {
             return new AltarShapedRecipe(pattern, output, catalyst, time, fuelCost, requireAdvancement);
         }
 
-        private static void toNetwork(RegistryFriendlyByteBuf buf, AltarShapedRecipe r) {
-            if (r.catalyst != null) {
-                buf.writeBoolean(true);
-                Ingredient.CONTENTS_STREAM_CODEC.encode(buf, r.catalyst);
+        private static void toNetwork(RegistryFriendlyByteBuf packetByteBuf, AltarShapedRecipe altarRecipe) {
+            if (altarRecipe.catalyst != null) {
+                packetByteBuf.writeBoolean(true);
+                Ingredient.CONTENTS_STREAM_CODEC.encode(packetByteBuf, altarRecipe.catalyst);
             } else {
                 buf.writeBoolean(false);
             }
@@ -265,10 +270,11 @@ public class AltarShapedRecipe extends AltarRecipe {
             } else {
                 buf.writeBoolean(false);
             }
-            ShapedRecipePattern.STREAM_CODEC.encode(buf, r.pattern);
-            ItemStack.STREAM_CODEC.encode(buf, r.output);
-            buf.writeVarInt(r.recipeTime);
-            buf.writeVarInt(r.fuelCostPerTick);
+            ShapedRecipePattern.STREAM_CODEC.encode(packetByteBuf, altarRecipe.pattern);
+            ItemStack.STREAM_CODEC.encode(packetByteBuf, altarRecipe.output);
+            packetByteBuf.writeVarInt(altarRecipe.recipeTime);
+            packetByteBuf.writeVarInt(altarRecipe.fuelCostPerTick);
+            packetByteBuf.writeVarInt(altarRecipe.totalFuelCost);
         }
     }
 }

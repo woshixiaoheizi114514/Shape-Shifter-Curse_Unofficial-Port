@@ -45,6 +45,11 @@ public class AltarShapelessRecipe extends AltarRecipe {
     }
 
     @Override
+    public DefaultedList<Ingredient> getIngredients() {
+        return input;
+    }
+
+    @Override
     public int recipeTime() {
         return recipeTime;
     }
@@ -179,16 +184,16 @@ public class AltarShapelessRecipe extends AltarRecipe {
             return new AltarShapelessRecipe(output, list, catalyst, time, fuelCost, requireAdvancement);
         }
 
-        private static void toNetwork(RegistryFriendlyByteBuf buf, AltarShapelessRecipe r) {
-            if (r.catalyst != null) {
-                buf.writeBoolean(true);
-                Ingredient.CONTENTS_STREAM_CODEC.encode(buf, r.catalyst);
+        private static void toNetwork(RegistryFriendlyByteBuf packetByteBuf, AltarShapelessRecipe shapelessRecipe) {
+            if (shapelessRecipe.catalyst != null) {
+                packetByteBuf.writeBoolean(true);
+                Ingredient.CONTENTS_STREAM_CODEC.encode(packetByteBuf, shapelessRecipe.catalyst);
             } else {
-                buf.writeBoolean(false);
+                packetByteBuf.writeBoolean(false);
             }
-            if (r.requireAdvancement != null) {
-                buf.writeBoolean(true);
-                ResourceLocation.STREAM_CODEC.encode(buf, r.requireAdvancement);
+            if (shapelessRecipe.requireAdvancement != null) {
+                packetByteBuf.writeBoolean(true);
+                ResourceLocation.STREAM_CODEC.encode(packetByteBuf, shapelessRecipe.requireAdvancement);
             } else {
                 buf.writeBoolean(false);
             }
@@ -196,9 +201,10 @@ public class AltarShapelessRecipe extends AltarRecipe {
             for (Ingredient ingredient : r.input) {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
-            ItemStack.STREAM_CODEC.encode(buf, r.output);
-            buf.writeVarInt(r.recipeTime);
-            buf.writeVarInt(r.fuelCostPerTick);
+            ItemStack.STREAM_CODEC.encode(packetByteBuf, shapelessRecipe.output);
+            packetByteBuf.writeVarInt(shapelessRecipe.recipeTime);
+            packetByteBuf.writeVarInt(shapelessRecipe.fuelCostPerTick);
+            packetByteBuf.writeVarInt(shapelessRecipe.totalFuelCost);
         }
     }
 }

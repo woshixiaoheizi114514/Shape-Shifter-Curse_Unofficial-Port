@@ -3,6 +3,7 @@ package net.onixary.shapeShifterCurseFabric.blocks.block_entity;
 import net.minecraft.core.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
@@ -38,6 +39,7 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
     public UUID lastUser;
     public AltarRecipe nowRecipe;
     public RecipeHolder<?> nowRecipeHolder;
+    private @Nullable ResourceLocation resumeRecipeId;
     public static final int maxFuel = 102400;
     // data slot 网络用 16-bit(short) 传输，值域 [-32768,32767]；而 fuelTime 可累积到 102400 超上限，
     // 超过 32767 会被 writeShort 截断成负值 → 客户端燃料条"消失-重涨"。
@@ -246,6 +248,13 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
 
     public void checkRecipe() {
         Level world = this.getLevel();
+        if (world == null) {
+            return;
+        }
+        ResourceLocation savedRecipe = this.resumeRecipeId;
+        int savedProgress = this.progress;
+        int savedTotal = this.totalProgress;
+        this.resumeRecipeId = null;
         if (this.nowRecipe != null) {
             if (world != null && this.canCraftRecipe(world.registryAccess())) {
                 return;
@@ -271,7 +280,9 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
             this.nowRecipeHolder = null;
             this.totalProgress = 0;
         }
-        this.progress = 0;
+        this.progress = this.nowRecipe != null && this.nowRecipe.getId().equals(savedRecipe)
+                && savedTotal == this.totalProgress
+                ? Math.max(0, Math.min(savedProgress, this.totalProgress - 1)) : 0;
     }
 
     private boolean canCraftRecipe(RegistryAccess registryManager) {
@@ -300,7 +311,7 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
         if (outputSlot.getCount() + output.getCount() <= outputSlot.getMaxStackSize()) {
             return true;
         }
-        return outputSlot.getCount() + output.getCount() <= this.getMaxStackSize();
+        return false;
     }
 
     private boolean craftRecipe(RegistryAccess registryManager) {
@@ -332,7 +343,7 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
     }
 
     public void tick(Level world, BlockPos pos, BlockState state, AltarBlockEntity blockEntity) {
-        if (needCheckRecipe) {
+        if (needCheckRecipe || (this.nowRecipe != null && !canCraftRecipe(world.getRegistryManager()))) {
             this.checkRecipe();
             needCheckRecipe = false;
         }
@@ -347,17 +358,13 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
             }
         }
         if (this.nowRecipe != null) {
-            int fuelCost = nowRecipe.fuelUsage();
+            int fuelCost = nowRecipe.fuelUsage(this.progress);
             if (this.fuelTime >= fuelCost) {
                 this.fuelTime -= fuelCost;
                 this.progress++;
-            } else {
-                if (this.progress > 0) {
-                    this.progress--;
-                } else {
-                    this.progress = 0;
-                }
+                this.markDirty();
             }
+            // With no fuel, pause rather than charging again for completed work.
 
             if (this.progress >= this.nowRecipe.recipeTime()) {
                 if (craftRecipe(world.registryAccess())) {
@@ -385,6 +392,9 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
         this.fuelTime = nbt.getInt("FuelTime");
         this.progress = nbt.getInt("Process");
         this.totalProgress = nbt.getInt("TotalProcess");
+        this.resumeRecipeId = Identifier.tryParse(nbt.getString("Recipe"));
+        this.nowRecipe = null;
+        this.needCheckRecipe = true;
     }
 
     protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
@@ -396,5 +406,9 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
         nbt.putInt("FuelTime", this.fuelTime);
         nbt.putInt("Process", this.progress);
         nbt.putInt("TotalProcess", this.totalProgress);
+        Identifier recipeId = this.nowRecipe != null ? this.nowRecipe.getId() : this.resumeRecipeId;
+        if (recipeId != null) {
+            nbt.putString("Recipe", recipeId.toString());
+        }
     }
 }
