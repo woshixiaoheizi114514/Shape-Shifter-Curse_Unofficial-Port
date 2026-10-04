@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -398,7 +399,8 @@ public class ModPacketsS2CServer {
         for (IPerk perk : perks) {
             buf.writeResourceLocation(perk.getID());
             CompoundTag nbt = new CompoundTag();
-            perk.getCost().__writeToNBT(nbt);
+            // 1.21.1：ItemStack 序列化必须带 registry 上下文（ItemCost 的示例栈要用）。
+            perk.getCost().__writeToNBT(nbt, player.level().registryAccess());
             buf.writeNbt(nbt);
         }
         ServerPlayNetworking.send(player, new BytePayload(BytePayload.id(ModPackets.SYNC_PERK_DATA), buf));

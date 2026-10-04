@@ -6,10 +6,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.onixary.shapeShifterCurseFabric.perk.NormalPerk;
 import net.onixary.shapeShifterCurseFabric.perk.PerkTree;
 import net.onixary.shapeShifterCurseFabric.perk.RegPerks;
+import net.onixary.shapeShifterCurseFabric.util.util.cost.BaseCost;
+import net.onixary.shapeShifterCurseFabric.util.util.cost.RegCostType;
 
 public final class StudioGenerated {
   public static void register() {
-    RegPerks.registerPerkCommon(new NormalPerk(ResourceLocation.parse("shape-shifter-curse:snowfox_root")).setName(Component.literal("snowfox_root")).setDesc(Component.literal("")).setIcon(ResourceLocation.parse("shape-shifter-curse:textures/perk/fallback.png")).XpCost(0).addPower().removePower());
+    RegPerks.registerPerkCommon(new NormalPerk(ResourceLocation.parse("shape-shifter-curse:snowfox_root")).setName(Component.literal("snowfox_root")).setDesc(Component.literal("")).setIcon(ResourceLocation.parse("shape-shifter-curse:textures/perk/fallback.png")).cost(new BaseCost(RegCostType.COST_XP, 0)).addPower().removePower());
     PerkTree tree0 = new PerkTree(ResourceLocation.parse("shape-shifter-curse:f_snowfox_tree"));
     tree0.addNode(ResourceLocation.parse("shape-shifter-curse:snowfox_root"), 0, 0);
     RegPerks.registerPerkTree(tree0);

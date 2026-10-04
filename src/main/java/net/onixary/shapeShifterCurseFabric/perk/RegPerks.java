@@ -1,7 +1,10 @@
 package net.onixary.shapeShifterCurseFabric.perk;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.Unbreakable;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import net.onixary.shapeShifterCurseFabric.items.RegCustomItem;
 import net.onixary.shapeShifterCurseFabric.player_form.utils.PlayerFormComponent;
@@ -26,7 +29,8 @@ public class RegPerks {
 
     private static final ItemStack moonDust = new ItemStack(RegCustomItem.UNTREATED_MOONDUST);
     static {
-        moonDust.getOrCreateNbt().putBoolean("Unbreakable", true);
+        // 1.21.1：ItemStack 的 getOrCreateNbt/getTag 已移除，等价改为设置数据组件。
+        moonDust.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
     }
 
     public static final ResourceLocation P_FoxRoot = registerPerkCommon(

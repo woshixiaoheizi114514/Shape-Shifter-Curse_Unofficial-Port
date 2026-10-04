@@ -311,8 +311,8 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
             if (nowCost.getType() instanceof IFUSDrawableCostType<?> fusDrawable) {
                 int rx = baseX + PERK_INFO_COST_ICON_X;
                 int ry = baseY + PERK_INFO_COST_ICON_Y;
-                fusDrawable.drawIcon(context, nowCost, client.player, rx, ry, 0);
-                fusDrawable.drawOnHover(context, nowCost, client.player, rx, ry, 0, mouseX - rx, mouseY - ry);
+                fusDrawable.drawIcon(context, nowCost, minecraft.player, rx, ry, 0);
+                fusDrawable.drawOnHover(context, nowCost, minecraft.player, rx, ry, 0, mouseX - rx, mouseY - ry);
             }
         }
     }
@@ -564,7 +564,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
             for (ResourceLocation dependentPerkID : this.nowSelectNode.dependentPerkIDs) if (!playerGainedPerk.contains(dependentPerkID)) return false;
         }
         ICost cost = perkCostMap.get(this.nowSelectNode.perkID);
-        if (cost != null && !cost.getType().canPay_CLIENT(cost, client.player)) {
+        if (cost != null && !cost.getType().canPay_CLIENT(cost, minecraft.player)) {
             return false;
         }
         return true;
@@ -582,7 +582,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
             this.PerkDescWidget.reloadText(RegPerks.getPerkDescription(this.nowSelectNode.perkID));
             ICost cost = perkCostMap.get(this.nowSelectNode.perkID);
             if (cost != null && cost.getType() instanceof IFUSDrawableCostType<?> ifusDrawableCostType) {
-                this.PerkCostAmountWidget.setMessage(ifusDrawableCostType.getAmountText(cost, client.player));
+                this.PerkCostAmountWidget.setMessage(ifusDrawableCostType.getAmountText(cost, minecraft.player));
             } else {
                 this.PerkCostAmountWidget.setMessage(Component.literal(""));
             }

@@ -1,17 +1,17 @@
 package net.onixary.shapeShifterCurseFabric.util.util.cost;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface IFUSDrawableCostType<T extends ICostType<T>> extends ICostType<T> {
-    public void drawIcon(DrawContext context, @NotNull ICost costObject, @Nullable PlayerEntity player, int x, int y, int z);
+    public void drawIcon(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z);
 
-    public void drawOnHover(DrawContext context, @NotNull ICost costObject, @Nullable PlayerEntity player, int x, int y, int z, int mouseX, int mouseY);
+    public void drawOnHover(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z, int mouseX, int mouseY);
 
-    public default Text getAmountText(@NotNull ICost costObject, @Nullable PlayerEntity player) {
-        return Text.of(String.valueOf(costObject.getAmount()));
+    public default Component getAmountText(@NotNull ICost costObject, @Nullable Player player) {
+        return Component.nullToEmpty(String.valueOf(costObject.getAmount()));
     }
 }

@@ -2,12 +2,12 @@ package net.onixary.shapeShifterCurseFabric.util.util.cost;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import net.onixary.shapeShifterCurseFabric.custom_ui.FormUpgradeScreen;
 import net.onixary.shapeShifterCurseFabric.util.ClientUtils;
@@ -17,16 +17,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
-    private static final Identifier id = ShapeShifterCurseFabric.identifier("item");
+    private static final ResourceLocation id = ShapeShifterCurseFabric.identifier("item");
     private static final ISprite itemIconSprite = new BaseSprite(FormUpgradeScreen.TEXTURE, FormUpgradeScreen.TEXTURE_WIDTH, FormUpgradeScreen.TEXTURE_HEIGHT, 434, 54, 18, 18);
 
     @Override
-    public Identifier getID() {
+    public ResourceLocation getID() {
         return id;
     }
 
     @Override
-    public void drawIcon(DrawContext context, @NotNull ICost costObject, @Nullable PlayerEntity player, int x, int y, int z) {
+    public void drawIcon(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z) {
         itemIconSprite.draw(context, x, y, z, 0, 0, 18, 18);
         if (!(costObject instanceof ItemCost cost)) {
             return;
@@ -35,11 +35,11 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
         if (stack.isEmpty()) {
             return;
         }
-        context.drawItem(stack, x + 1, y + 1);
+        context.renderItem(stack, x + 1, y + 1);
     }
 
     @Override
-    public void drawOnHover(DrawContext context, @NotNull ICost costObject, @Nullable PlayerEntity player, int x, int y, int z, int mouseX, int mouseY) {
+    public void drawOnHover(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z, int mouseX, int mouseY) {
         if (mouseX <= 0 || mouseX >= 18 || mouseY <= 0 || mouseY >= 18) {
             return;
         }
@@ -50,11 +50,11 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
         if (stack.isEmpty()) {
             return;
         }
-        context.drawItemTooltip(MinecraftClient.getInstance().textRenderer, stack, x + mouseX, y + mouseY);
+        context.renderTooltip(Minecraft.getInstance().font, stack, x + mouseX, y + mouseY);
     }
 
     @Override
-    public boolean canPay(@NotNull ICost costObject, @Nullable PlayerEntity player) {
+    public boolean canPay(@NotNull ICost costObject, @Nullable Player player) {
         if (!(costObject instanceof ItemCost cost)) {
             throw new RuntimeException("ItemCostType.canPay costObject must be ItemCost");
         }
@@ -70,11 +70,13 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
                 throw new RuntimeException("CostType.canPay Player Argument In ServerSide Must NotNull");
             }
         }
-        PlayerInventory playerInventory = player.getInventory();
+        Inventory playerInventory = player.getInventory();
         int total = 0;
-        for (int i = 0; i < playerInventory.size(); i++) {
-            ItemStack stack = playerInventory.getStack(i);
-            if (!stack.isEmpty() && ItemStack.canCombine(exampleStack, stack)) {
+        for (int i = 0; i < playerInventory.getContainerSize(); i++) {
+            ItemStack stack = playerInventory.getItem(i);
+            // Yarn 的 canCombine = 比 item + NBT、不比 count，对应 Mojmap 的 isSameItemSameComponents。
+            // 注意别用 ItemStack.matches：它会连 count 一起比，而 exampleStack 恒为 1 个，会永远匹配不上。
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(exampleStack, stack)) {
                 total += stack.getCount();
                 if (total >= amount) {
                     return true;
@@ -85,7 +87,7 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
     }
 
     @Override
-    public void pay(@NotNull ICost costObject, @NotNull PlayerEntity player) {
+    public void pay(@NotNull ICost costObject, @NotNull Player player) {
         if (!(costObject instanceof ItemCost cost)) {
             throw new RuntimeException("ItemCostType.pay costObject must be ItemCost");
         }
@@ -94,16 +96,18 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
         if (exampleStack.isEmpty() || amount <= 0) {
             return;
         }
-        PlayerInventory playerInventory = player.getInventory();
+        Inventory playerInventory = player.getInventory();
         int remaining = amount;
-        for (int i = 0; i < playerInventory.size(); i++) {
+        for (int i = 0; i < playerInventory.getContainerSize(); i++) {
             if (remaining <= 0) {
                 break;
             }
-            ItemStack stack = playerInventory.getStack(i);
-            if (!stack.isEmpty() && ItemStack.canCombine(exampleStack, stack)) {
+            ItemStack stack = playerInventory.getItem(i);
+            // Yarn 的 canCombine = 比 item + NBT、不比 count，对应 Mojmap 的 isSameItemSameComponents。
+            // 注意别用 ItemStack.matches：它会连 count 一起比，而 exampleStack 恒为 1 个，会永远匹配不上。
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(exampleStack, stack)) {
                 int take = Math.min(stack.getCount(), remaining);
-                stack.decrement(take);
+                stack.shrink(take);
                 remaining -= take;
             }
         }

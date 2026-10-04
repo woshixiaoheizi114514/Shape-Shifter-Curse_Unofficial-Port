@@ -1,12 +1,15 @@
 package net.onixary.shapeShifterCurseFabric.util.util.cost;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 
 public class ItemCost implements ICost {
-    public static final Identifier id = ShapeShifterCurseFabric.identifier("item");
+    public static final ResourceLocation id = ShapeShifterCurseFabric.identifier("item");
     private ICostType<?> type;
     private ItemStack exampleStack;
     private int amount;
@@ -15,9 +18,9 @@ public class ItemCost implements ICost {
         this(RegCostType.NO_COST, ItemStack.EMPTY, 0);
     }
 
-    public ItemCost(NbtCompound nbt) {
+    public ItemCost(CompoundTag nbt, HolderLookup.Provider registries) {
         this();
-        readFromNBT(nbt);
+        readFromNBT(nbt, registries);
     }
 
     public ItemCost(ICostType<?> type, ItemStack exampleStack, int amount) {
@@ -28,7 +31,7 @@ public class ItemCost implements ICost {
     }
 
     @Override
-    public Identifier getId() {
+    public ResourceLocation getId() {
         return id;
     }
 
@@ -47,16 +50,25 @@ public class ItemCost implements ICost {
     }
 
     @Override
-    public void writeToNBT(NbtCompound nbt) {
+    public void writeToNBT(CompoundTag nbt, HolderLookup.Provider registries) {
         nbt.putString("type", type.getID().toString());
-        nbt.put("exampleStack", exampleStack.writeNbt(new NbtCompound()));
+        // 1.21.1：ItemStack.writeNbt 已移除，改用 Codec + registry 上下文（与 ItemStorePower 同一写法）。
+        ItemStack.CODEC.encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), exampleStack)
+                .result()
+                .ifPresent(tag -> nbt.put("exampleStack", tag));
         nbt.putInt("amount", amount);
     }
 
     @Override
-    public void readFromNBT(NbtCompound nbt) {
-        type = RegCostType.getCostType(new Identifier(nbt.getString("type")));
-        exampleStack = ItemStack.fromNbt(nbt.getCompound("exampleStack"));
+    public void readFromNBT(CompoundTag nbt, HolderLookup.Provider registries) {
+        type = RegCostType.getCostType(ResourceLocation.parse(nbt.getString("type")));
+        // 解析失败时保留构造函数给的 ItemStack.EMPTY，不要静默留下 null。
+        Tag stackTag = nbt.get("exampleStack");
+        if (stackTag != null) {
+            ItemStack.CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE), stackTag)
+                    .result()
+                    .ifPresent(stack -> exampleStack = stack);
+        }
         amount = nbt.getInt("amount");
     }
 }

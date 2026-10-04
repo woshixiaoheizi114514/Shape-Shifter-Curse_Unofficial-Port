@@ -1,18 +1,18 @@
 package net.onixary.shapeShifterCurseFabric.util.util.cost;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface ICostType<T extends ICostType<T>> {
-    public Identifier getID();
+    public ResourceLocation getID();
 
-    public boolean canPay(@NotNull ICost costObject, @Nullable PlayerEntity player);
+    public boolean canPay(@NotNull ICost costObject, @Nullable Player player);
 
-    public default boolean canPay_CLIENT(@NotNull ICost costObject, @Nullable PlayerEntity player) {
+    public default boolean canPay_CLIENT(@NotNull ICost costObject, @Nullable Player player) {
         return canPay(costObject, player);
     }
 
-    public void pay(@NotNull ICost costObject, @NotNull PlayerEntity player);
+    public void pay(@NotNull ICost costObject, @NotNull Player player);
 }

@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -671,10 +672,14 @@ public class ModPacketsS2C {
         boolean fullUpdate = payload.data().readBoolean();
         int updateCount = payload.data().readInt();
         HashMap<ResourceLocation, ICost> perkCostMap = new HashMap<>();
+        // 1.21.1：ItemStack 反序列化必须带 registry 上下文（ItemCost 的示例栈要用）。
+        net.minecraft.core.RegistryAccess registries = ctx.client().level != null
+                ? ctx.client().level.registryAccess()
+                : net.minecraft.core.RegistryAccess.EMPTY;
         for (int i = 0; i < updateCount; i++) {
             ResourceLocation perkID = payload.data().readResourceLocation();
             CompoundTag nbt = payload.data().readNbt();
-            perkCostMap.put(perkID, ICost.fromNBT(nbt));
+            perkCostMap.put(perkID, ICost.fromNBT(nbt, registries));
         }
         ctx.client().execute(() -> {
             if (fullUpdate) {

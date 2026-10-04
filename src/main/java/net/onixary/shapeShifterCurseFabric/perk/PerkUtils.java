@@ -105,7 +105,7 @@ public class PerkUtils {
         if (!perkTree.getAllPerks().contains(perkID)) return;
 
         ICost cost = perkData.getCost();
-        if (!player.getAbilities().creativeMode) {
+        if (!player.getAbilities().instabuild) {
             if (!cost.getType().canPay(cost, player)) {
                 return;
             }
@@ -134,7 +134,7 @@ public class PerkUtils {
         }
 
         if (perkData.canGain(player, component.nowForm)) {
-            if (!player.getAbilities().creativeMode) {
+            if (!player.getAbilities().instabuild) {
                 cost.getType().pay(cost, player);
             }
             __addPerk(player, perkTreeID, perkID);
