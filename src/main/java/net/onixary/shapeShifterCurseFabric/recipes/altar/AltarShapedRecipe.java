@@ -159,12 +159,14 @@ public class AltarShapedRecipe extends AltarRecipe {
                 Codec.INT.optionalFieldOf("fuel_cost", 1).forGetter(r -> r.fuelCostPerTick),
                 ResourceLocation.CODEC.optionalFieldOf("require_advancement").forGetter(r -> Optional.ofNullable(r.requireAdvancement)),
                 // 数据包用「月尘个数」表达燃料预算，内部换算成 fuel unit（1 个尘 = 800）。
-                // 缺省 0 表示未指定 → totalFuelCost 保持 -1，退回逐 tick fuel_cost 的老行为。
-                Codec.INT.optionalFieldOf("moondust_cost", 0)
-                        .forGetter(r -> r.totalFuelCost > 0 ? r.totalFuelCost / 800 : 0)
+                // ⚠ 字段缺省值与「显式写了 0」必须区分：0 表示「本配方不耗燃料」（totalFuelCost=0），
+                //   而字段整个缺失才表示「未指定」（totalFuelCost=-1 → 退回逐 tick fuel_cost）。
+                //   所以这里用无默认值的 optionalFieldOf（拿到 Optional），不要写死默认 0。
+                Codec.INT.optionalFieldOf("moondust_cost")
+                        .forGetter(r -> r.totalFuelCost >= 0 ? Optional.of(r.totalFuelCost / 800) : Optional.empty())
             ).apply(instance, (pattern, output, catalyst, time, fuelCost, requireAdvancement, moondustCost) ->
                 new AltarShapedRecipe(pattern, output, catalyst.orElse(null), time, fuelCost, requireAdvancement.orElse(null),
-                        moondustCost > 0 ? moondustCost * 800 : -1))
+                        moondustCost.map(integer -> integer * 800).orElse(-1)))
         );
 
         private static final StreamCodec<RegistryFriendlyByteBuf, AltarShapedRecipe> STREAM_CODEC = StreamCodec.of(
