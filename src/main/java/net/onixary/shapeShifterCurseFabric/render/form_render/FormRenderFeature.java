@@ -18,6 +18,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
+import net.onixary.shapeShifterCurseFabric.player_animator.FirstPersonArms;
+import net.onixary.shapeShifterCurseFabric.player_animator.PlayerAnimatorCompat;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -114,27 +117,36 @@ public class FormRenderFeature <T extends Player, M extends HumanoidModel<T>, A 
         boolean leftPantsHidden = !player.isModelPartShown(PlayerModelPart.LEFT_PANTS_LEG);
         boolean rightLegHidden = false;
         boolean rightPantsHidden = !player.isModelPartShown(PlayerModelPart.RIGHT_PANTS_LEG);
-        // Better Combat 修复
-//        if (FirstPersonMode.isFirstPersonPass() && ClientConfig.enableBetterCombatFix && player == MinecraftClient.getInstance().getCameraEntity()) {
-//            AnimationApplier animationApplier = ((IAnimatedPlayer) player).playerAnimator_getAnimation();
-//            FirstPersonConfiguration config = animationApplier.getFirstPersonConfiguration();
-//            hatHidden = true;
-//            headHidden = true;
-//            bodyHidden = true;
-//            jacketHidden = true;
-//            if (!config.isShowLeftArm()) {
-//                leftArmHidden = true;
-//                leftSleeveHidden = true;
-//            }
-//            if (!config.isShowRightArm()) {
-//                rightArmHidden = true;
-//                rightSleeveHidden = true;
-//            }
-//            leftLegHidden = true;
-//            leftPantsHidden = true;
-//            rightLegHidden = true;
-//            rightPantsHidden = true;
-//        }
+        // Better Combat 修复：第一人称下把原版模型的头/身/腿全裁掉，只按动作动画自己声明的配置保留手臂。
+        //
+        // 这一段必须走 PlayerAnimatorCompat 而不是直接调 PA：
+        //   · PA 是可选依赖，直接引用 dev.kosmx.* 会让纯 PAL 环境 NoClassDefFoundError；
+        //   · PlayerAnimatorCompat.isFirstPersonPass() 在没装 PA 时恒为 false，
+        //     于是「读不到 PA 的第一人称配置」和「不该做裁剪」这两种情况天然合一，
+        //     到这里 arms 必然非 null；仍然判一次是为了防 BRIDGE 中途不可用的边界。
+        if (ShapeShifterCurseFabric.clientConfig.enableBetterCombatFix
+                && PlayerAnimatorCompat.isFirstPersonPass()
+                && player == Minecraft.getInstance().getCameraEntity()) {
+            FirstPersonArms arms = PlayerAnimatorCompat.getFirstPersonArms(player);
+            if (arms != null) {
+                hatHidden = true;
+                headHidden = true;
+                bodyHidden = true;
+                jacketHidden = true;
+                if (!arms.showLeft()) {
+                    leftArmHidden = true;
+                    leftSleeveHidden = true;
+                }
+                if (!arms.showRight()) {
+                    rightArmHidden = true;
+                    rightSleeveHidden = true;
+                }
+                leftLegHidden = true;
+                leftPantsHidden = true;
+                rightLegHidden = true;
+                rightPantsHidden = true;
+            }
+        }
         for (FormRenderer formRenderer : formRendererList) {
             FormModel formModel = (FormModel) formRenderer.getGeoModel();
             hatHidden |= formModel.Hidden_Hat;

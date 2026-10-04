@@ -162,4 +162,31 @@ public final class PlayerAnimatorCompat {
         if (BRIDGE == null) return;
         BRIDGE.stop(containerObj);
     }
+
+    // ------------------------------------------------------------------
+    // 第一人称裁剪（Better Combat 修复用）
+    // ------------------------------------------------------------------
+
+    /**
+     * 当前是否处于「第一人称渲染 pass」。
+     *
+     * <p>这是 PA 在渲染循环里置位/清除的 ThreadLocal 标记，因此<b>只有装了 PA 才可能为 true</b>。
+     * 这正好界定了 Better Combat 修复的适用范围：该修复要读的是 PA 动画自带的第一人称配置，
+     * 纯 PAL 环境下既没有这个配置、也不该做裁剪，所以返回 false 时调用方应当整段跳过。</p>
+     */
+    public static boolean isFirstPersonPass() {
+        return BRIDGE != null && BRIDGE.isFirstPersonPass();
+    }
+
+    /**
+     * 取该玩家当前动画的第一人称手臂配置。
+     *
+     * @return PA 不可用、或当前没有活跃动画时返回 {@code null}。
+     *         调用方必须区分 {@code null}（没有 PA 数据，不裁剪）与
+     *         {@code new FirstPersonArms(false, false)}（PA 明确要求两手都不显示）。
+     */
+    public static @Nullable FirstPersonArms getFirstPersonArms(@NotNull Player player) {
+        if (BRIDGE == null) return null;
+        return BRIDGE.getFirstPersonArms(player);
+    }
 }

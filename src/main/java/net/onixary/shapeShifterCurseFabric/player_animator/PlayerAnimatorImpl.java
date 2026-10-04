@@ -100,4 +100,24 @@ public final class PlayerAnimatorImpl implements PlayerAnimatorBridge {
                 new dev.kosmx.playerAnim.core.util.Vec3f(defaultValue.x(), defaultValue.y(), defaultValue.z()));
         return new Vec3f(result.getX(), result.getY(), result.getZ());
     }
+
+    @Override
+    public boolean isFirstPersonPass() {
+        // PA 在渲染循环开始时置位、结束时清掉（见其 LevelRendererMixin），因此只有「装了 PA」才有意义。
+        return dev.kosmx.playerAnim.api.firstPerson.FirstPersonMode.isFirstPersonPass();
+    }
+
+    @Override
+    public @Nullable FirstPersonArms getFirstPersonArms(@NotNull Player player) {
+        if (!(player instanceof AbstractClientPlayer clientPlayer)) return null;
+        if (!(clientPlayer instanceof dev.kosmx.playerAnim.impl.IAnimatedPlayer paPlayer)) return null;
+
+        dev.kosmx.playerAnim.impl.animation.AnimationApplier applier = paPlayer.playerAnimator_getAnimation();
+        if (applier == null || !applier.isActive()) return null;
+
+        // AnimationApplier extends AnimationProcessor，后者直接转发到当前 animation 的配置。
+        dev.kosmx.playerAnim.api.firstPerson.FirstPersonConfiguration config =
+                applier.getFirstPersonConfiguration();
+        return new FirstPersonArms(config.isShowLeftArm(), config.isShowRightArm());
+    }
 }

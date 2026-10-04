@@ -5,6 +5,7 @@ import com.zigythebird.playeranimcore.math.Vec3f;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * PlayerAnimator 调用的抽象契约。
@@ -40,4 +41,24 @@ public interface PlayerAnimatorBridge {
 
     /** 查询 PA 动画栈上某根骨骼的变换；PA 无数据时返回 {@code defaultValue}。 */
     Vec3f getBoneTransform(Player player, String rawBoneName, TransformType type, Vec3f defaultValue);
+
+    /**
+     * 当前渲染是否处于「第一人称渲染 pass」。
+     *
+     * <p>对应 PA 的 {@code FirstPersonMode.isFirstPersonPass()}——那是 PA 在渲染循环开始时置位、
+     * 结束时清掉的 ThreadLocal 标记（见其 {@code LevelRendererMixin}）。本桥接层可用时 PA 必然在装，
+     * 所以这个标记是可信的。</p>
+     */
+    boolean isFirstPersonPass();
+
+    /**
+     * 取该玩家当前动画的第一人称手臂配置。
+     *
+     * <p>对应 PA 的 {@code AnimationApplier#getFirstPersonConfiguration()}（沿 layer 栈取最高优先级的
+     * 非 NONE 配置）。用于 Better Combat 的第一人称裁剪。</p>
+     *
+     * @return 无活跃动画时返回 {@code null}——调用方必须区分「null（无 PA 数据，不做裁剪）」
+     *         与「两个 arm 都是 false（PA 明确要求不显示手臂）」
+     */
+    @Nullable FirstPersonArms getFirstPersonArms(Player player);
 }
