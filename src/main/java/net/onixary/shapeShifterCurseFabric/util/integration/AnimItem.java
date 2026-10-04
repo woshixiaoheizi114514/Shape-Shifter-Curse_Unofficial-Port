@@ -1,6 +1,6 @@
 package net.onixary.shapeShifterCurseFabric.util.integration;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

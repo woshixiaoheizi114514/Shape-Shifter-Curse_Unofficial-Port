@@ -1,11 +1,11 @@
 package net.onixary.shapeShifterCurseFabric.util.menu;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 
 // 拓展的护盾画法 为了极致的速度 尽量少添加贴图
 public interface ISprite {
-    public Identifier getTextureID();
+    public ResourceLocation getTextureID();
 
     public int getTextureImgWidth();
 
@@ -19,11 +19,11 @@ public interface ISprite {
 
     public int getTextureHeight();
 
-    public default void draw(DrawContext context, int x, int y) {
+    public default void draw(GuiGraphics context, int x, int y) {
         this.draw(context, x, y, 0, 0, 0, getTextureWidth(), getTextureHeight());
     }
 
-    public default void draw(DrawContext context, int x, int y, int z, int u, int v, int width, int height) {
-        context.drawTexture(getTextureID(), x, y, z, getTextureX() + u, getTextureY() + v, width, height, getTextureImgWidth(), getTextureImgHeight());
+    public default void draw(GuiGraphics context, int x, int y, int z, int u, int v, int width, int height) {
+        context.blit(getTextureID(), x, y, z, getTextureX() + u, getTextureY() + v, width, height, getTextureImgWidth(), getTextureImgHeight());
     }
 }

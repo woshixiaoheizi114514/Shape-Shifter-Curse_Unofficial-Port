@@ -120,7 +120,7 @@ public class AltarShapelessRecipe extends AltarRecipe {
 
     @Override
     public @NotNull RecipeSerializer<?> getSerializer() {
-        return RecipeSerializerRegister.Altar_SHAPELESS_RECIPE;
+        return RecipeSerializerRegister.ALTAR_SHAPELESS_RECIPE;
     }
 
     public static class Serializer implements RecipeSerializer<AltarShapelessRecipe> {

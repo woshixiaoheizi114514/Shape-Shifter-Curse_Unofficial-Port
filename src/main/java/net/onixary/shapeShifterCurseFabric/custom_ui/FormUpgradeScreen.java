@@ -272,7 +272,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         baseX = this.width / 2 - BACKGROUND_WIDTH / 2;
         baseY = this.height / 2 - BACKGROUND_HEIGHT / 2;
-        context.drawTexture(TEXTURE, baseX, baseY, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        context.blit(TEXTURE, baseX, baseY, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         nodeWindowX = baseX + PERK_UI_X;
         nodeWindowY = baseY + PERK_UI_Y;
         cameraCenter = new Vector2i(nodeWindowX + PERK_UI_WIDTH / 2, nodeWindowY + PERK_UI_HEIGHT / 2);
@@ -280,7 +280,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        context.drawTexture(TEXTURE, baseX + PERK_UI_ICON_X, baseY + PERK_UI_ICON_Y, 434, 0, PERK_UI_ICON_WIDTH, PERK_UI_ICON_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        context.blit(TEXTURE, baseX + PERK_UI_ICON_X, baseY + PERK_UI_ICON_Y, 434, 0, PERK_UI_ICON_WIDTH, PERK_UI_ICON_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         RenderSystem.disableBlend();
         this.drawAllNode(context, mouseX, mouseY, delta);
 
@@ -423,7 +423,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     public void drawAllNode(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (this.minecraft == null) return;
         context.enableScissor(nodeWindowX, nodeWindowY, nodeWindowX + PERK_UI_WIDTH, nodeWindowY + PERK_UI_HEIGHT);
-        MatrixStack matrixStack = context.getMatrices();
+        PoseStack matrixStack = context.pose();
         int firstX = nodeBaseX + nodeCenter.x;
         int firstY = nodeWindowY + LEVEL_ICON_Y;
         for (int tierIndex = 1; tierIndex <= this.MaxPerkLevel; tierIndex++) {
@@ -436,7 +436,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
             //         lineLeftX + 1, nodeWindowY + PERK_UI_HEIGHT,
             //         LineColor
             // );
-            context.drawTexture(TEXTURE, lineLeftX - 1, nodeWindowY, 431, 0, 3, PERK_UI_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            context.blit(TEXTURE, lineLeftX - 1, nodeWindowY, 431, 0, 3, PERK_UI_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
             int screenIconX = lineLeftX - (LEVEL_ICON_WIDTH - 1) / 2;
             ISprite icon = levelSprites.get(tierIndex);
             if (icon != null) {

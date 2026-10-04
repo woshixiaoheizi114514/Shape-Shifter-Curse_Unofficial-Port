@@ -71,6 +71,7 @@
     "block.SweetBerryBushBlockMixin",
     "integration.AppleSkin",
     "integration.BOP_WebbingBlockMixin",
+    "integration.CarryOnIntegrationMixin",
     "integration.LodeStoneIntegrationMixin",
     "integration.PresenceFootstepsStepSpeedMixin",
     "integration.ToughAsNailsDrinkInWorldPacketMixin",

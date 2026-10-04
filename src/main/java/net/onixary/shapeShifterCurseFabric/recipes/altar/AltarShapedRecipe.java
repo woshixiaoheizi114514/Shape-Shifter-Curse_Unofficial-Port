@@ -1,6 +1,7 @@
 package net.onixary.shapeShifterCurseFabric.recipes.altar;
 
-import com.google.common.collect.Sets;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -13,6 +14,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -24,9 +26,7 @@ import net.onixary.shapeShifterCurseFabric.recipes.RecipeSerializerRegister;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public class AltarShapedRecipe extends AltarRecipe {
     public final ShapedRecipePattern pattern;
@@ -136,7 +136,7 @@ public class AltarShapedRecipe extends AltarRecipe {
 
     @Override
     public @NotNull RecipeSerializer<?> getSerializer() {
-        return RecipeSerializerRegister.Altar_SHAPED_RECIPE;
+        return RecipeSerializerRegister.ALTAR_SHAPED_RECIPE;
     }
 
     public static class Serializer implements RecipeSerializer<AltarShapedRecipe> {
@@ -156,11 +156,6 @@ public class AltarShapedRecipe extends AltarRecipe {
             Serializer::toNetwork, Serializer::fromNetwork
         );
 
-        @Override
-        public RecipeSerializer<?> getSerializer() {
-            return RecipeSerializerRegister.ALTAR_SHAPED_RECIPE;
-        }
-
         public static String[] getPattern(JsonArray json) {
             String[] strings = new String[json.size()];
             if (strings.length > 3) {
@@ -169,7 +164,7 @@ public class AltarShapedRecipe extends AltarRecipe {
                 throw new JsonSyntaxException("Invalid pattern: empty pattern not allowed");
             } else {
                 for(int i = 0; i < strings.length; ++i) {
-                    String string = JsonHelper.asString(json.get(i), "pattern[" + i + "]");
+                    String string = GsonHelper.getAsString((JsonObject) json.get(i), "pattern[" + i + "]");
                     if (string.length() > 3) {
                         throw new JsonSyntaxException("Invalid pattern: too many columns, 3 is maximum");
                     }
@@ -183,25 +178,6 @@ public class AltarShapedRecipe extends AltarRecipe {
 
                 return strings;
             }
-        }
-
-        public static Map<String, Ingredient> readSymbols(JsonObject json) {
-            Map<String, Ingredient> map = Maps.newHashMap();
-
-            for(Map.Entry<String, JsonElement> entry : json.entrySet()) {
-                if (((String)entry.getKey()).length() != 1) {
-                    throw new JsonSyntaxException("Invalid key entry: '" + (String)entry.getKey() + "' is an invalid symbol (must be 1 character only).");
-                }
-
-                if (" ".equals(entry.getKey())) {
-                    throw new JsonSyntaxException("Invalid key entry: ' ' is a reserved symbol.");
-                }
-
-                map.put((String)entry.getKey(), Ingredient.fromJson((JsonElement)entry.getValue(), false));
-            }
-
-            map.put(" ", Ingredient.EMPTY);
-            return map;
         }
 
         public static int findFirstSymbol(String line) {
@@ -250,30 +226,6 @@ public class AltarShapedRecipe extends AltarRecipe {
             }
         }
 
-        public static DefaultedList<Ingredient> createPatternMatrix(String[] pattern, Map<String, Ingredient> symbols, int width, int height) {
-            DefaultedList<Ingredient> defaultedList = DefaultedList.ofSize(width * height, Ingredient.EMPTY);
-            Set<String> set = Sets.newHashSet(symbols.keySet());
-            set.remove(" ");
-
-            for(int i = 0; i < pattern.length; ++i) {
-                for(int j = 0; j < pattern[i].length(); ++j) {
-                    String string = pattern[i].substring(j, j + 1);
-                    Ingredient ingredient = (Ingredient)symbols.get(string);
-                    if (ingredient == null) {
-                        throw new JsonSyntaxException("Pattern references symbol '" + string + "' but it's not defined in the key");
-                    }
-
-                    set.remove(string);
-                    defaultedList.set(j + width * i, ingredient);
-                }
-            }
-
-            if (!set.isEmpty()) {
-                throw new JsonSyntaxException("Key defines symbols that aren't used in pattern: " + set);
-            } else {
-                return defaultedList;
-            }
-        }
         @Override
         public @NotNull MapCodec<AltarShapedRecipe> codec() {
             return CODEC;

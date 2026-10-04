@@ -1,9 +1,9 @@
 package net.onixary.shapeShifterCurseFabric.util.integration;
 
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 
 public class CarryOnIntegration {
-    public static boolean isInCarryingAnimation(PlayerEntity player) {
+    public static boolean isInCarryingAnimation(Player player) {
         return false;
     }
 }

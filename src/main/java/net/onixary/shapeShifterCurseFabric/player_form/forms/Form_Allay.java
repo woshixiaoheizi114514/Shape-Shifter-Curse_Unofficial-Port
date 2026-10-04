@@ -33,7 +33,7 @@ public class Form_Allay extends NormalForm {
 
     public @Nullable AbstractAnimStateController getAnimStateController(Player player, AnimSystem.AnimSystemData animSystemData, @NotNull ResourceLocation animStateID) {
         @Nullable AnimStateEnum animStateEnum = AnimStateEnum.getStateEnum(animStateID);
-        Item holdItem = player.getMainHandStack().getItem();
+        Item holdItem = player.getMainHandItem().getItem();
         List<AnimItem.AnimItemTag> animItemTags = AnimItem.getAnimItemTags(holdItem);
         if (animStateEnum != null) {
             if (
