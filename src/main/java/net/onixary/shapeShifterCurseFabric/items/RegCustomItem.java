@@ -49,11 +49,11 @@ public class RegCustomItem {
     public static final Item NETHERITE_MORPHSCALE_CUISH = register("netherite_morphscale_cuish", new NetheriteMorphScaleArmor(ArmorItem.Type.LEGGINGS));
     public static final Item NETHERITE_MORPHSCALE_ANKLET = register("netherite_morphscale_anklet", new NetheriteMorphScaleArmor(ArmorItem.Type.BOOTS));
     // 模组自定义物品
-    public static final Item MOONDUST_CRYSTAL_SHARD = register("moondust_crystal_shard", new MoonDustCrystalShard(new Item.Properties()));
+    public static final Item MOONDUST_CRYSTAL_SHARD = register("moondust_crystal_shard", new MoonDustCrystalShard(new MoonDustCrystalShard.Properties()));
     public static final Item ECTOPLASM_RAG = register("ectoplasm_rag", new Item(new Item.Properties()));
     public static final TieredItem BOTTLED_SNOWFALL = register("bottled_snowfall", new BottledSnowfall(BottledSnowfallToolMaterial.INSTANCE, 1, 1, new Item.Properties()));
     public static final TieredItem DIAMOND_MINING_CLAW = register("diamond_mining_claw", new DiamondMiningClaw(DiamondMiningClawToolMaterial.INSTANCE, 1, -2.4f, new Item.Properties()));
-    public static final Item FIRE_CHARM_PAPER = register("fire_charm_paper", new Item(new Item.Properties()));
+    public static final Item FIRE_CHARM_PAPER = register("fire_charm_paper", new FireCharmPaper(new Item.Properties()));
     public static final Item AUXILIARY_SWORD = register("auxiliary_sword", new AuxiliarySword(AuxiliarySwordToolMaterial.INSTANCE, 1, -2.4f, new Item.Properties()));
     public static final TieredItem AUXILIARY_PICKAXE = register("auxiliary_pickaxe", new AuxiliaryPickaxe(AuxiliaryPickaxeToolMaterial.INSTANCE, 1, -2.8f, new Item.Properties()));
     public static final TieredItem AUXILIARY_AXE = register("auxiliary_axe", new AuxiliaryAxe(AuxiliaryAxeToolMaterial.INSTANCE, 1, -3.1f, new Item.Properties()));
@@ -84,15 +84,15 @@ public class RegCustomItem {
     public static final Item FOUNTAIN_BELT_PLUS = register("fountain_belt_plus", new FormTrinket(new Item.Properties().rarity(Rarity.RARE)));
     public static final Item AMULET_BRACELET_PLUS = register("amulet_bracelet_plus", new FormTrinket(new Item.Properties().rarity(Rarity.RARE)));
     public static final TieredItem BOTTLED_SNOWFALL_PLUS = register("bottled_snowfall_plus", new BottledSnowfall(BottledSnowfallToolMaterial.INSTANCE, 1, 1, new Item.Properties().rarity(Rarity.RARE)));
-    public static final Item EXPLOSIVE_CHARM_PAPER = register("explosive_charm_paper", new Item(new Item.Properties()));
+    public static final Item EXPLOSIVE_CHARM_PAPER = register("explosive_charm_paper", new FireCharmPaper(new Item.Properties()));
     public static final Item GLINT_PRISM = register("glint_prism", new Item(new Item.Properties()));
-    public static final Item JUNGLE_CATALYST_CORE = register("jungle_catalyst_core", new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
-    public static final Item WEB_CATALYST_CORE = register("web_catalyst_core", new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
-    public static final Item FROST_CATALYST_CORE = register("frost_catalyst_core", new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
-    public static final Item FOXFIRE_CATALYST_CORE = register("foxfire_catalyst_core", new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
-    public static final Item SURGE_CATALYST_CORE = register("surge_catalyst_core", new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
-    public static final Item DUNE_CATALYST_CORE = register("dune_catalyst_core", new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
-    public static final Item NIGHT_CATALYST_CORE = register("night_catalyst_core", new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+    public static final Item JUNGLE_CATALYST_CORE = register("jungle_catalyst_core", new CatalystCoreItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+    public static final Item WEB_CATALYST_CORE = register("web_catalyst_core", new CatalystCoreItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+    public static final Item FROST_CATALYST_CORE = register("frost_catalyst_core", new CatalystCoreItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+    public static final Item FOXFIRE_CATALYST_CORE = register("foxfire_catalyst_core", new CatalystCoreItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+    public static final Item SURGE_CATALYST_CORE = register("surge_catalyst_core", new CatalystCoreItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+    public static final Item DUNE_CATALYST_CORE = register("dune_catalyst_core", new CatalystCoreItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+    public static final Item NIGHT_CATALYST_CORE = register("night_catalyst_core", new CatalystCoreItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
 
     public static final Item TRANSFORMATIVE_AXOLOTL_BUCKET = register("transformative_axolotl_bucket", new MobBucketItem(ShapeShifterCurseFabric.T_AXOLOTL, Fluids.WATER, SoundEvents.BUCKET_EMPTY_AXOLOTL, (new Item.Properties()).stacksTo(1)));
     // 减少非蜘蛛玩家食用的中毒量，做到实在没东西吃的时候也能硬着头皮吃的感觉

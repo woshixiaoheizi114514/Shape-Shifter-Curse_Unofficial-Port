@@ -15,6 +15,6 @@ public class FireCharmPaper extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag type) {
-        tooltip.add(Component.translatable("item.shape-shifter-curse.fire_charm_paper.tooltip").withStyle(ChatFormatting.YELLOW));
+        tooltip.add(Component.translatable(getDescriptionId() + ".tooltip").withStyle(ChatFormatting.YELLOW));
     }
 }
