@@ -397,7 +397,9 @@ public class ModPacketsS2CServer {
         buf.writeInt(perks.length);
         for (IPerk perk : perks) {
             buf.writeResourceLocation(perk.getID());
-            buf.writeInt(perk.getXpCost());
+            CompoundTag nbt = new CompoundTag();
+            perk.getCost().__writeToNBT(nbt);
+            buf.writeNbt(nbt);
         }
         ServerPlayNetworking.send(player, new BytePayload(BytePayload.id(ModPackets.SYNC_PERK_DATA), buf));
     }

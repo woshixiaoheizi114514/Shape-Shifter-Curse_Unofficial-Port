@@ -55,6 +55,11 @@ public class AltarCraftUI extends AbstractContainerScreen<AltarCraftUIHandler> {
     }
 
     @Override
+    protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
+        // The altar layout omits the default screen and inventory labels.
+    }
+
+    @Override
     protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
         context.blit(BACKGROUND, baseX, baseY, 0, 0, WIDTH, HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }

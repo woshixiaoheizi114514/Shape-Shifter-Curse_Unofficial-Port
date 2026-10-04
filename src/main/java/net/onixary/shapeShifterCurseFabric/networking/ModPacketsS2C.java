@@ -2,7 +2,6 @@ package net.onixary.shapeShifterCurseFabric.networking;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.screens.Screen;
@@ -35,6 +34,7 @@ import net.onixary.shapeShifterCurseFabric.util.PatronUtils;
 import net.onixary.shapeShifterCurseFabric.util.SuperUserUtils;
 import net.onixary.shapeShifterCurseFabric.util.Verify.AuthClient;
 import net.onixary.shapeShifterCurseFabric.util.Verify.AuthFile;
+import net.onixary.shapeShifterCurseFabric.util.util.cost.ICost;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -670,16 +670,17 @@ public class ModPacketsS2C {
     public static void receivePerkData(BytePayload payload, ClientPlayNetworking.Context ctx) {
         boolean fullUpdate = payload.data().readBoolean();
         int updateCount = payload.data().readInt();
-        HashMap<ResourceLocation, Integer> perkXpCostMap = new HashMap<>();
+        HashMap<ResourceLocation, ICost> perkCostMap = new HashMap<>();
         for (int i = 0; i < updateCount; i++) {
             ResourceLocation perkID = payload.data().readResourceLocation();
-            perkXpCostMap.put(perkID, payload.data().readInt());
+            CompoundTag nbt = payload.data().readNbt();
+            perkCostMap.put(perkID, ICost.fromNBT(nbt));
         }
         ctx.client().execute(() -> {
             if (fullUpdate) {
-                FormUpgradeScreen.perkXpCostMap.clear();
+                FormUpgradeScreen.perkCostMap.clear();
             }
-            FormUpgradeScreen.perkXpCostMap.putAll(perkXpCostMap);
+            FormUpgradeScreen.perkCostMap.putAll(perkCostMap);
         });
     }
 
