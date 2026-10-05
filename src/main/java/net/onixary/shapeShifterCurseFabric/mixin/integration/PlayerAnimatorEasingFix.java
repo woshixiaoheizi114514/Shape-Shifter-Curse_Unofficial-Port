@@ -41,7 +41,7 @@ import org.spongepowered.asm.mixin.injection.At;
  * （见 {@code player_animator/PlayerAnimatorCompat} 的类注释）。{@code targets} 形式下本类
  * 不含任何 PA 类型引用。</p>
  */
-@Mixin(targets = "dev.kosmx.playerAnim.core.util.Easing", remap = false)
+@Mixin(value = dev.kosmx.playerAnim.core.util.Easing.class, remap = false)
 public class PlayerAnimatorEasingFix {
 
     @ModifyReturnValue(method = "catmullRom(F)F", at = @At("RETURN"))
