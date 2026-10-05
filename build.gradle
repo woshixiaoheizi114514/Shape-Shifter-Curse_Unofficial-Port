@@ -207,9 +207,7 @@ dependencies {
     api project(path: ":apoli", configuration: "namedElements")
     include project(":apoli")
 
-    modApi("com.github.Virtuoel:Pehkui:${pehkui_version}", {
-        exclude group: "net.fabricmc.fabric-api"
-    })
+    modImplementation("maven.modrinth:pehkui-rebuilt:${pehkui_version}-fabric")
 
     modApi("org.ladysnake.cardinal-components-api:cardinal-components-base:${cca_version}") {
         exclude(group: "net.fabricmc.fabric-api")
