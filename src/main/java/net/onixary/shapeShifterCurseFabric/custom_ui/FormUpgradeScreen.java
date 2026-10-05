@@ -22,6 +22,7 @@ import net.onixary.shapeShifterCurseFabric.util.util.BaseSprite;
 import net.onixary.shapeShifterCurseFabric.util.util.ISprite;
 import net.onixary.shapeShifterCurseFabric.util.util.cost.BaseCost;
 import net.onixary.shapeShifterCurseFabric.util.util.cost.ICost;
+import net.onixary.shapeShifterCurseFabric.util.util.cost.CostTypeIcons;
 import net.onixary.shapeShifterCurseFabric.util.util.cost.IFUSDrawableCostType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -308,11 +309,13 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
 
         if (this.nowSelectNode != null) {
             ICost nowCost = perkCostMap.getOrDefault(this.nowSelectNode.perkID, EMPTY_COST);
-            if (nowCost.getType() instanceof IFUSDrawableCostType<?> fusDrawable) {
+            if (nowCost.getType() instanceof IFUSDrawableCostType<?>) {
                 int rx = baseX + PERK_INFO_COST_ICON_X;
                 int ry = baseY + PERK_INFO_COST_ICON_Y;
-                fusDrawable.drawIcon(context, nowCost, minecraft.player, rx, ry, 0);
-                fusDrawable.drawOnHover(context, nowCost, minecraft.player, rx, ry, 0, mouseX - rx, mouseY - ry);
+                // 图标绘制走纯客户端的 CostTypeIcons —— IFUSDrawableCostType 不能再带
+                // GuiGraphics 签名的方法，否则实现类在专用服务端加载时就会拉起客户端类。
+                CostTypeIcons.drawIcon(nowCost.getType(), context, nowCost, minecraft.player, rx, ry, 0);
+                CostTypeIcons.drawOnHover(nowCost.getType(), context, nowCost, minecraft.player, rx, ry, 0, mouseX - rx, mouseY - ry);
             }
         }
     }

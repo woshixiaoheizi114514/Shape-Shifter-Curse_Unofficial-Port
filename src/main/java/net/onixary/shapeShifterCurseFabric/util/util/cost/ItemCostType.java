@@ -2,55 +2,21 @@ package net.onixary.shapeShifterCurseFabric.util.util.cost;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
-import net.onixary.shapeShifterCurseFabric.custom_ui.FormUpgradeScreen;
 import net.onixary.shapeShifterCurseFabric.util.ClientUtils;
-import net.onixary.shapeShifterCurseFabric.util.util.BaseSprite;
-import net.onixary.shapeShifterCurseFabric.util.util.ISprite;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
     private static final ResourceLocation id = ShapeShifterCurseFabric.identifier("item");
-    private static final ISprite itemIconSprite = new BaseSprite(FormUpgradeScreen.TEXTURE, FormUpgradeScreen.TEXTURE_WIDTH, FormUpgradeScreen.TEXTURE_HEIGHT, 434, 54, 18, 18);
 
     @Override
     public ResourceLocation getID() {
         return id;
-    }
-
-    @Override
-    public void drawIcon(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z) {
-        itemIconSprite.draw(context, x, y, z, 0, 0, 18, 18);
-        if (!(costObject instanceof ItemCost cost)) {
-            return;
-        }
-        ItemStack stack = cost.getExampleStack();
-        if (stack.isEmpty()) {
-            return;
-        }
-        context.renderItem(stack, x + 1, y + 1);
-    }
-
-    @Override
-    public void drawOnHover(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z, int mouseX, int mouseY) {
-        if (mouseX <= 0 || mouseX >= 18 || mouseY <= 0 || mouseY >= 18) {
-            return;
-        }
-        if (!(costObject instanceof ItemCost cost)) {
-            return;
-        }
-        ItemStack stack = cost.getExampleStack();
-        if (stack.isEmpty()) {
-            return;
-        }
-        context.renderTooltip(Minecraft.getInstance().font, stack, x + mouseX, y + mouseY);
     }
 
     @Override
