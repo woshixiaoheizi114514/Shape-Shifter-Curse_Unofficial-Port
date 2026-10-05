@@ -1,6 +1,5 @@
 package net.onixary.shapeShifterCurseFabric.mixin.integration;
 
-import com.tacz.guns.api.event.common.GunDrawEvent;
 import com.tacz.guns.api.event.common.GunMeleeEvent;
 import com.tacz.guns.api.event.common.GunReloadEvent;
 import com.tacz.guns.api.event.common.GunShootEvent;
@@ -43,13 +42,8 @@ public class TacZ_Anim {
             }
         }
     }
-    @Inject(method = "onDraw", at = @At("HEAD"), cancellable = true)
-    private void onDraw(GunDrawEvent event, CallbackInfo ci) {
-        if (event.getEntity() instanceof AbstractClientPlayer player) {
-            IForm form = FormTextureUtils.getPlayerForm_Render(player);
-            if (form.getBodyType() == PlayerFormBodyType.FERAL) {
-                ci.cancel();
-            }
-        }
-    }
+    // ⚠ 这里**没有**对 onDraw 的拦截，是有意为之：
+    // TaCZ 的 onDraw(GunDrawEvent) 只调 stopAnimation(LOOP_UPPER/ONCE_UPPER/LOWER)，
+    // 它是「清」入口、从不写动画。FERAL 时取消它等于主动删掉「切枪时清理」这条路径，
+    // 反而让残留的 TaCZ 层更顽固。onFire/onReload/onMelee 才是写入口，故只拦它们。
 }
