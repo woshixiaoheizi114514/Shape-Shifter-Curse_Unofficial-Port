@@ -165,6 +165,8 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     public StringWidget PerkCostAmountWidget;
 
     public int MaxPerkLevel = 0;
+    public int updateCostTicker = 0;
+    public int nowCostTicker = -1;
 
     @Override
     public WidgetEXUtils.WidgetRect getRect() {
@@ -205,6 +207,8 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         this.AcquirePerkButton = Button.builder(Component.translatable("gui.shape-shifter-curse.perk.select_node"), button -> {
             if (this.nowSelectNode != null) {
                 PerkUtils.addPerk(Minecraft.getInstance().player, this.perkTree.getID(), this.nowSelectNode.perkID);
+                // 因为更新时会自动更新nowCostTicker 所以其实这个参数可以做倒计时更新
+                nowCostTicker = 5;
                 ModPacketsS2C.sendRequestPerkAvailability();
             }
         }).pos(baseX + PERK_INFO_GAIN_BUTTON_X, baseY + PERK_INFO_GAIN_BUTTON_Y).size(PERK_INFO_GAIN_BUTTON_WIDTH, PERK_INFO_GAIN_BUTTON_HEIGHT).build();
@@ -221,7 +225,12 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     @Override
     public void tick() {
         super.tick();
-        this.refreshSelectedPerkState();
+        if (nowCostTicker >= 0) {
+            this.updateCostTicker++;
+            if (updateCostTicker >= nowCostTicker) {
+                this.refreshSelectedPerkState();
+            }
+        }
     }
 
     @Override
@@ -401,7 +410,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         icon.draw(context, NodePosX + NodeDrawStartX, NodePosY + NodeDrawStartY);
         // context.drawTexture(icon, NodePosX + NodeDrawStartX, NodePosY + NodeDrawStartY, 0, 0, NodeTextureWidth, NodeTextureHeight, NodeTextureWidth, NodeTextureHeight);
         // final int PerkNameBoxWidth = 33;
-        // Text perkNameText = RegPerks.getPerkName(perkNode.perkID);
+        // Component perkNameText = RegPerks.getPerkName(perkNode.perkID);
         // int perkNameTextWidth = this.textRenderer.getWidth(perkNameText);
         // int iconCenterX = NodePosX + NodeDrawStartX + NodeTextureWidth / 2;
         // int perkNameY = NodePosY + NodeDrawStartY + NodeTextureHeight + 2;
@@ -550,51 +559,49 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         cameraScale = newScale;
     }
 
-    public boolean isNowPerkCanGain() {
-        return this.getPerkUnavailableReason() == null;
-    }
-
-    private @Nullable String getPerkUnavailableReason() {
+    private @Nullable Component getPerkUnavailableReason() {
         if (this.nowSelectNode == null) {
-            return "gui.shape-shifter-curse.perk.select_node";
+            return Component.translatable("gui.shape-shifter-curse.perk.select_node");
         }
         List<ResourceLocation> playerGainedPerk = PerkUtils.getPlayerPerks(this.minecraft.player, this.perkTree.getID());
         if (playerGainedPerk != null && playerGainedPerk.contains(this.nowSelectNode.perkID)) {
-            return "gui.shape-shifter-curse.perk.acquired";
+            return Component.translatable("gui.shape-shifter-curse.perk.acquired");
         }
         if (this.nowSelectNode.tier > this.tier) {
-            return "gui.shape-shifter-curse.perk.insufficient_tier";
+            return Component.translatable("gui.shape-shifter-curse.perk.insufficient_tier");
         }
         if (this.nowSelectNode.dependents != null && !this.nowSelectNode.dependents.isEmpty()) {
             for (IDependent dependent : this.nowSelectNode.dependents) {
                 if (!dependent.isAllDependentGained(this.minecraft.player, playerGainedPerk)) {
-                    return "gui.shape-shifter-curse.perk.requires_previous";
+                    return Component.translatable("gui.shape-shifter-curse.perk.requires_previous");
                 }
             }
         }
         ICost cost = perkCostMap.get(this.nowSelectNode.perkID);
         if (!PerkUtils.isFreeUnlock(minecraft.player) && cost != null && !cost.getType().canPay_CLIENT(cost, minecraft.player)) {
-            if (cost.getType() instanceof ItemCostType) {
-                return "gui.shape-shifter-curse.perk.insufficient_items";
+            if (cost.getType() instanceof IFUSDrawableCostType<?> drawable) {
+                return drawable.getResourceNotEnoughText(cost, minecraft.player);
             }
-            if (cost.getType() instanceof XPCostType) {
-                return "gui.shape-shifter-curse.perk.insufficient_xp";
-            }
-            return "gui.shape-shifter-curse.perk.unavailable";
+            return Component.translatable("gui.shape-shifter-curse.perk.unavailable");
         }
         return perkAvailableMap.getOrDefault(this.nowSelectNode.perkID, true)
-                ? null : "gui.shape-shifter-curse.perk.unavailable";
+                ? null : Component.translatable("gui.shape-shifter-curse.perk.unavailable");
     }
 
     private void refreshSelectedPerkState() {
+        this.updateCostTicker = 0;
         if (this.minecraft == null || this.minecraft.player == null) return;
-        String reason = this.getPerkUnavailableReason();
-        this.AcquirePerkButton.active = reason == null;
-        this.AcquirePerkButton.setMessage(Component.translatable(reason == null
-                ? "gui.shape-shifter-curse.perk.acquire" : reason));
+        Component reasonText = this.getPerkUnavailableReason();
+        this.AcquirePerkButton.active = reasonText == null;
+        this.AcquirePerkButton.setMessage(reasonText == null ? Component.translatable("gui.shape-shifter-curse.perk.acquire") : reasonText);
         ICost cost = this.nowSelectNode == null ? null : perkCostMap.get(this.nowSelectNode.perkID);
-        this.PerkCostAmountWidget.setMessage(cost != null && cost.getType() instanceof IFUSDrawableCostType<?> drawable
-                ? drawable.getAmountText(cost, this.minecraft.player) : Component.empty());
+        if (cost != null && cost.getType() instanceof IFUSDrawableCostType<?> drawable) {
+            this.nowCostTicker = drawable.checkInterval();
+            this.PerkCostAmountWidget.setMessage(drawable.getAmountText(cost, this.minecraft.player));
+        } else {
+            this.nowCostTicker = -1;
+            this.PerkCostAmountWidget.setMessage(Component.empty());
+        }
     }
 
     public void onNodeSelect() {
@@ -608,8 +615,8 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
             this.PerkNameWidget.setMessage(RegPerks.getPerkName(this.nowSelectNode.perkID));
             this.PerkDescWidget.reloadText(RegPerks.getPerkDescription(this.nowSelectNode.perkID));
         } else {
-            this.PerkNameWidget.setMessage(Component.literal(""));
-            this.PerkDescWidget.reloadText(Component.literal(""));
+            this.PerkNameWidget.setMessage(Component.empty());
+            this.PerkDescWidget.reloadText(Component.empty());
         }
         this.refreshSelectedPerkState();
         ModPacketsS2C.sendRequestPerkAvailability();
