@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeaconBeamBlock;
 import net.minecraft.world.level.block.Block;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.onixary.shapeShifterCurseFabric.blocks.FormAttunerBlock;
 import net.onixary.shapeShifterCurseFabric.blocks.RegCustomBlock;
 
 import java.util.Arrays;
@@ -30,6 +32,19 @@ public class FormAttunerBlockEntity extends BlockEntity {
 
     public static void allocMaxLevel(int maxLevel) {
         MAX_LEVEL = Math.max(MAX_LEVEL, maxLevel);
+    }
+
+    /**
+     * 上游 Yarn 写的是 {@code DyeColor.getColorComponents()}（直接给 float[]{r,g,b}）。
+     * Mojmap 没有这个方法 —— 等价物是 {@code getTextureDiffuseColor()}，返回打包的 0xRRGGBB，
+     * 需自行拆分量（原版 {@code BeaconBlockEntity} 拿光束颜色用的就是它，再经 {@code FastColor.ARGB32} 拆）。
+     */
+    private static float[] toColorComponents(DyeColor dyeColor) {
+        int rgb = dyeColor.getTextureDiffuseColor();
+        return new float[]{
+                FastColor.ARGB32.red(rgb) / 255.0F,
+                FastColor.ARGB32.green(rgb) / 255.0F,
+                FastColor.ARGB32.blue(rgb) / 255.0F};
     }
 
     public FormAttunerBlockEntity(BlockPos blockPos, BlockState blockState) {
@@ -56,7 +71,7 @@ public class FormAttunerBlockEntity extends BlockEntity {
             if (block instanceof BeaconBeamBlock) {
                 float[] fs = block instanceof FormAttunerBlock
                         ? new float[]{0.902f, 0.373f, 0.945f}
-                        : ((BeaconBeamBlock) block).getColor().getColorComponents();
+                        : toColorComponents(((BeaconBeamBlock) block).getColor());
                 if (blockEntity.beams.size() <= 1) {
                     beamSegment = new BeamSegment(fs);
                     blockEntity.beams.add(beamSegment);

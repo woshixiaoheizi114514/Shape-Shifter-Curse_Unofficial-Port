@@ -2,14 +2,13 @@ package net.onixary.shapeShifterCurseFabric.util.util.cost;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import net.onixary.shapeShifterCurseFabric.util.ClientUtils;
-import net.onixary.shapeShifterCurseFabric.util.util.BaseSprite;
-import net.onixary.shapeShifterCurseFabric.util.util.ISprite;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +17,11 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
     public static final ResourceLocation TEXTURE = ShapeShifterCurseFabric.identifier("textures/gui/shape_shifter_tuner_ui.png");
     public static final int TEXTURE_WIDTH = 454;
     public static final int TEXTURE_HEIGHT = 190;
-    private static final ISprite itemIconSprite = new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 434, 54, 18, 18);
+
+    // ⚠ 图标绘制（原 drawIcon / drawOnHover）刻意**不放在这里**：它们签名含客户端类 GuiGraphics，
+    //   而本类会在专用服务端被 RegCostType 的静态初始化注册，链接期加载客户端类会让服务端启动崩溃
+    //   （Cannot load class ... Screen in environment type SERVER）。绘制已整体移到 CostTypeIcons。
+    //   上游本次把这两个方法加了回来，合并时按本仓库既有架构剔除（逻辑与 CostTypeIcons 完全一致）。
 
     @Override
     public ResourceLocation getID() {
@@ -26,49 +29,23 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
     }
 
     @Override
-    public void drawIcon(DrawContext context, @NotNull ICost costObject, @Nullable PlayerEntity player, int x, int y, int z) {
-        itemIconSprite.draw(context, x, y, z, 0, 0, 18, 18);
-        if (!(costObject instanceof ItemCost cost)) {
-            return;
-        }
-        ItemStack stack = cost.getExampleStack();
-        if (stack.isEmpty()) {
-            return;
-        }
-        context.drawItem(stack, x + 1, y + 1);
-    }
-
-    @Override
-    public void drawOnHover(DrawContext context, @NotNull ICost costObject, @Nullable PlayerEntity player, int x, int y, int z, int mouseX, int mouseY) {
-        if (mouseX <= 0 || mouseX >= 18 || mouseY <= 0 || mouseY >= 18) {
-            return;
-        }
-        if (!(costObject instanceof ItemCost cost)) {
-            return;
-        }
-        ItemStack stack = cost.getExampleStack();
-        if (stack.isEmpty()) {
-            return;
-        }
-        context.drawItemTooltip(MinecraftClient.getInstance().textRenderer, stack, x + mouseX, y + mouseY);
-    }
-
-    @Override
-    public Text getAmountText(@NotNull ICost costObject, @Nullable PlayerEntity player) {
+    public Component getAmountText(@NotNull ICost costObject, @Nullable Player player) {
         if (!(costObject instanceof ItemCost cost) || player == null) {
             return IFUSDrawableCostType.super.getAmountText(costObject, player);
         }
-        return Text.literal(String.valueOf(cost.getAmount()))
-                .append(Text.translatable("gui.shape-shifter-curse.perk.cost_separator"))
+        return Component.literal(String.valueOf(cost.getAmount()))
+                .append(Component.translatable("gui.shape-shifter-curse.perk.cost_separator"))
                 .append(String.valueOf(getAvailableAmount(cost, player)));
     }
 
-    private int getAvailableAmount(ItemCost cost, PlayerEntity player) {
-        PlayerInventory inventory = player.getInventory();
+    private int getAvailableAmount(ItemCost cost, Player player) {
+        Inventory inventory = player.getInventory();
         int total = 0;
-        for (int i = 0; i < inventory.size(); i++) {
-            ItemStack stack = inventory.getStack(i);
-            if (!stack.isEmpty() && ItemStack.canCombine(cost.getExampleStack(), stack)) {
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            // Yarn 的 canCombine = 比 item + 组件、不比 count，对应 Mojmap 的 isSameItemSameComponents。
+            // 注意别用 ItemStack.matches：它会连 count 一起比，而 exampleStack 恒为 1 个，会永远匹配不上。
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(cost.getExampleStack(), stack)) {
                 total += stack.getCount();
             }
         }
@@ -76,7 +53,7 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
     }
 
     @Override
-    public boolean canPay(@NotNull ICost costObject, @Nullable PlayerEntity player) {
+    public boolean canPay(@NotNull ICost costObject, @Nullable Player player) {
         if (!(costObject instanceof ItemCost cost)) {
             throw new RuntimeException("ItemCostType.canPay costObject must be ItemCost");
         }

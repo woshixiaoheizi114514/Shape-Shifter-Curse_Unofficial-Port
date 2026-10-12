@@ -29,11 +29,12 @@ public class PotionCharmItem extends Item {
             var arrow = new PotionCharmArrowEntity(RegCustomEntity.POTION_CHARM_ARROW, world);
             arrow.setOwner(player);
             arrow.setCharmStack(stack);
-            arrow.setPosition(player.getX(), player.getEyeY() - 0.1, player.getZ());
-            arrow.initFromStack(PotionUtil.setPotion(new ItemStack(Items.TIPPED_ARROW), potion));
-            arrow.setVelocity(player, player.getPitch(), player.getYaw(), 0, 3, 0);
-            if (!world.addFreshEntity(arrow)) return TypedActionResult.fail(stack);
-            player.getItemCooldownManager().set(this, 20);
+            arrow.setPos(player.getX(), player.getEyeY() - 0.1, player.getZ());
+            // Yarn PotionUtil.setPotion(stack, potion) → Mojmap 的静态工厂 createItemStack（直接建好带药水的物品栈）
+            arrow.initFromStack(PotionContents.createItemStack(Items.TIPPED_ARROW, potion));
+            arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, 3, 0);
+            if (!world.addFreshEntity(arrow)) return InteractionResultHolder.fail(stack);
+            player.getCooldowns().addCooldown(this, 20);
             if (!player.isCreative()) stack.shrink(1);
         }
         // Yarn 的 TypedActionResult.success(stack, isClient) 对应 sidedSuccess：客户端 SUCCESS、服务端 CONSUME

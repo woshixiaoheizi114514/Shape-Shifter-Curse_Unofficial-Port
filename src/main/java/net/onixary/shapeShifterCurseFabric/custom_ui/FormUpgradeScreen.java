@@ -587,14 +587,14 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     }
 
     private void refreshSelectedPerkState() {
-        if (this.client == null || this.client.player == null) return;
+        if (this.minecraft == null || this.minecraft.player == null) return;
         String reason = this.getPerkUnavailableReason();
         this.AcquirePerkButton.active = reason == null;
-        this.AcquirePerkButton.setMessage(Text.translatable(reason == null
+        this.AcquirePerkButton.setMessage(Component.translatable(reason == null
                 ? "gui.shape-shifter-curse.perk.acquire" : reason));
         ICost cost = this.nowSelectNode == null ? null : perkCostMap.get(this.nowSelectNode.perkID);
         this.PerkCostAmountWidget.setMessage(cost != null && cost.getType() instanceof IFUSDrawableCostType<?> drawable
-                ? drawable.getAmountText(cost, this.client.player) : Text.empty());
+                ? drawable.getAmountText(cost, this.minecraft.player) : Component.empty());
     }
 
     public void onNodeSelect() {

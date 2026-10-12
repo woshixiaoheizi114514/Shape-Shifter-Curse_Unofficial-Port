@@ -2,14 +2,11 @@ package net.onixary.shapeShifterCurseFabric.util.util.cost;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import net.onixary.shapeShifterCurseFabric.util.ClientUtils;
-import net.onixary.shapeShifterCurseFabric.util.util.BaseSprite;
-import net.onixary.shapeShifterCurseFabric.util.util.ISprite;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +15,11 @@ public class XPCostType implements IFUSDrawableCostType<XPCostType> {
     public static final ResourceLocation TEXTURE = ShapeShifterCurseFabric.identifier("textures/gui/shape_shifter_tuner_ui.png");
     public static final int TEXTURE_WIDTH = 454;
     public static final int TEXTURE_HEIGHT = 190;
-    private static final ISprite xpIconSprite = new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 434, 17, 18, 18);
+
+    // ⚠ 图标绘制（原 drawIcon / drawOnHover）刻意**不放在这里**：它们签名含客户端类 GuiGraphics，
+    //   而本类会在专用服务端被 RegCostType 的静态初始化注册，链接期加载客户端类会让服务端启动崩溃
+    //   （Cannot load class ... Screen in environment type SERVER）。绘制已整体移到 CostTypeIcons。
+    //   上游本次把这两个方法加了回来，合并时按本仓库既有架构剔除（逻辑与 CostTypeIcons 完全一致）。
 
     @Override
     public ResourceLocation getID() {
@@ -26,17 +27,7 @@ public class XPCostType implements IFUSDrawableCostType<XPCostType> {
     }
 
     @Override
-    public void drawIcon(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z) {
-        xpIconSprite.draw(context, x, y, z, 0, 0, 18, 18);
-    }
-
-    @Override
-    public void drawOnHover(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z, int mouseX, int mouseY) {
-        // NOP
-    }
-
-    @Override
-    public Text getAmountText(@NotNull ICost costObject, @Nullable Player player) {
+    public Component getAmountText(@NotNull ICost costObject, @Nullable Player player) {
         if (player == null) {
             return IFUSDrawableCostType.super.getAmountText(costObject, player);
         }
@@ -46,7 +37,7 @@ public class XPCostType implements IFUSDrawableCostType<XPCostType> {
     }
 
     @Override
-    public boolean canPay(@NotNull ICost costObject, @Nullable PlayerEntity player) {
+    public boolean canPay(@NotNull ICost costObject, @Nullable Player player) {
         int costAmount = costObject.getAmount();
         if (player == null) {
             if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
