@@ -107,7 +107,12 @@ public class CapeFeatureRendererMixin {
             return new Vec3(0.0f, -0.2f, 0.3f);
         }
         else {
-            return new Vec3(0.0, 0.2f, 0.125);
+            // ⚠ 与上游保持一致：非 FERAL 形态**不做偏移**（0.125 就是原版 CapeLayer.translate(0,0,0.125) 的 z）。
+            //   本地提交 f706dc2a 曾把 y 改成 0.2f「修复披风」，实为把锚点从颈高抬到接近头顶 →
+            //   所有非 FERAL 形态（含默认形态）披风整体上飘、不贴背，即 issue #26。
+            //   当时大概是想补偿形态渲染的几何差异，但那个差异现在已不存在
+            //   （FormRenderFeature 的 translate(0,-1.51f,0)、DefaultModelAnimationSystem 的臂/腿偏移均与上游逐字一致）。
+            return new Vec3(0.0, 0.0, 0.125);
         }
     }
 
@@ -118,7 +123,11 @@ public class CapeFeatureRendererMixin {
         if (curForm instanceof ModifyCapeRender mcr) {
             return mcr.getCapeBaseRotateAngle(player);
         }
-        return 0.0f;
+        // 与重构前行为保持一致: FERAL 形态上仰 90°, 其他普通形态不做额外旋转
+        // （f706dc2a 曾把这里改成恒 0.0f，导致**未实现 ModifyCapeRender 的 FERAL 形态**丢掉 90° 上仰，
+        //   披风不再压平贴在四足背上 —— issue #26 的另一半。
+        //   已实现该接口的 Form_Bat3 / Form_Bat3_Sub_Avali 走上面那个分支，不受此处影响。）
+        return curForm.getBodyType() == PlayerFormBodyType.FERAL ? 90.0f : 0.0f;
     }
 
     @Unique
