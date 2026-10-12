@@ -23,7 +23,7 @@ public interface IDependent {
 
     boolean isAllDependentGained(Player player, @Nullable List<ResourceLocation> playerGainedPerk);
 
-    default void drawDependentLine(GuiGraphics drawContext, Vector2i nodeCenter, PerkTree tree, PerkTree.PerkNode perkNode) {
+    default void drawDependentLine(GuiGraphics drawContext, int nowNodeBaseX, Vector2i nodeCenter, PerkTree tree, PerkTree.PerkNode perkNode) {
         return;
     }
 }

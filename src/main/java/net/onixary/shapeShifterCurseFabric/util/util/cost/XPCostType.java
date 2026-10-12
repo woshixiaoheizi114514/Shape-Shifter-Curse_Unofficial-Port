@@ -2,6 +2,8 @@ package net.onixary.shapeShifterCurseFabric.util.util.cost;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
@@ -24,7 +26,27 @@ public class XPCostType implements IFUSDrawableCostType<XPCostType> {
     }
 
     @Override
-    public boolean canPay(@NotNull ICost costObject, @Nullable Player player) {
+    public void drawIcon(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z) {
+        xpIconSprite.draw(context, x, y, z, 0, 0, 18, 18);
+    }
+
+    @Override
+    public void drawOnHover(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z, int mouseX, int mouseY) {
+        // NOP
+    }
+
+    @Override
+    public Text getAmountText(@NotNull ICost costObject, @Nullable Player player) {
+        if (player == null) {
+            return IFUSDrawableCostType.super.getAmountText(costObject, player);
+        }
+        return Component.literal(String.valueOf(costObject.getAmount()))
+                .append(Component.translatable("gui.shape-shifter-curse.perk.cost_separator"))
+                .append(String.valueOf(player.totalExperience));
+    }
+
+    @Override
+    public boolean canPay(@NotNull ICost costObject, @Nullable PlayerEntity player) {
         int costAmount = costObject.getAmount();
         if (player == null) {
             if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {

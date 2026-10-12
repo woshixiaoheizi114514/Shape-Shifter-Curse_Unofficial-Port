@@ -212,6 +212,7 @@ public class RegCustomItem {
                 entries.accept(WEB_COMPOSTER);
                 entries.accept(DEW_COVERED_COBWEB);
                 entries.accept(ALTAR_BLOCK);
+                entries.accept(FORM_ATTUNER_BLOCK);
                 entries.acceptAll(buildAllPotions(
                         RegCustomPotions.MOONDUST_POTION,
                         RegCustomPotions.BAT_FORM_POTION,

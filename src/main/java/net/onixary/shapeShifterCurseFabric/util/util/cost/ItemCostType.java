@@ -26,7 +26,57 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
     }
 
     @Override
-    public boolean canPay(@NotNull ICost costObject, @Nullable Player player) {
+    public void drawIcon(DrawContext context, @NotNull ICost costObject, @Nullable PlayerEntity player, int x, int y, int z) {
+        itemIconSprite.draw(context, x, y, z, 0, 0, 18, 18);
+        if (!(costObject instanceof ItemCost cost)) {
+            return;
+        }
+        ItemStack stack = cost.getExampleStack();
+        if (stack.isEmpty()) {
+            return;
+        }
+        context.drawItem(stack, x + 1, y + 1);
+    }
+
+    @Override
+    public void drawOnHover(DrawContext context, @NotNull ICost costObject, @Nullable PlayerEntity player, int x, int y, int z, int mouseX, int mouseY) {
+        if (mouseX <= 0 || mouseX >= 18 || mouseY <= 0 || mouseY >= 18) {
+            return;
+        }
+        if (!(costObject instanceof ItemCost cost)) {
+            return;
+        }
+        ItemStack stack = cost.getExampleStack();
+        if (stack.isEmpty()) {
+            return;
+        }
+        context.drawItemTooltip(MinecraftClient.getInstance().textRenderer, stack, x + mouseX, y + mouseY);
+    }
+
+    @Override
+    public Text getAmountText(@NotNull ICost costObject, @Nullable PlayerEntity player) {
+        if (!(costObject instanceof ItemCost cost) || player == null) {
+            return IFUSDrawableCostType.super.getAmountText(costObject, player);
+        }
+        return Text.literal(String.valueOf(cost.getAmount()))
+                .append(Text.translatable("gui.shape-shifter-curse.perk.cost_separator"))
+                .append(String.valueOf(getAvailableAmount(cost, player)));
+    }
+
+    private int getAvailableAmount(ItemCost cost, PlayerEntity player) {
+        PlayerInventory inventory = player.getInventory();
+        int total = 0;
+        for (int i = 0; i < inventory.size(); i++) {
+            ItemStack stack = inventory.getStack(i);
+            if (!stack.isEmpty() && ItemStack.canCombine(cost.getExampleStack(), stack)) {
+                total += stack.getCount();
+            }
+        }
+        return total;
+    }
+
+    @Override
+    public boolean canPay(@NotNull ICost costObject, @Nullable PlayerEntity player) {
         if (!(costObject instanceof ItemCost cost)) {
             throw new RuntimeException("ItemCostType.canPay costObject must be ItemCost");
         }
@@ -42,20 +92,7 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
                 throw new RuntimeException("CostType.canPay Player Argument In ServerSide Must NotNull");
             }
         }
-        Inventory playerInventory = player.getInventory();
-        int total = 0;
-        for (int i = 0; i < playerInventory.getContainerSize(); i++) {
-            ItemStack stack = playerInventory.getItem(i);
-            // Yarn 的 canCombine = 比 item + NBT、不比 count，对应 Mojmap 的 isSameItemSameComponents。
-            // 注意别用 ItemStack.matches：它会连 count 一起比，而 exampleStack 恒为 1 个，会永远匹配不上。
-            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(exampleStack, stack)) {
-                total += stack.getCount();
-                if (total >= amount) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return getAvailableAmount(cost, player) >= amount;
     }
 
     @Override

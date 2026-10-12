@@ -158,16 +158,62 @@ public class FamiliarFoxPerkCheck {
         result.use(context.getLevel(), player, InteractionHand.MAIN_HAND);
         var arrows = context.getLevel().getEntities(RegCustomEntity.POTION_CHARM_ARROW, player.getBoundingBox().inflate(3), e -> e.getOwner() == player);
         context.assertTrue(arrows.size() == 1, "Fox launches one charm arrow");
-        context.assertTrue(arrows.get(0).pickup == AbstractArrow.Pickup.DISALLOWED, "Charm cannot be recovered");
-        // ⚠ 1.21.1 起 AbstractArrow 把拾取栈存为 "item" 键（ItemStack 的组件格式），
-        // 不再是 1.20 时代的 "Potion" 字符串键。断言含义不变，只是换读取方式。
-        var nbt = new CompoundTag(); arrows.get(0).addAdditionalSaveData(nbt);
-        ItemStack stored = ItemStack.parseOptional(context.getLevel().registryAccess(), nbt.getCompound("item"));
-        PotionContents charmPotion = stored.get(DataComponents.POTION_CONTENTS);
-        context.assertTrue(charmPotion != null && charmPotion.is(Potions.STRONG_HEALING), "Strong potion payload retained");
+        context.assertTrue(arrows.get(0).getStack().isOf(RegCustomItem.HEALING_CHARM), "Projectile renders the healing charm item");
+        context.assertTrue(arrows.get(0).pickupType == PersistentProjectileEntity.PickupPermission.DISALLOWED, "Charm cannot be recovered");
+        var nbt = new CompoundTag(); arrows.get(0).writeCustomDataToNbt(nbt);
+        context.assertTrue(nbt.getString("Potion").equals("minecraft:strong_healing"), "Strong potion payload retained");
+        var cooldowns = player.getItemCooldownManager();
+        context.assertTrue(cooldowns.isCoolingDown(RegCustomItem.HEALING_CHARM), "Successful use starts cooldown");
+        for (int tick = 0; tick < 19; tick++) cooldowns.update();
+        context.assertTrue(cooldowns.isCoolingDown(RegCustomItem.HEALING_CHARM), "Cooldown lasts through tick 19");
+        cooldowns.update();
+        context.assertTrue(!cooldowns.isCoolingDown(RegCustomItem.HEALING_CHARM), "Cooldown expires after 20 ticks");
         player.discard();
         context.succeed();
     }
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void potionCharmAppearanceAndHealingImpact(GameTestHelper context) {
+        class TestCharm extends PotionCharmArrowEntity {
+            TestCharm() { super(RegCustomEntity.POTION_CHARM_ARROW, context.getWorld()); }
+            void hit(Entity target) {
+                onEntityHit(new EntityHitResult(target));
+            }
+        }
+        var target = context.spawnEntity(EntityType.COW, new BlockPos(1, 2, 1));
+        target.setAiDisabled(true);
+        for (var item : new Item[]{RegCustomItem.HEALING_CHARM, RegCustomItem.HARMING_CHARM, RegCustomItem.POISON_CHARM}) {
+            var arrow = new TestCharm();
+            var stack = new ItemStack(item, 4);
+            arrow.setCharmStack(stack);
+            stack.decrement(1);
+            context.assertTrue(arrow.getStack().isOf(item) && arrow.getStack().getCount() == 1, "Render stack is an independent single charm");
+            var nbt = new CompoundTag();
+            arrow.writeCustomDataToNbt(nbt);
+            var loaded = new TestCharm();
+            loaded.readCustomDataFromNbt(nbt);
+            context.assertTrue(loaded.getStack().isOf(item), "Charm appearance survives saving");
+            target.setHealth(5);
+            target.timeUntilRegen = 0;
+            loaded.setVelocity(0, 0, 3);
+            loaded.setDamage(0.5);
+            if (item == RegCustomItem.HEALING_CHARM) {
+                loaded.initFromStack(PotionUtil.setPotion(new ItemStack(Items.TIPPED_ARROW), Potions.STRONG_HEALING));
+                loaded.setOnFireFor(5);
+                loaded.hit(target);
+                context.assertTrue(target.getHealth() == 5 && target.hurtTime == 0 && !target.isOnFire(), "Healing impact causes no arrow damage or fire");
+                target.tick();
+                context.assertTrue(target.getHealth() > 5 && loaded.isRemoved(), "Healing effect still applies and charm is consumed");
+            } else {
+                loaded.hit(target);
+                context.assertTrue(target.getHealth() < 5, "Offensive charms retain arrow impact damage");
+            }
+            arrow.discard();
+            loaded.discard();
+        }
+        target.discard();
+        context.complete();
+    }
+
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void reservoirLifetime(GameTestHelper context) {
         var player = player(context);

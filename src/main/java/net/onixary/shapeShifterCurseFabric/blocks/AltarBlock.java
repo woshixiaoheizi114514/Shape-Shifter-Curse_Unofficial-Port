@@ -21,6 +21,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.onixary.shapeShifterCurseFabric.blocks.block_entity.AltarBlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import java.util.List;
 
 
 // 渲染先用透明方案吧 BlockEntity类方块由BlockEntity动态渲染
@@ -30,6 +31,12 @@ public class AltarBlock extends BaseEntityBlock {
     protected AltarBlock(Properties settings) {
         super(settings);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext context) {
+        super.appendTooltip(stack, world, tooltip, context);
+        tooltip.add(Text.translatable(getTranslationKey() + ".tooltip").formatted(Formatting.YELLOW));
     }
 
     @Override

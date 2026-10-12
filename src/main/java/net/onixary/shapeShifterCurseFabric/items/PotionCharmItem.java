@@ -28,12 +28,12 @@ public class PotionCharmItem extends Item {
         if (!world.isClientSide) {
             var arrow = new PotionCharmArrowEntity(RegCustomEntity.POTION_CHARM_ARROW, world);
             arrow.setOwner(player);
-            arrow.setPos(player.getX(), player.getEyeY() - 0.1, player.getZ());
-            // Yarn 的 PotionUtil.setPotion(stack, potion) 对应这里的静态工厂 createItemStack（直接建好带药水的物品栈）
-            arrow.initFromStack(PotionContents.createItemStack(Items.TIPPED_ARROW, potion));
-            // 按 pitch/yaw 发射用 shootFromRotation；setDeltaMovement 只能直接设速度向量
-            arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, 3, 0);
-            if (!world.addFreshEntity(arrow)) return InteractionResultHolder.fail(stack);
+            arrow.setCharmStack(stack);
+            arrow.setPosition(player.getX(), player.getEyeY() - 0.1, player.getZ());
+            arrow.initFromStack(PotionUtil.setPotion(new ItemStack(Items.TIPPED_ARROW), potion));
+            arrow.setVelocity(player, player.getPitch(), player.getYaw(), 0, 3, 0);
+            if (!world.addFreshEntity(arrow)) return TypedActionResult.fail(stack);
+            player.getItemCooldownManager().set(this, 20);
             if (!player.isCreative()) stack.shrink(1);
         }
         // Yarn 的 TypedActionResult.success(stack, isClient) 对应 sidedSuccess：客户端 SUCCESS、服务端 CONSUME

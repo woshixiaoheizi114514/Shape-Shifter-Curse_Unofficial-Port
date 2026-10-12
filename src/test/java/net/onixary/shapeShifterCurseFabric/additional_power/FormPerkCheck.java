@@ -188,13 +188,9 @@ public class FormPerkCheck {
                 }
                 for (var power : perk.powerAdd) context.assertTrue(PowerTypeRegistry.get(power) != null, "Parsed power: " + power);
                 for (var power : perk.powerRemove) context.assertTrue(PowerTypeRegistry.get(power) != null, "Removed power exists: " + power);
-                // node.dependents 现在是 IDependent（根节点用 RootDependent，没有具体父 perk id）；
-                // 只有 NormalDependent 带 ResourceLocation[]，逐个反查节点是否存在。
-                for (IDependent dependent : node.dependents) {
-                    if (dependent instanceof NormalDependent normalDependent) {
-                        for (ResourceLocation parent : normalDependent.dependentPerkIDs) {
-                            context.assertTrue(tree.getNode(parent) != null, "Parent exists: " + parent);
-                        }
+                for (var dependent : node.dependents) {
+                    if (dependent instanceof NormalDependent normal) {
+                        for (var parent : normal.dependentPerkIDs) context.assertTrue(tree.getNode(parent) != null, "Parent exists");
                     }
                 }
             }

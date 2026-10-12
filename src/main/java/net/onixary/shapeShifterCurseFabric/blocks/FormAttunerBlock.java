@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.List;
 
 public class FormAttunerBlock extends BaseEntityBlock implements BeaconBeamBlock {
     // 1.21.1 Mojmap：Entity.getUuid() → getUUID()。
@@ -48,11 +49,14 @@ public class FormAttunerBlock extends BaseEntityBlock implements BeaconBeamBlock
         super(settings);
     }
 
-    // Yarn getRenderType → Mojmap getRenderShape。
-    // ⚠ 上游版本这里**漏了 @Override**，所以编译器不报错 —— 但方法名对不上就等于没覆盖，
-    //   BaseEntityBlock 默认返回 RenderShape.INVISIBLE，方块本体根本不渲染。补 @Override 让编译器守住。
     @Override
-    public @NotNull RenderShape getRenderShape(BlockState state) {
+    public void appendHoverText(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext context) {
+        super.appendHoverText(stack, world, tooltip, context);
+        tooltip.add(Text.translatable(getTranslationKey() + ".tooltip").formatted(Formatting.YELLOW));
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
 
@@ -63,8 +67,8 @@ public class FormAttunerBlock extends BaseEntityBlock implements BeaconBeamBlock
     }
 
     @Override
-    public @NotNull DyeColor getColor() {
-        return DyeColor.PURPLE;
+    public DyeColor getColor() {
+        return DyeColor.PINK;
     }
 
     // Yarn BlockWithEntity.checkType → Mojmap BaseEntityBlock.createTickerHelper。

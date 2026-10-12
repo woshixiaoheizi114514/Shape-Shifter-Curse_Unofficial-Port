@@ -9,9 +9,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-/** Vanilla tipped-arrow behavior with a replaceable item-shaped placeholder renderer. */
+/** Renders the thrown charm; healing charms apply their potion without arrow impact damage. */
 public class PotionCharmArrowEntity extends Arrow implements ItemSupplier {
-    public PotionCharmArrowEntity(EntityType<? extends PotionCharmArrowEntity> type, Level world) {
+    private static final EntityDataAccessor<ItemStack> CHARM_STACK = SynchedEntityData.defineId(PotionCharmArrowEntity.class, EntityDataSerializers.ITEM_STACK);
+
+    public PotionCharmArrowEntity(EntityType<? extends PotionCharmArrowEntity> type, World world) {
         super(type, world);
         pickup = Pickup.DISALLOWED;
     }
@@ -20,16 +22,39 @@ public class PotionCharmArrowEntity extends Arrow implements ItemSupplier {
         // AbstractArrow enables pickup when a player owner is assigned.
         pickup = Pickup.DISALLOWED;
     }
-    @Override public @NotNull ItemStack getItem() { return new ItemStack(Items.PAPER); }
+    @Override protected void initDataTracker() {
+        super.initDataTracker();
+        dataTracker.startTracking(CHARM_STACK, new ItemStack(Items.PAPER));
+    }
 
-    /**
-     * 对应上游（Yarn {@code PersistentProjectileEntity.initFromStack}）的公开入口。
-     *
-     * <p>Mojmap 1.21.1 里对应的是 {@code AbstractArrow.setPickupItemStack(ItemStack)}，
-     * 但它是 <b>protected</b>，外部（{@code PotionCharmItem}）够不着，故在此转发一次。
-     * 传入的栈会作为本实体的 pickupItemStack 参与 NBT 存取（渲染仍走上面被覆盖的 {@code getItem()}）。</p>
-     */
-    public void initFromStack(ItemStack stack) {
-        this.setPickupItemStack(stack);
+    public void setCharmStack(ItemStack stack) {
+        dataTracker.set(CHARM_STACK, stack.copyWithCount(1));
+    }
+
+    @Override public ItemStack getStack() { return dataTracker.get(CHARM_STACK); }
+
+    @Override protected void onEntityHit(EntityHitResult hit) {
+        if (!getStack().isOf(RegCustomItem.HEALING_CHARM)) {
+            super.onEntityHit(hit);
+            return;
+        }
+        if (!getWorld().isClient) {
+            if (hit.getEntity() instanceof LivingEntity target) {
+                onHit(target);
+            }
+            discard();
+        }
+    }
+
+    @Override public void writeCustomDataToNbt(CompoundTag nbt) {
+        super.writeCustomDataToNbt(nbt);
+        nbt.put("CharmStack", getStack().writeNbt(new CompoundTag()));
+    }
+
+    @Override public void readCustomDataFromNbt(CompoundTag nbt) {
+        super.readCustomDataFromNbt(nbt);
+        if (nbt.contains("CharmStack")) {
+            setCharmStack(ItemStack.fromNbt(nbt.getCompound("CharmStack")));
+        }
     }
 }

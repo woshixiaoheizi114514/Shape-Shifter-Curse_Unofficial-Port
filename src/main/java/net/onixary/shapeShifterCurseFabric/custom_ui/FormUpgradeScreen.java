@@ -19,13 +19,14 @@ import net.onixary.shapeShifterCurseFabric.perk.IDependent;
 import net.onixary.shapeShifterCurseFabric.perk.PerkTree;
 import net.onixary.shapeShifterCurseFabric.perk.PerkUtils;
 import net.onixary.shapeShifterCurseFabric.perk.RegPerks;
-import net.onixary.shapeShifterCurseFabric.perk.RootDependent;
 import net.onixary.shapeShifterCurseFabric.util.util.BaseSprite;
 import net.onixary.shapeShifterCurseFabric.util.util.ISprite;
 import net.onixary.shapeShifterCurseFabric.util.util.cost.BaseCost;
 import net.onixary.shapeShifterCurseFabric.util.util.cost.ICost;
 import net.onixary.shapeShifterCurseFabric.util.util.cost.CostTypeIcons;
 import net.onixary.shapeShifterCurseFabric.util.util.cost.IFUSDrawableCostType;
+import net.onixary.shapeShifterCurseFabric.util.util.cost.ItemCostType;
+import net.onixary.shapeShifterCurseFabric.util.util.cost.XPCostType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -111,16 +112,12 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     public int baseX = 0;
     public int baseY = 0;
 
+    // TODO 此处最好由PerkTree决定用用什么贴图
     public static final ISprite GAINED_SPRITE = new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 434, 112, 20, 20);
     public static final ISprite SELECTED_SPRITE = new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 434, 72, 20, 20);
-    public static final ISprite CAN_NOT_GAIN_SPRITE = new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 434, 132, 20, 20);
+    public static final ISprite NOT_GAINED_SPRITE = new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 434, 132, 20, 20);
+    public static final ISprite CAN_NOT_GAIN_SPRITE = new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 434, 152, 20, 20);
     public static final ISprite DEPEND_SPRITE = new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 434, 92, 20, 20);
-    public static final ISprite ROOT_SPRITE = new BaseSprite(TEXTURE, TEXTURE_WIDTH, TEXTURE_HEIGHT, 434, 0, 17, 17);
-
-    // 仅供界面绘制，不加入技能树节点或实际前置条件。
-    private static final int ROOT_TIER = -1;
-    private static final int ROOT_Y = 0;
-    private static final RootDependent ROOT_CONNECTION = new RootDependent(ROOT_TIER, ROOT_Y);
 
     public static final HashMap<ResourceLocation, Boolean> perkAvailableMap = new HashMap<>();  // 仅客户端数据 仅影响渲染 仅代表服务器获取这个表时无法获取这个Perk
     public static final HashMap<ResourceLocation, ICost> perkCostMap = new HashMap<>();  // 仅客户端数据 实际消耗由服务器决定
@@ -133,7 +130,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     // 中心点:
     // Camera 中心
     // Node 左中
-    public int cameraPosX = posXPerTier;
+    public int cameraPosX = 0;
     public int cameraPosY = 0;
     public float cameraScale = 1.0f;  // 不一定实现 得看手动鼠标计算位置好不好算
 
@@ -145,6 +142,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     public Vector2i nodeCenter = new Vector2i( 0, 0);
 
     public static final int nodeBaseX = 25;
+    public static int nowNodeBaseX = 0;
     public static final int posXPerTier = 50;
     public static final int nodeLineRootXOffset = 11;
     public static final int nodeLineDependXOffset = -10;
@@ -184,6 +182,9 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         super(title);
         this.tier = tier;
         this.perkTree = perkTree != null ? perkTree : Objects.requireNonNull(RegPerks.getPerkTree(RegPerks.EMPTY_PERK_TREE));
+        int lowestTier = this.perkTree.perkLowestTier_r;
+        nowNodeBaseX = nodeBaseX - lowestTier * posXPerTier;
+
         ModPacketsS2C.sendRequestPerkAvailability();
         ModPacketsS2C.sendRequestPerkData();
         for (PerkTree.PerkNode node : this.perkTree.getAllNodes()) {
@@ -201,7 +202,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         this.PerkDescWidget = new ScaleScrollTextWidget(baseX + PERK_INFO_DESC_X, baseY + PERK_INFO_DESC_Y, PERK_INFO_DESC_WIDTH, PERK_INFO_DESC_HEIGHT, 1.0f, Component.literal(""), this.font);
         this.PerkDescWidget.setEnableScrollableIconRender(true);
         this.WidgetList.add(this.PerkDescWidget);
-        this.AcquirePerkButton = Button.builder(Component.literal("GET"), button -> {
+        this.AcquirePerkButton = Button.builder(Component.translatable("gui.shape-shifter-curse.perk.select_node"), button -> {
             if (this.nowSelectNode != null) {
                 PerkUtils.addPerk(Minecraft.getInstance().player, this.perkTree.getID(), this.nowSelectNode.perkID);
                 ModPacketsS2C.sendRequestPerkAvailability();
@@ -214,6 +215,13 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         this.addRenderableWidget(this.AcquirePerkButton);
         this.addRenderableWidget(this.PerkCostAmountWidget);
         super.init();
+        this.refreshSelectedPerkState();
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        this.refreshSelectedPerkState();
     }
 
     @Override
@@ -353,12 +361,9 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
 
     public void drawConnectLine(GuiGraphics context, PerkTree.PerkNode perkNode) {
         List<IDependent> depends = perkNode.dependents;
-        if (depends.isEmpty()) {
-            ROOT_CONNECTION.drawDependentLine(context, nodeCenter, perkTree, perkNode);
-            return;
-        }
+        if (depends.isEmpty()) { return; }
         for (IDependent depend : depends) {
-            depend.drawDependentLine(context, nodeCenter, perkTree, perkNode);
+            depend.drawDependentLine(context, nowNodeBaseX, nodeCenter, perkTree, perkNode);
         }
     }
 
@@ -369,7 +374,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         if (icon == null) {
             icon = RegPerks.FALLBACK_PERK_ICON;
         }
-        int virtualNodeX = nodeBaseX + posXPerTier * perkNode.tier;
+        int virtualNodeX = nowNodeBaseX + posXPerTier * perkNode.tier;
         int virtualNodeY = perkNode.y;
         int NodePosX = nodeCenter.x + virtualNodeX;
         int NodePosY = nodeCenter.y + virtualNodeY;
@@ -379,6 +384,8 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
             GAINED_SPRITE.draw(context, NodePosX - 9, NodePosY - 9);
         } else if (!perkAvailableMap.getOrDefault(perkNode.perkID, true)) {
             CAN_NOT_GAIN_SPRITE.draw(context, NodePosX - 9, NodePosY - 9);
+        } else {
+            NOT_GAINED_SPRITE.draw(context, NodePosX - 9, NodePosY - 9);
         }
 
         if (this.nowSelectNode != null) {
@@ -415,7 +422,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         if (icon == null) {
             icon = RegPerks.FALLBACK_PERK_ICON;
         }
-        int virtualNodeX = nodeBaseX + posXPerTier * perkNode.tier;
+        int virtualNodeX = nowNodeBaseX + posXPerTier * perkNode.tier;
         int virtualNodeY = perkNode.y;
         int NodePosX = nodeCenter.x + virtualNodeX;
         int NodePosY = nodeCenter.y + virtualNodeY;
@@ -425,8 +432,11 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     public void drawAllNode(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (this.minecraft == null) return;
         context.enableScissor(nodeWindowX, nodeWindowY, nodeWindowX + PERK_UI_WIDTH, nodeWindowY + PERK_UI_HEIGHT);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         PoseStack matrixStack = context.pose();
-        int firstX = nodeBaseX + nodeCenter.x;
+        int firstX = nowNodeBaseX + nodeCenter.x;
         int firstY = nodeWindowY + LEVEL_ICON_Y;
         for (int tierIndex = 1; tierIndex <= this.MaxPerkLevel; tierIndex++) {
             int localLineX = firstX + tierIndex * posXPerTier;
@@ -463,13 +473,6 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         for (PerkTree.PerkNode perkNode : tree.getAllNodes()) {
             this.drawConnectLine(context, perkNode);
         }
-        // 已有同位置的虚拟节点时沿用其图标；空树不绘制孤立的根。
-        if (!tree.getAllNodes().isEmpty() && tree.getAllVirtualNodes().stream()
-                .noneMatch(node -> node.tier == ROOT_TIER && node.y == ROOT_Y)) {
-            ROOT_SPRITE.draw(context,
-                    nodeCenter.x + nodeBaseX + posXPerTier * ROOT_TIER + NodeDrawStartX,
-                    nodeCenter.y + ROOT_Y + NodeDrawStartY);
-        }
         for (PerkTree.PerkNode perkNode : tree.getAllNodes()) {
             this.drawNode(context, perkNode, playerGainedPerk, vMousePos.x, vMousePos.y, delta);
         }
@@ -488,7 +491,7 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
 
     public @Nullable PerkTree.PerkNode getMouseNode(int mouseX, int mouseY) {
         for (PerkTree.PerkNode perkNode : this.perkTree.getAllNodes()) {
-            int centerX = nodeBaseX + posXPerTier * perkNode.tier;
+            int centerX = nowNodeBaseX + posXPerTier * perkNode.tier;
             int centerY = perkNode.y;
             int left = centerX + NodeSelectStartX;
             int top = centerY + NodeSelectStartY;
@@ -548,26 +551,50 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
     }
 
     public boolean isNowPerkCanGain() {
+        return this.getPerkUnavailableReason() == null;
+    }
+
+    private @Nullable String getPerkUnavailableReason() {
         if (this.nowSelectNode == null) {
-            return false;
-        }
-        if (this.nowSelectNode.tier > this.tier) {
-            return false;
+            return "gui.shape-shifter-curse.perk.select_node";
         }
         List<ResourceLocation> playerGainedPerk = PerkUtils.getPlayerPerks(this.minecraft.player, this.perkTree.getID());
         if (playerGainedPerk != null && playerGainedPerk.contains(this.nowSelectNode.perkID)) {
-            return false;
+            return "gui.shape-shifter-curse.perk.acquired";
+        }
+        if (this.nowSelectNode.tier > this.tier) {
+            return "gui.shape-shifter-curse.perk.insufficient_tier";
         }
         if (this.nowSelectNode.dependents != null && !this.nowSelectNode.dependents.isEmpty()) {
             for (IDependent dependent : this.nowSelectNode.dependents) {
-                if (!dependent.isAllDependentGained(this.minecraft.player, playerGainedPerk)) return false;
+                if (!dependent.isAllDependentGained(this.minecraft.player, playerGainedPerk)) {
+                    return "gui.shape-shifter-curse.perk.requires_previous";
+                }
             }
         }
         ICost cost = perkCostMap.get(this.nowSelectNode.perkID);
         if (!PerkUtils.isFreeUnlock(minecraft.player) && cost != null && !cost.getType().canPay_CLIENT(cost, minecraft.player)) {
-            return false;
+            if (cost.getType() instanceof ItemCostType) {
+                return "gui.shape-shifter-curse.perk.insufficient_items";
+            }
+            if (cost.getType() instanceof XPCostType) {
+                return "gui.shape-shifter-curse.perk.insufficient_xp";
+            }
+            return "gui.shape-shifter-curse.perk.unavailable";
         }
-        return true;
+        return perkAvailableMap.getOrDefault(this.nowSelectNode.perkID, true)
+                ? null : "gui.shape-shifter-curse.perk.unavailable";
+    }
+
+    private void refreshSelectedPerkState() {
+        if (this.client == null || this.client.player == null) return;
+        String reason = this.getPerkUnavailableReason();
+        this.AcquirePerkButton.active = reason == null;
+        this.AcquirePerkButton.setMessage(Text.translatable(reason == null
+                ? "gui.shape-shifter-curse.perk.acquire" : reason));
+        ICost cost = this.nowSelectNode == null ? null : perkCostMap.get(this.nowSelectNode.perkID);
+        this.PerkCostAmountWidget.setMessage(cost != null && cost.getType() instanceof IFUSDrawableCostType<?> drawable
+                ? drawable.getAmountText(cost, this.client.player) : Text.empty());
     }
 
     public void onNodeSelect() {
@@ -580,19 +607,11 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         if (this.nowSelectNode != null) {
             this.PerkNameWidget.setMessage(RegPerks.getPerkName(this.nowSelectNode.perkID));
             this.PerkDescWidget.reloadText(RegPerks.getPerkDescription(this.nowSelectNode.perkID));
-            ICost cost = perkCostMap.get(this.nowSelectNode.perkID);
-            if (cost != null && cost.getType() instanceof IFUSDrawableCostType<?> ifusDrawableCostType) {
-                this.PerkCostAmountWidget.setMessage(ifusDrawableCostType.getAmountText(cost, minecraft.player));
-            } else {
-                this.PerkCostAmountWidget.setMessage(Component.literal(""));
-            }
-            this.AcquirePerkButton.active = this.isNowPerkCanGain();
         } else {
             this.PerkNameWidget.setMessage(Component.literal(""));
             this.PerkDescWidget.reloadText(Component.literal(""));
-            this.PerkCostAmountWidget.setMessage(Component.literal(""));
-            this.AcquirePerkButton.active = false;
         }
+        this.refreshSelectedPerkState();
         ModPacketsS2C.sendRequestPerkAvailability();
     }
 }

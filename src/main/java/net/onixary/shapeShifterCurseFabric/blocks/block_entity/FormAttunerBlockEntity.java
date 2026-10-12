@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.onixary.shapeShifterCurseFabric.blocks.RegCustomBlock;
-import net.onixary.shapeShifterCurseFabric.cursed_moon.CursedMoon;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,14 +54,9 @@ public class FormAttunerBlockEntity extends BlockEntity {
             BlockState blockState = world.getBlockState(blockPos);
             Block block = blockState.getBlock();
             if (block instanceof BeaconBeamBlock) {
-                // 1.21.1 Mojmap：DyeColor 的颜色分量取法由 Yarn 的 getColorComponents()（float[]）
-                // 改为 getTextureDiffuseColor()（ARGB int），这里拆成 0..1 的分量给 BeamSegment。
-                int argb = ((BeaconBeamBlock)block).getColor().getTextureDiffuseColor();
-                float[] fs = new float[]{
-                    FastColor.ARGB32.red(argb) / 255.0F,
-                    FastColor.ARGB32.green(argb) / 255.0F,
-                    FastColor.ARGB32.blue(argb) / 255.0F
-                };
+                float[] fs = block instanceof FormAttunerBlock
+                        ? new float[]{0.902f, 0.373f, 0.945f}
+                        : ((BeaconBeamBlock) block).getColor().getColorComponents();
                 if (blockEntity.beams.size() <= 1) {
                     beamSegment = new BeamSegment(fs);
                     blockEntity.beams.add(beamSegment);
@@ -114,11 +108,8 @@ public class FormAttunerBlockEntity extends BlockEntity {
     }
 
     private static int updateLevel(Level world, int x, int y, int z) {
-        // 设定上需要诅咒之月的力量 So 仅主世界可用
+        // 保留主世界限制；阶数由基座结构决定，不受月相影响。
         if (world.dimension() != Level.OVERWORLD) {
-            return 0;
-        }
-        if (!CursedMoon.isInCursedMoon(world)) {
             return 0;
         }
         int i = 0;

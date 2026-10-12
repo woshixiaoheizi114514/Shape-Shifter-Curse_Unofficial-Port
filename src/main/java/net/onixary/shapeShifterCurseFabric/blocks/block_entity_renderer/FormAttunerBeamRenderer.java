@@ -96,8 +96,8 @@ public class FormAttunerBeamRenderer implements BlockEntityRenderer<FormAttunerB
         renderBeamVertex(entry, vertices, red, green, blue, alpha, height, x2, z2, u1, v1);
     }
 
-    private static void renderBeamVertex(PoseStack.Pose entry, VertexConsumer vertices, float red, float green, float blue, float alpha, int y, float x, float z, float u, float v) {
-        vertices.addVertex(entry.pose(), x, y, z).setColor(red, green, blue, alpha).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xF000F0).setNormal(entry, 0.0f, 1.0f, 0.0f);
+    private static void renderBeamVertex(Matrix4f positionMatrix, Matrix3f normalMatrix, VertexConsumer vertices, float red, float green, float blue, float alpha, int y, float x, float z, float u, float v) {
+        vertices.vertex(positionMatrix, x, y, z).color(red, green, blue, alpha).texture(u, v).overlay(OverlayTexture.DEFAULT_UV).light(0xfa8eff).normal(normalMatrix, 0.0f, 1.0f, 0.0f).next();
     }
 
     // Yarn→Mojmap 改名：rendersOutsideBoundingBox → shouldRenderOffScreen
