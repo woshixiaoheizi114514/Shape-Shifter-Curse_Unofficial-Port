@@ -15,8 +15,6 @@ import net.onixary.shapeShifterCurseFabric.player_form.utils.ModifyCapeRender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 public class Form_Bat3_Sub_Avali extends NormalSubForm implements ModifyCapeRender {
     public Form_Bat3_Sub_Avali(ResourceLocation formID) {
         super(formID, RegPlayerForms.BAT_3);
@@ -51,16 +49,19 @@ public class Form_Bat3_Sub_Avali extends NormalSubForm implements ModifyCapeRend
     @Override
     public Vec3 getCapeIdleLoc(AbstractClientPlayer player) {
         if (player.onGround()) {
-            return new Vec3(0.0f, 0.7f, 0.2f);
+            if (player.isCrouching()) {
+                return new Vec3(0.0f, 0.1f, -0.05f);
+            }
+            return new Vec3(0.0, 0.0f, 0.05f);
         }
         else {
-            return new Vec3(0.0, 0.0, 0.125);
+            return new Vec3(0.0, 0.0, 0.05);
         }
     }
 
     @Override
     public float getCapeBaseRotateAngle(AbstractClientPlayer player) {
-        return 100.0f;
+        return 20.0f;
     }
 
     @Override
