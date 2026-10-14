@@ -34,11 +34,6 @@ public class FormAttunerBlockEntity extends BlockEntity {
         MAX_LEVEL = Math.max(MAX_LEVEL, maxLevel);
     }
 
-    /**
-     * 上游 Yarn 写的是 {@code DyeColor.getColorComponents()}（直接给 float[]{r,g,b}）。
-     * Mojmap 没有这个方法 —— 等价物是 {@code getTextureDiffuseColor()}，返回打包的 0xRRGGBB，
-     * 需自行拆分量（原版 {@code BeaconBlockEntity} 拿光束颜色用的就是它，再经 {@code FastColor.ARGB32} 拆）。
-     */
     private static float[] toColorComponents(DyeColor dyeColor) {
         int rgb = dyeColor.getTextureDiffuseColor();
         return new float[]{
@@ -159,7 +154,6 @@ public class FormAttunerBlockEntity extends BlockEntity {
     
     @Override
     public void setRemoved() {
-        // 注意：本类自己有个 `int level` 字段，遮蔽了 BlockEntity.level，所以用 getLevel() 取所在维度
         playSound(this.getLevel(), this.worldPosition, SoundEvents.BEACON_DEACTIVATE);
         super.setRemoved();
     }

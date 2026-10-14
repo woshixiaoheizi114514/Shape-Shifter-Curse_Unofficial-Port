@@ -337,8 +337,6 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
             if (nowCost.getType() instanceof IFUSDrawableCostType<?>) {
                 int rx = baseX + PERK_INFO_COST_ICON_X;
                 int ry = baseY + PERK_INFO_COST_ICON_Y;
-                // 图标绘制走纯客户端的 CostTypeIcons —— IFUSDrawableCostType 不能再带
-                // GuiGraphics 签名的方法，否则实现类在专用服务端加载时就会拉起客户端类。
                 CostTypeIcons.drawIcon(nowCost.getType(), context, nowCost, minecraft.player, rx, ry, 0);
                 CostTypeIcons.drawOnHover(nowCost.getType(), context, nowCost, minecraft.player, rx, ry, 0, mouseX - rx, mouseY - ry);
             }
@@ -410,7 +408,6 @@ public class FormUpgradeScreen extends Screen implements WidgetEXUtils.IWidgetEX
         icon.draw(context, NodePosX + NodeDrawStartX, NodePosY + NodeDrawStartY);
         // context.drawTexture(icon, NodePosX + NodeDrawStartX, NodePosY + NodeDrawStartY, 0, 0, NodeTextureWidth, NodeTextureHeight, NodeTextureWidth, NodeTextureHeight);
         // final int PerkNameBoxWidth = 33;
-        // Component perkNameText = RegPerks.getPerkName(perkNode.perkID);
         // int perkNameTextWidth = this.textRenderer.getWidth(perkNameText);
         // int iconCenterX = NodePosX + NodeDrawStartX + NodeTextureWidth / 2;
         // int perkNameY = NodePosY + NodeDrawStartY + NodeTextureHeight + 2;

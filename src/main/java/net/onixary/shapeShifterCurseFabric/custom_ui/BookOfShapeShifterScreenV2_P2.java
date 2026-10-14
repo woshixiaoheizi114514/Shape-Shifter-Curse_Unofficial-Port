@@ -133,7 +133,6 @@ public class BookOfShapeShifterScreenV2_P2 extends Screen implements WidgetEXUti
 
     @Override
     public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        // No blur — book texture serves as the background
     }
 
     @Override

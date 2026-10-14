@@ -16,7 +16,6 @@ public class FrostMovementMixin {
     private Vec3 frostMovement(Vec3 movement) {
         Entity self = (Entity) (Object) this;
         movement = FrostDivePower.constrainMovement(self, movement);
-        // Yarn hasStatusEffect(MobEffect) → Mojmap hasEffect(Holder<MobEffect>)：自有 effect 需 wrapAsHolder
         if (self instanceof LivingEntity living && living.hasEffect(
                 net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT.wrapAsHolder(RegOtherStatusEffects.FROST_CLAW))) {
             FrostClawEffect.beforeMove(living, movement);

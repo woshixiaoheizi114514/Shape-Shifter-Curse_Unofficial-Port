@@ -44,12 +44,6 @@ import java.util.UUID;
 public class WolfSpiderPerkCheck {
     private static ResourceLocation id(String name) { return ResourceLocation.fromNamespaceAndPath("shape-shifter-curse", name); }
 
-    /**
-     * ⚠ 这里刻意<b>不用</b> {@code c.makeMockServerPlayerInLevel()}：那个 mock 把 {@code isCreative()}
-     * 匿名重写成恒 true（见 {@code GameTestHelper}），而本类的 {@code craftingAndThrowable} 需要
-     * 切到 SURVIVAL 后验证「非创造模式会消耗物品」。故照 {@code makeMockServerPlayerInLevel} 的写法
-     * 自己建一个不覆写游戏模式的真实 ServerPlayer。
-     */
     private static ServerPlayer player(GameTestHelper c) {
         GameProfile profile = new GameProfile(UUID.randomUUID(), "perk-test-player");
         CommonListenerCookie cookie = CommonListenerCookie.createInitial(profile, false);
@@ -70,7 +64,6 @@ public class WolfSpiderPerkCheck {
         return PowerHolderComponent.KEY.get(p).getPower(type);
     }
     private static void action(ServerPlayer player, String json) {
-        // 1.21 起 SerializableData 的 read 要带 HolderLookup.Provider
         ApoliDataTypes.ENTITY_ACTION.read(JsonParser.parseString(json), player.level().registryAccess()).accept(player);
     }
     private static void webMana(ServerPlayer p) {
@@ -112,7 +105,6 @@ public class WolfSpiderPerkCheck {
         var recall=(ActiveCooldownPower)add(p,"anubis_wolf_soul_recall");recall.fromTag(LongTag.valueOf(-10000), c.getLevel().registryAccess());recall.onUse();
         c.assertTrue(!p.hasEffect(MobEffects.WITHER) && p.getHealth()==16,"Recall clears wither and heals 2 per death: "+p.getHealth());
         c.assertTrue(owner.shape_shifter_curse$getMinionsCount(AnubisWolfMinionEntity.MinionID)==0,"Recall frees all occupied slots");
-        // ⚠ Yarn 的 `Entity.age` 是 tick 计数器 → Mojmap `Entity.tickCount`
         p.tickCount+=421;
         action(p,"{\"type\":\"shape-shifter-curse:summon_anubis_wolf_minion\",\"count\":3,\"max_minion_count\":2,\"cooldown\":420}");
         c.assertTrue(owner.shape_shifter_curse$getCooldownTime(AnubisWolfMinionEntity.MinionID)==p.tickCount,"Partial summon still starts cooldown");
@@ -122,10 +114,8 @@ public class WolfSpiderPerkCheck {
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void witherIntervals(GameTestHelper c) {
         var p=player(c);add(p,"anubis_wolf_wither_tolerance_1");
-        // Yarn StatusEffectInstance.update(LivingEntity,Runnable) → Mojmap MobEffectInstance.tick(LivingEntity,Runnable)
         var effect=new MobEffectInstance(MobEffects.WITHER,120,0);
         effect.tick(p,()->{});c.assertTrue(p.getHealth()==19,"Tier I damage every 60 ticks");
-        // Yarn Entity.timeUntilRegen → Mojmap LivingEntity.invulnerableTime
         p.invulnerableTime=0; p.setHealth(20);
         new MobEffectInstance(MobEffects.WITHER,80,0).tick(p,()->{});
         c.assertTrue(p.getHealth()==20,"Original 40-tick cadence suppressed");
@@ -153,11 +143,9 @@ public class WolfSpiderPerkCheck {
         ManaUtils.setPlayerMana(p,9);c.assertTrue(!craft.isActive(),"Insufficient mana disables crafting");
         PowerHolderComponent.KEY.get(p).removePower(craft.getType(),id("wolf_spider_test"));
         p.setGameMode(GameType.SURVIVAL); p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(RegCustomItem.WEB_PROJECTILE));
-        // Mojmap 的 Item#use 是 protected，改为走物品栈的公开入口
         p.getMainHandItem().use(c.getLevel(),p,InteractionHand.MAIN_HAND);
         var bullet=c.getLevel().getEntities(RegCustomEntity.WEB_BULLET,p.getBoundingBox().inflate(4),e->e.getOwner()==p).get(0);
         c.assertTrue(bullet.Tier==3 && !bullet.EnableVenomSpindle && p.getMainHandItem().isEmpty(),"Non-perk player can fire and consumes the item");
-        // Yarn Entity.writeNbt/readNbt → Mojmap addAdditionalSaveData/readAdditionalSaveData
         var tag=new CompoundTag();bullet.addAdditionalSaveData(tag);
         var restored=new WebBullet(RegCustomEntity.WEB_BULLET,c.getLevel());restored.readAdditionalSaveData(tag);
         c.assertTrue(restored.Tier==3 && !restored.EnableVenomSpindle,"Projectile configuration survives reload");

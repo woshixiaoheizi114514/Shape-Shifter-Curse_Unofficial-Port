@@ -33,7 +33,6 @@ import net.onixary.shapeShifterCurseFabric.perk.RegPerks;
 import net.onixary.shapeShifterCurseFabric.status_effects.RegOtherStatusEffects;
 
 public class SnowFoxPerkCheck {
-    /** 自有 effect 是裸 MobEffect，而 1.21 的 hasEffect/removeEffect/addEffect 全收 Holder */
     private static final Holder<MobEffect> FROST_CLAW = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(RegOtherStatusEffects.FROST_CLAW);
     private static Holder<Enchantment> frostWalker(GameTestHelper c) {
         return c.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.FROST_WALKER);
@@ -44,7 +43,6 @@ public class SnowFoxPerkCheck {
         var p = player(c, 3);
         var factory = EnhancedFallingAttackPower.createFactory();
         var registries = c.getLevel().registryAccess();
-        // 1.21 起 PowerFactory.read 要带 HolderLookup.Provider
         var defaults = (EnhancedFallingAttackPower) factory.read(new JsonObject(), registries).apply(null, p);
         var json = new JsonObject(); json.addProperty("max_multiplier", 4.0f);
         var configured = (EnhancedFallingAttackPower) factory.read(json, registries).apply(null, p);
@@ -98,7 +96,6 @@ public class SnowFoxPerkCheck {
         c.assertTrue(c.getBlockState(new BlockPos(2, 0, 2)).is(Blocks.FROSTED_ICE), "Independent buff freezes before fast collision");
         c.assertTrue(p.onGround() && Math.abs(p.getY() - c.absolutePos(new BlockPos(0, 1, 0)).getY()) < 0.01, "Lands on ice, not inside water");
         p.removeEffect(FROST_CLAW);
-        // Mojmap 没有 EnchantmentHelper.hasFrostWalker，等价断言 = 附魔等级回落为 0
         c.assertTrue(EnchantmentHelper.getEnchantmentLevel(frostWalker(c), p) == 0, "Virtual enchantment removed with effect");
         p.discard(); c.succeed();
     }
@@ -107,7 +104,6 @@ public class SnowFoxPerkCheck {
         floor(c, true); var p = player(c, 8); var d = dive(p);
         var zombie = c.spawn(EntityType.ZOMBIE, new BlockPos(4, 1, 2)); zombie.setNoAi(true);
         zombie.getAttribute(Attributes.ARMOR).setBaseValue(0);
-        // Yarn Entity.setOnFireFor(秒) → Mojmap setRemainingFireTicks(刻)
         p.getFoodData().setFoodLevel(2); p.setRemainingFireTicks(200); d.onUse();
         c.assertTrue(FrostDivePower.isDiving(p) && p.getFoodData().getFoodLevel() == 0 && !p.isOnFire(), "Start costs exactly 2 food and extinguishes");
         var up = (ActiveCooldownPower) add(p, "cold_whirlwind_2"); up.fromTag(LongTag.valueOf(-10000), c.getLevel().registryAccess());
@@ -115,7 +111,6 @@ public class SnowFoxPerkCheck {
         c.assertTrue(p.getFoodData().getFoodLevel() == 20 && p.getDeltaMovement().y < 0, "Whirlwind cannot interrupt or charge food");
         double x = p.getX(), y = p.getY(); p.move(MoverType.SELF, new Vec3(2, 2, 0));
         c.assertTrue(p.getX() == x && p.getY() == y, "Movement lock blocks upward and horizontal impulses");
-        // Yarn LivingEntity.handleFallDamage → Mojmap causeFallDamage
         p.causeFallDamage(30, 1, p.damageSources().fall()); c.assertTrue(p.getHealth() == 20, "Dive fall immunity");
         for (int i = 0; i < 15 && FrostDivePower.isDiving(p); i++) { d.tick(); p.move(MoverType.SELF, p.getDeltaMovement()); }
         c.assertTrue(!FrostDivePower.isDiving(p), "Dive ends on actual ground");
@@ -150,7 +145,6 @@ public class SnowFoxPerkCheck {
         c.assertTrue(p.getHealth() == 20, "Freeze immunity");
         var heal = add(p, "cold_recovery_1_healing"); p.setHealth(10); c.setBlock(new BlockPos(2, 1, 2), Blocks.POWDER_SNOW);
         heal.tick();
-        // ⚠ Yarn 的 `Entity.age` 是 tick 计数器 → Mojmap `Entity.tickCount`
         for (int i = 0; i < 60; i++) { p.tickCount++; heal.tick(); }
         c.assertTrue(p.getHealth() == 12, "Powder snow heals two per three seconds: " + p.getHealth());
         p.discard(); witch.discard(); c.succeed();
@@ -166,7 +160,6 @@ public class SnowFoxPerkCheck {
         p.setPos(c.absoluteVec(new Vec3(2.5, 1.6, 2.5)));
         c.setBlock(new BlockPos(1, 0, 2), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 1));
         c.setBlock(new BlockPos(3, 1, 2), Blocks.STONE);
-        // Yarn MobEffect.applyUpdateEffect → Mojmap applyEffectTick（1.21 起返回 boolean，失败会移除效果）
         FROST_CLAW.value().applyEffectTick(p, 0);
         c.assertTrue(c.getBlockState(new BlockPos(1, 0, 2)).is(Blocks.WATER), "Flowing water remains water");
         c.assertTrue(c.getBlockState(new BlockPos(3, 0, 2)).is(Blocks.WATER), "Covered source water remains water");

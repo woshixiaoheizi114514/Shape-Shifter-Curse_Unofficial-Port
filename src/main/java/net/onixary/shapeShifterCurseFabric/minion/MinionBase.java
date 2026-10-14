@@ -48,12 +48,6 @@ public abstract class MinionBase extends TamableAnimal implements IMinion<Minion
         this.setOwnerUUID(uuid);
     }
 
-    /**
-     * {@link IMinion#setOwner(Player)} 的实现。
-     *
-     * <p>必须在这里补：{@code TamableAnimal} 只提供 {@code setOwnerUUID(UUID)}，没有 {@code setOwner(Player)}
-     * 重载，所以接口的这个抽象方法不会被自动满足 —— 缺了它子类（如 {@code ManaReservoirEntity}）会编译不过。</p>
-     */
     @Override
     public void setOwner(Player player) {
         this.setOwnerUUID(player == null ? null : player.getUUID());

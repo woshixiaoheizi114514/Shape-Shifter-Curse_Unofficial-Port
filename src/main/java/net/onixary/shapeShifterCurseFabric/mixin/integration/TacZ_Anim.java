@@ -42,8 +42,4 @@ public class TacZ_Anim {
             }
         }
     }
-    // ⚠ 这里**没有**对 onDraw 的拦截，是有意为之：
-    // TaCZ 的 onDraw(GunDrawEvent) 只调 stopAnimation(LOOP_UPPER/ONCE_UPPER/LOWER)，
-    // 它是「清」入口、从不写动画。FERAL 时取消它等于主动删掉「切枪时清理」这条路径，
-    // 反而让残留的 TaCZ 层更顽固。onFire/onReload/onMelee 才是写入口，故只拦它们。
 }

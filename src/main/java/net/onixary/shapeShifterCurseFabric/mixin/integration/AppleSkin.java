@@ -46,12 +46,10 @@ public class AppleSkin {
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        // Get base food values from SSC custom edible power or item defaults
         FoodProperties itemFood = CustomEdibleUtils.getPowerFoodComponent(player, itemStack);
         itemFood = itemFood != null ? itemFood : itemStack.get(DataComponents.FOOD);
         if (itemFood == null) return;
 
-        // Apply Apoli ModifyFoodPower modifiers (restored from upstream)
         List<ModifyFoodPower> mfps = PowerHolderComponent.getPowers(player, ModifyFoodPower.class);
 
         List<Modifier> foodModifiers = mfps.stream()

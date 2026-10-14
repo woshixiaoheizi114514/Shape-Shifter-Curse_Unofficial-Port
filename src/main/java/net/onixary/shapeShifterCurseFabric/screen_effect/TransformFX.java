@@ -7,18 +7,6 @@ import net.onixary.shapeShifterCurseFabric.data.StaticParams;
 
 import static net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric.MOD_ID;
 
-/**
- * 变身时的黑屏/暗角渐变。
- *
- * <p>本分支已移除 Satin 依赖，原 Satin 的 {@code ManagedShaderEffect} / {@code ShaderEffectManager} /
- * {@code Uniform1f} / {@code ShaderEffectRenderCallback} 已删除，不再走 post-processing 着色器
- * —— post shader（Satin / PostChain）与光影包（Iris 等）兼容极差。</p>
- *
- * <p>实际视觉改由无 shader 的 {@link TransformOverlay} 承担：进入渐变由 {@code TransformManager}
- * 每帧驱动 strength，退出渐变在 {@code TransformOverlay.renderHud} 里每帧衰减
- * （{@code setEnableOverlay(false)} 后平滑淡出）。本类只保留 begin/end 的静态状态与 tick 计数，
- * 供 {@code ModPacketsS2C} 调用；{@code TRANSFORM_EFFECT_SHADER_ID} 保留仅作记录。</p>
- */
 public final class TransformFX implements ClientTickEvents.EndTick {
     public static final ResourceLocation TRANSFORM_EFFECT_SHADER_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "shaders/post/transform_effect.json");
 

@@ -44,10 +44,6 @@ public class Form_Bat3_Sub_Avali extends NormalSubForm implements ModifyCapeRend
         return new Tuple<>(ResourceLocation.fromNamespaceAndPath("origins", "origin"), ResourceLocation.fromNamespaceAndPath(this.getFormID().getNamespace(), "form_" + this.getFormID().getPath()));
     }
 
-    // 以下暂时沿用 bat_3 的披风渲染参数(划掉)
-    // ssc：然而不行 看起来很怪
-    // sscu：ssc的也不行 sscu需要自己调
-
     @Override
     public Vec3 getCapeIdleLoc(AbstractClientPlayer player) {
         if (player.onGround()) {

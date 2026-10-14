@@ -59,9 +59,9 @@ public abstract class PlayerEntityRendererFallFlyingMixin extends LivingEntityRe
 
             // Feral形态的特殊旋转
             matrixStack.mulPose(Axis.YP.rotationDegrees((float)(Math.signum(m) * Math.acos(l)) * 180.0F / (float)Math.PI));
-            matrixStack.mulPose(Axis.XP.rotationDegrees(0.0F)); // 不向下倾斜
+            matrixStack.mulPose(Axis.XP.rotationDegrees(0.0F));
             // 你可以在这里添加任何额外的旋转
-            matrixStack.mulPose(Axis.XP.rotationDegrees(90.0F)); // 使翅膀向上
+            matrixStack.mulPose(Axis.XP.rotationDegrees(90.0F));
             ci.cancel();
         }
     }

@@ -24,7 +24,6 @@ public class WebProjectileItem extends Item {
             if (!player.isCreative()) stack.shrink(1);
             player.awardStat(Stats.ITEM_USED.get(this));
         }
-        // Yarn TypedActionResult.success(stack, isClient) → Mojmap sidedSuccess
         return InteractionResultHolder.sidedSuccess(stack, world.isClientSide);
     }
 }

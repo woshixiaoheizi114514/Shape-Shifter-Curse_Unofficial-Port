@@ -61,7 +61,6 @@ public class SSC_JEI_Plugin implements IModPlugin {
             return;
         }
         RecipeManager rm = client.getConnection().getRecipeManager();
-        // 1.21.1: getAllRecipesFor 返回 List<RecipeHolder<T>>，需解包
         List<AltarRecipe> all = rm.getAllRecipesFor(RecipeUtils.ALTAR_RECIPE).stream()
                 .map(RecipeHolder::value)
                 .toList();

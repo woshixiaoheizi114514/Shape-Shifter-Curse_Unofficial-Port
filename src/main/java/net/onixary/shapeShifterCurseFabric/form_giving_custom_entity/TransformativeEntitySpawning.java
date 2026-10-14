@@ -100,7 +100,6 @@ public class TransformativeEntitySpawning {
         );
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            // 1. 在沙漠神殿添加狼生成
             addStructureSpawn(
                 server.overworld().registryAccess().registryOrThrow(Registries.STRUCTURE)
                     .get(ResourceLocation.fromNamespaceAndPath("minecraft", "desert_pyramid")),
@@ -108,7 +107,6 @@ public class TransformativeEntitySpawning {
                 new StructureSpawnOverride(StructureSpawnOverride.BoundingBoxType.PIECE,
                     WeightedRandomList.create(new MobSpawnSettings.SpawnerData(ShapeShifterCurseFabric.T_WOLF, 20, 3, 5)))
             );
-            // 2. 在废弃矿井添加蜘蛛生成
             for (Holder<Structure> structureEntry : server.overworld().registryAccess().registryOrThrow(Registries.STRUCTURE)
                 .getTagOrEmpty(TagKey.create(Registries.STRUCTURE, ResourceLocation.fromNamespaceAndPath("minecraft", "mineshaft")))) {
                 addStructureSpawn(
@@ -121,7 +119,6 @@ public class TransformativeEntitySpawning {
         });
     }
 
-    // Structure.settings 是 protected final → AW 中已设置 accessible + mutable，可直接赋值
     private static void addStructureSpawn(Structure structure, MobCategory category, StructureSpawnOverride override) {
         if (structure == null) return;
         Map<MobCategory, StructureSpawnOverride> spawns = new HashMap<>(structure.spawnOverrides());
@@ -131,8 +128,6 @@ public class TransformativeEntitySpawning {
             .generationStep(structure.step())
             .terrainAdapation(structure.terrainAdaptation())
             .build();
-        // NeoForge/Connector 兼容：Structure.settings 是 private final，NeoForge 下 accesswidener 不生效 → IllegalAccessError。
-        // 改用 @Accessor mixin（StructureAccessor，@Accessor("settings") + @Mutable），跨 Fabric/NeoForge 统一。
         ((StructureAccessor) structure).ssc_setSettings(newSettings);
     }
 }

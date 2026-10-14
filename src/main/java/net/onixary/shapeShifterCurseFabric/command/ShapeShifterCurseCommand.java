@@ -246,7 +246,6 @@ public class ShapeShifterCurseCommand {
                                         )
                                 )
                         )
-                        // 【临时诊断】axolotl3 氧气血量排查用，定位后可删
                         .then(literal("debug_attrs").requires(cs -> cs.hasPermission(2))
                                 .then(argument("target", EntityArgument.player())
                                         .executes(ShapeShifterCurseCommand::debugAttrs)
@@ -255,12 +254,6 @@ public class ShapeShifterCurseCommand {
         );
     }
 
-    /**
-     * 【临时诊断】dump 目标玩家的氧气、最大生命值 modifier 列表、以及相关 power 的激活状态。
-     *
-     * <p>用于定位 axolotl3「氧气血量不生效」：必须把 air 与 power 激活状态放在<strong>同一时刻</strong>取，
-     * 才能分辨是 air 稳态被破坏、还是 power 自身在闪。定位完成后本方法与 debug_attrs 子命令一并删除。</p>
-     */
     private static int debugAttrs(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
         ServerPlayer target = EntityArgument.getPlayer(commandContext, "target");
         StringBuilder sb = new StringBuilder();
@@ -278,7 +271,6 @@ public class ShapeShifterCurseCommand {
                         .append(" = ").append(modifier.amount())
                         .append(" / ").append(modifier.operation());
             }
-            // 去掉结尾的 _<数字> 再分组：同一逻辑 modifier 若有多个 id 副本（基数相同）会被列出
             Map<String, Long> byBase = maxHealth.getModifiers().stream()
                     .collect(Collectors.groupingBy(m -> m.id().getPath().replaceAll("_\\d+$", ""), Collectors.counting()));
             sb.append("\n  duplicateBases: ").append(byBase.entrySet().stream()
@@ -519,15 +511,11 @@ public class ShapeShifterCurseCommand {
         return 1;
     }
 
-    // private static int logPatronInfo(CommandContext<CommandSourceStack> commandContext) {
     //     if (!PatronUtils.EnablePatronFeature) {
-    //         commandContext.getSource().sendFailure(Component.literal("Patron feature is disabled!"));
     //         return 0;
     //     }
     //     try {
-    //         ServerPlayer player = commandContext.getSource().getPlayer();
     //         if (player == null) {
-    //             commandContext.getSource().sendFailure(Component.literal("Must be a player!"));
     //             return 0;
     //         }
     //         StringBuilder message = new StringBuilder("Patron Info:\n");
@@ -538,17 +526,14 @@ public class ShapeShifterCurseCommand {
     //             message.append(formID.toString()).append(" ");
     //         }
     //         message.append("\n");
-    //         player.sendMessage(Component.literal(message.toString()), false);
     //     } catch (Exception e) {
     //         // 处理其他可能的错误
-    //         commandContext.getSource().sendFailure(Component.literal("Error when log player patron info: " + e.getMessage()));
     //         ShapeShifterCurseFabric.LOGGER.error("Error when log player patron info: ", e);
     //     }
     //     return 1;
     // }
 //
     // // 仅用于logPatronInfo 使用
-    // private static List<Identifier> getAvailableForms(ServerPlayer player) {
     //     List<Identifier> availableForms = new ArrayList<>();
     //     for (Identifier formID : RegPlayerForms.dynamicPlayerForms) {
     //         IForm form = RegPlayerForms.getPlayerForm(formID);

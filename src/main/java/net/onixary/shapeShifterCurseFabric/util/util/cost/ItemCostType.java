@@ -19,19 +19,9 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
     public static final int TEXTURE_WIDTH = 454;
     public static final int TEXTURE_HEIGHT = 190;
 
-    // ⚠ 图标绘制（原 drawIcon / drawOnHover）刻意**不放在这里**：它们签名含客户端类 GuiGraphics，
-    //   而本类会在专用服务端被 RegCostType 的静态初始化注册，链接期加载客户端类会让服务端启动崩溃
-    //   （Cannot load class ... Screen in environment type SERVER）。绘制已整体移到 CostTypeIcons。
-    //   上游本次把这两个方法加了回来，合并时按本仓库既有架构剔除（逻辑与 CostTypeIcons 完全一致）。
-
 
     @Override
     public void drawIcon(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z) {
-        // ⚠ 真正的绘制（含贴图）在 CostTypeIcons（@Environment(CLIENT)），此处只做转发。
-        //   本类会在**专用服务端**被 RegCostType.<clinit> 加载，所以这里绝不能出现
-        //   「引用客户端类的静态字段/静态初始化」—— 那正是 3afa9362 修的启动崩溃
-        //   （new BaseSprite(FormUpgradeScreen.TEXTURE, …) 会让 <clinit> 去加载 Screen）。
-        //   方法体内的引用与形参类型都是惰性解析的，服务端不调用本方法就不会加载客户端类。
         CostTypeIcons.drawIcon(this, context, costObject, player, x, y, z);
     }
 
@@ -55,8 +45,6 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
         int total = 0;
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack stack = inventory.getItem(i);
-            // Yarn 的 canCombine = 比 item + 组件、不比 count，对应 Mojmap 的 isSameItemSameComponents。
-            // 注意别用 ItemStack.matches：它会连 count 一起比，而 exampleStack 恒为 1 个，会永远匹配不上。
             if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(cost.getExampleStack(), stack)) {
                 total += stack.getCount();
             }
@@ -101,8 +89,6 @@ public class ItemCostType implements IFUSDrawableCostType<ItemCostType> {
                 break;
             }
             ItemStack stack = playerInventory.getItem(i);
-            // Yarn 的 canCombine = 比 item + NBT、不比 count，对应 Mojmap 的 isSameItemSameComponents。
-            // 注意别用 ItemStack.matches：它会连 count 一起比，而 exampleStack 恒为 1 个，会永远匹配不上。
             if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(exampleStack, stack)) {
                 int take = Math.min(stack.getCount(), remaining);
                 stack.shrink(take);

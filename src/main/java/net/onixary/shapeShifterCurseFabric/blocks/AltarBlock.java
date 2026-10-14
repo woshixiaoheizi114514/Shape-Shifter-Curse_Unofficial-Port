@@ -95,14 +95,11 @@ public class AltarBlock extends BaseEntityBlock {
         return RenderShape.MODEL;
     }
 
-    // 1.21 BaseEntityBlock 要求实现抽象的 codec()（用于 Block 的注册/网络同步）
     @Override
     protected @NotNull MapCodec<AltarBlock> codec() {
         return Block.simpleCodec(AltarBlock::new);
     }
 
-    // 1.21.1 mojmap 里对应的工具是 BaseEntityBlock.createTickerHelper（原先那个本地 checkType 是 1.20.1 yarn 的
-    // BlockWithEntity.checkType 遗骸，两个重载会互相打转，编译不过）
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
         return world.isClientSide ? null : createTickerHelper(type, RegCustomBlock.ALTAR_BLOCK_ENTITY, (world1, pos, blockState, blockEntity) -> blockEntity.tick(world1, pos, blockState, blockEntity));

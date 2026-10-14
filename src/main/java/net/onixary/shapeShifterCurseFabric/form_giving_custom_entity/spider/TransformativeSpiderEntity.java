@@ -65,7 +65,6 @@ public class TransformativeSpiderEntity extends Spider implements ITMob {
 
     @Override
     public @NotNull EntityDimensions getDefaultDimensions(Pose pose) {
-        // 1.21.1: getActiveEyeHeight 已移除，眼睛高度改为通过 EntityDimensions.withEyeHeight 设置
         return EntityDimensions.fixed(0.7f, 0.45f).withEyeHeight(0.325F);
     }
 

@@ -37,8 +37,6 @@ public class SuperMorphScaleCore extends Item {
     }
 
     public static int getUpgradeDamageMultiplier(ItemStack stack) {
-        // 持久耐久工具：每次升级固定耗 damagePerItem(64) 耐久（core 耐久 4096 ≈ 可升级约 64 次）。
-        // 不再按 base 的 maxStackSize 放大——护甲 maxStack=1 会算出 multiplier=64，一次即耗光 4096 耐久（核心一次报废）。
         return 1;
     }
 
@@ -94,7 +92,6 @@ public class SuperMorphScaleCore extends Item {
             int max_repair = damage;
             need_repair = Math.min(need_repair, max_repair);
             float exp_multiplier = mendingMultiplier;
-            // 1.21.1 Enchantments.MENDING 是 ResourceKey，getItemEnchantmentLevel 只收 Holder，需先转 Holder（直接强转 ResourceKey→Holder 会 ClassCastException）
             if (EnchantmentHelper.getItemEnchantmentLevel(world.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.MENDING), stack) > 0) {
                 exp_multiplier *= quickChargeCostMultiplier;
             } else {

@@ -68,8 +68,6 @@ public record CraftingRecipeBadge(ResourceLocation spriteId,
         int recipeWidth = recipe.value() instanceof ShapedRecipe shapedRecipe ? shapedRecipe.getWidth() : 3;
         int recipeHeight = recipe.value() instanceof ShapedRecipe shapedRecipe ? shapedRecipe.getHeight() : 3;
         NonNullList<ItemStack> inputs = this.peekInputs(time);
-        // Apoli-Legacy 2.11.4 移除了 alpha7 的 InventoryUtil.createStackReference / ModifyCraftingPower.getPriority，
-        // doesApply/getNewResult 改为接收 CraftingInput，这里从合成材料构造。
         CraftingInput craftingInput = CraftingInput.of(recipeWidth, recipeHeight,
             new ArrayList<>(inputs.subList(0, Math.min(recipeWidth * recipeHeight, inputs.size()))));
         ItemStack[] outputRef = { output };

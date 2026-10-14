@@ -44,7 +44,6 @@ public class MorphScaleUpgradeRecipe extends UpgradeRecipe {
 	        CompoundTag nbtCompound = customData.copyTag();
             return !(nbtCompound.contains(IsMorphScaleItemCondition.IsMorphScaleArmorTagName) && nbtCompound.getBoolean(IsMorphScaleItemCondition.IsMorphScaleArmorTagName));
         }), addition, itemStack -> {
-	        // 使用 Component 系统设置标记
 	        CompoundTag nbt = itemStack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
 	        nbt.putBoolean(IsMorphScaleItemCondition.IsMorphScaleArmorTagName, true);
 	        itemStack.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA, CustomData.of(nbt));

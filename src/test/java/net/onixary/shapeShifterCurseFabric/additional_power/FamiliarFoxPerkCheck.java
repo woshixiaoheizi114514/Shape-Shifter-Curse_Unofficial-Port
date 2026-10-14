@@ -165,9 +165,6 @@ public class FamiliarFoxPerkCheck {
         context.assertTrue(arrows.get(0).getItem().is(RegCustomItem.HEALING_CHARM), "Projectile renders the healing charm item");
         context.assertTrue(arrows.get(0).pickup == AbstractArrow.Pickup.DISALLOWED, "Charm cannot be recovered");
         var nbt = new CompoundTag(); arrows.get(0).addAdditionalSaveData(nbt);
-        // ⚠ 1.21 起药水不再是顶层 "Potion" 字符串键，而是随 AbstractArrow 的 pickupItemStack
-        //   存在 "item" 里（ItemStack 的组件格式，含 minecraft:potion_contents）。
-        //   断言含义不变，只是换读取方式 —— 上游把这里退回了 1.20 的写法，合并时按本仓库既有做法改回。
         ItemStack stored = ItemStack.parseOptional(context.getLevel().registryAccess(), nbt.getCompound("item"));
         PotionContents charmPotion = stored.get(DataComponents.POTION_CONTENTS);
         context.assertTrue(charmPotion != null && charmPotion.is(Potions.STRONG_HEALING), "Strong potion payload retained");
@@ -206,8 +203,6 @@ public class FamiliarFoxPerkCheck {
             loaded.setDeltaMovement(0, 0, 3);
             loaded.setBaseDamage(0.5);
             if (item == RegCustomItem.HEALING_CHARM) {
-                // Yarn PotionUtil.setPotion(stack, potion) → Mojmap 的静态工厂 createItemStack
-                //（上游把 PotionUtil 机械改名成了 PotionContents，但没换方法名）
                 loaded.initFromStack(PotionContents.createItemStack(Items.TIPPED_ARROW, Potions.STRONG_HEALING));
                 loaded.igniteForSeconds(5);
                 loaded.hit(target);
@@ -237,9 +232,6 @@ public class FamiliarFoxPerkCheck {
         context.assertTrue(entities.size() == 1, "One reservoir spawned");
         context.assertTrue(player.getFoodData().getFoodLevel() == 4, "Summon costs six food");
         var reservoir = entities.get(0);
-        // ⚠ 上游 Yarn 写的是 `reservoir.age = 20`（`Entity.age` = tick 计数器）→ Mojmap 是 `tickCount`。
-        //   这里手动置 20 而非累加：`tickCount` 由 `ServerLevel.tickNonPassenger` 自增，直接调 `entity.tick()`
-        //   不会推进它，所以每次都要重设为 20 才能落进 `% 20 == 0` 的脉冲分支。
         reservoir.tickCount = 20; reservoir.tick();
         context.assertTrue(reservoir.getHealth() == 8 && ManaUtils.getPlayerMana(player) == 55, "Pulse gives mana and loses health: age=" + reservoir.tickCount + ", hp=" + reservoir.getHealth() + ", mana=" + ManaUtils.getPlayerMana(player));
         player.setPos(player.position().add(10, 0, 0));

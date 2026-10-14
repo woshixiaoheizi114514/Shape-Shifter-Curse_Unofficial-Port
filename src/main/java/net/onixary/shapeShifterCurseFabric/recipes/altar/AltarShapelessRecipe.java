@@ -42,12 +42,9 @@ public class AltarShapelessRecipe extends AltarRecipe {
         this.catalyst = catalyst;
         this.fuelCostPerTick = fuelCostPerTick;
         this.requireAdvancement = requireAdvancement;
-        // 精确燃料预算（单位 fuel unit，1 个月尘 = 800）；-1 表示未指定，走 legacy 的逐 tick fuel_cost。
         this.totalFuelCost = totalFuelCost;
     }
 
-    // [1.21.1 修复] Recipe.getIngredients() 默认返回空 NonNullList，StackedContents.canCraft 会读空 ingredients →
-    // shapeless 配方匹配必失败。改为返回 input。
     @Override
     public @NotNull NonNullList<Ingredient> getIngredients() {
         return this.input;
@@ -58,7 +55,6 @@ public class AltarShapelessRecipe extends AltarRecipe {
         return recipeTime;
     }
 
-    // 进度锁：require_advancement 未完成则不可合成
     @Override
     public boolean canCraft(@Nullable Player player) {
         if (requireAdvancement == null) {
@@ -145,10 +141,6 @@ public class AltarShapelessRecipe extends AltarRecipe {
                 Codec.INT.optionalFieldOf("time", 200).forGetter(r -> r.recipeTime),
                 Codec.INT.optionalFieldOf("fuel_cost", 1).forGetter(r -> r.fuelCostPerTick),
                 ResourceLocation.CODEC.optionalFieldOf("require_advancement").forGetter(r -> Optional.ofNullable(r.requireAdvancement)),
-                // 数据包用「月尘个数」表达燃料预算，内部换算成 fuel unit（1 个尘 = 800）。
-                // ⚠ 字段缺省值与「显式写了 0」必须区分：0 表示「本配方不耗燃料」（totalFuelCost=0），
-                //   而字段整个缺失才表示「未指定」（totalFuelCost=-1 → 退回逐 tick fuel_cost）。
-                //   所以这里用无默认值的 optionalFieldOf（拿到 Optional），不要写死默认 0。
                 Codec.INT.optionalFieldOf("moondust_cost")
                         .forGetter(r -> r.totalFuelCost >= 0 ? Optional.of(r.totalFuelCost / 800) : Optional.empty())
             ).apply(instance, (output, input, catalyst, time, fuelCost, requireAdvancement, moondustCost) ->
@@ -167,8 +159,6 @@ public class AltarShapelessRecipe extends AltarRecipe {
 
         @Override
         public @NotNull StreamCodec<RegistryFriendlyByteBuf, AltarShapelessRecipe> streamCodec() {
-            // 必须返回本地 STREAM_CODEC —— 此前写的是 RecipeSerializerRegister.ALTAR_SHAPELESS_RECIPE.streamCodec()，
-            // 也就是它自己，构成无限递归。AltarShapedRecipe 的写法是对的。
             return STREAM_CODEC;
         }
 
@@ -187,8 +177,6 @@ public class AltarShapelessRecipe extends AltarRecipe {
             ItemStack output = ItemStack.STREAM_CODEC.decode(buf);
             int time = buf.readVarInt();
             int fuelCost = buf.readVarInt();
-            // 必须与 toNetwork 的写入顺序严格对应 —— 那边最后还写了 totalFuelCost，
-            // 这里此前漏读，会让后续读到的字节整体错位。
             int totalFuelCost = buf.readVarInt();
             return new AltarShapelessRecipe(output, list, catalyst, time, fuelCost, requireAdvancement, totalFuelCost);
         }

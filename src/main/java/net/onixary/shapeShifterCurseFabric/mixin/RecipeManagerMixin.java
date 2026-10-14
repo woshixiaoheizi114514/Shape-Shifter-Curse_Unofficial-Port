@@ -30,7 +30,6 @@ public class RecipeManagerMixin {
             ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> recipeIDBuilder,
             @Nullable ResourceLocation recipeID, @NotNull Recipe<?> recipe)
     {
-        // 1.21.1 Recipe 不再自带 id（id 由 RecipeHolder 管理），无法从 recipe 兜底取 id
         if (recipeID == null) {
             return;
         }

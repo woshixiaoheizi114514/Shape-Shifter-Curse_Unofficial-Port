@@ -32,7 +32,6 @@ public class MixinConfigPlugin implements IMixinConfigPlugin {
         mixinRequiredMods.put("net.onixary.shapeShifterCurseFabric.mixin.integration.ToughAsNailsTemperatureHelperImplMixin", new MixinRequiredMods(new String[]{"toughasnails"}, new String[]{}));
         mixinRequiredMods.put("net.onixary.shapeShifterCurseFabric.mixin.integration.ToughAsNailsThirstHandlerMixin", new MixinRequiredMods(new String[]{"toughasnails"}, new String[]{}));
         mixinRequiredMods.put("net.onixary.shapeShifterCurseFabric.mixin.integration.ToughAsNailsThirstHooksMixin", new MixinRequiredMods(new String[]{"toughasnails"}, new String[]{}));
-        // PlayerAnimator 的 Easing.catmullRom 实现退化（恒等于 n+2），仅在装了 PA 时才需要修正
         mixinRequiredMods.put("net.onixary.shapeShifterCurseFabric.mixin.integration.PlayerAnimatorEasingFix", new MixinRequiredMods(new String[]{"playeranimator"}, new String[]{}));
         mixinRequiredMods.put("net.onixary.shapeShifterCurseFabric.mixin.accessory.TrinketImpl", new MixinRequiredMods(new String[]{"trinkets"}, new String[]{}));
         mixinRequiredMods.put("net.onixary.shapeShifterCurseFabric.mixin.accessory.TrinketItemMixin", new MixinRequiredMods(new String[]{"trinkets"}, new String[]{}));
@@ -52,7 +51,6 @@ public class MixinConfigPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
-        // Sinytra Connector 检测：NeoForge 下禁用依赖 Fabric 版依赖 mod API 的 integration mixin
         isNeoForge = isConnectorLoaded();
     }
 
@@ -77,9 +75,6 @@ public class MixinConfigPlugin implements IMixinConfigPlugin {
         return false;
     }
 
-    // NeoForge 下禁用的 mixin：依赖 Fabric 版依赖 mod 的 API。如 AppleSkin 的
-    // FoodHelper.getDefaultFoodValues，Fabric 版签名 (ItemStack)，NeoForge 版是 (ItemStack, Player)，
-    // 注入点失效会崩服。NeoForge 下禁用（集成功能降级）。
     private static final List<String> neoForgeDisabledMixins = List.of(
             "net.onixary.shapeShifterCurseFabric.mixin.integration.AppleSkin"
     );
@@ -91,7 +86,6 @@ public class MixinConfigPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        // NeoForge 下禁用依赖 Fabric 版 API 的 integration mixin
         if (isNeoForge && neoForgeDisabledMixins.stream().anyMatch(mixinClassName::contains)) {
             LOGGER.info("NeoForge detected, skipping {} (NeoForge 版依赖 mod API 不同)", mixinClassName);
             return false;

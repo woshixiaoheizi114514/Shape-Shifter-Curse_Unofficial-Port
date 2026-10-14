@@ -98,7 +98,6 @@ public final class PerkActions {
             var minions = owner.shape_shifter_curse$getMinionsByMinionID(id);
             if (minions == null) return;
             for (var uuid : java.util.List.copyOf(minions)) {
-                // Yarn MinecraftServer.getWorlds() → Mojmap getAllLevels()（getLevel 需要 ResourceKey）
                 for (var world : player.getServer().getAllLevels()) {
                     if (world.getEntity(uuid) instanceof net.onixary.shapeShifterCurseFabric.minion.mobs.AnubisWolfMinionEntity wolf
                             && player.getUUID().equals(wolf.getOwnerUUID()) && wolf.isAlive()) wolf.kill();
@@ -138,11 +137,7 @@ public final class PerkActions {
             if (!(entity instanceof Player player) || player.level().isClientSide) return;
             ItemStack stack = player.getMainHandItem();
             if (!(stack.getItem() instanceof ArrowItem item) || (player.getCooldowns().isOnCooldown(item) || player.getCooldowns().isOnCooldown(Items.ARROW))) return;
-            // 1.21 起 createArrow 多一个「发射武器 stack」参数。
-            // ⚠ 必须传 null，不能传 ItemStack.EMPTY —— AbstractArrow 的构造里对「非 null 但空」的
-            //   武器栈会在服务端直接抛 IllegalArgumentException（"Invalid weapon firing an arrow"）。
             AbstractArrow arrow = item.createArrow(player.level(), stack, player, null);
-            // 按 pitch/yaw 发射用 shootFromRotation；setDeltaMovement 只能直接设速度向量
             arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, data.getFloat("speed"), 0);
             arrow.setCritArrow(true);
             arrow.pickup = player.isCreative() ? AbstractArrow.Pickup.CREATIVE_ONLY : AbstractArrow.Pickup.ALLOWED;

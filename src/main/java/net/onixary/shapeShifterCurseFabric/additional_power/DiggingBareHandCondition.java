@@ -36,12 +36,11 @@ public class DiggingBareHandCondition {
         //     return false;
         // }
 
-	    // getMiningLevel removed in 1.21; any tool in hand means not barehand
 	    if(playerEntity.getInventory().getSelected().isEmpty()){
-            return true;  // bare hand
+            return true;
         }
         else
-		    return !(playerEntity.getInventory().getSelected().getItem() instanceof TieredItem);// non-tool item in hand, counts as bare hand
+		    return !(playerEntity.getInventory().getSelected().getItem() instanceof TieredItem);
 
     }
 

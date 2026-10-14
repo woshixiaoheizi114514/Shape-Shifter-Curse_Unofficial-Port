@@ -42,7 +42,6 @@ public final class DirectedParticlesAction {
             int count = Math.max(0, data.getInt("count"));
             if (count == 0) return;
             var packet = packet(data, actor, target);
-            // Yarn ServerWorld.getPlayers() → Mojmap ServerLevel.players()（带 Predicate 的重载才是 getPlayers）
             for (var viewer : world.players()) {
                 for (int i = 0; i < count; i++) {
                     if (!world.sendParticles(viewer, data.getBoolean("force"), packet.getX(), packet.getY(), packet.getZ(), packet)) break;

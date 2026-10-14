@@ -90,7 +90,6 @@ public class PlayerEventHandler {
                     Thread.currentThread().interrupt();
                 }
 
-                // 在主线程中执行同步
                 server.execute(() -> {
                     if (player.connection != null && !player.hasDisconnected()) {
                         ServerLevel currentWorld = player.serverLevel();
@@ -220,7 +219,6 @@ public class PlayerEventHandler {
         PlayerFormComponent oldComponent = PlayerFormComponent.COMPONENT.get(oldPlayer);
         PlayerFormComponent newComponent = PlayerFormComponent.COMPONENT.get(newPlayer);
         CompoundTag nbt = new CompoundTag();
-        // 1.20.5 起组件 NBT 读写要带 HolderLookup.Provider（取注册表用于解析引用）
         var registries = oldPlayer.registryAccess();
         oldComponent.writeToNbt(nbt, registries);
         newComponent.readFromNbt(nbt, registries);

@@ -69,9 +69,6 @@ public class FormRenderFeature <T extends Player, M extends HumanoidModel<T>, A 
                 // 渲染部分
                 formRenderer.render(matrices, formAnimatable, vertexConsumers, RenderType.entityTranslucent(formModel.getTextureResource(formAnimatable)), null, light, tickDelta);
                 if (formModel.getFullbrightTextureResource(formAnimatable) != null) {
-                    // GeckoLib 的 handleAnimations 在第一次 render 时会覆盖 processAnimation 设的骨骼
-                    // 第二次 render 虽然跳过了 handleAnimations（重渲染保护），但骨骼已经不对了
-                    // 所以在两次 render 之间重新 processAnimation 恢复正确骨骼
                     formModel.AnimationSystem.processAnimation(formRenderer, formModel, playerEntityRenderer, abstractClientPlayerEntity, limbAngle, limbDistance, tickDelta, animationProgress, headYaw, headPitch);
                     formRenderer.render(matrices, formAnimatable, vertexConsumers, RenderType.entityTranslucentEmissive(formModel.getFullbrightTextureResource(formAnimatable)), null, Integer.MAX_VALUE - 1, tickDelta);
                 }
@@ -117,13 +114,6 @@ public class FormRenderFeature <T extends Player, M extends HumanoidModel<T>, A 
         boolean leftPantsHidden = !player.isModelPartShown(PlayerModelPart.LEFT_PANTS_LEG);
         boolean rightLegHidden = false;
         boolean rightPantsHidden = !player.isModelPartShown(PlayerModelPart.RIGHT_PANTS_LEG);
-        // Better Combat 修复：第一人称下把原版模型的头/身/腿全裁掉，只按动作动画自己声明的配置保留手臂。
-        //
-        // 这一段必须走 PlayerAnimatorCompat 而不是直接调 PA：
-        //   · PA 是可选依赖，直接引用 dev.kosmx.* 会让纯 PAL 环境 NoClassDefFoundError；
-        //   · PlayerAnimatorCompat.isFirstPersonPass() 在没装 PA 时恒为 false，
-        //     于是「读不到 PA 的第一人称配置」和「不该做裁剪」这两种情况天然合一，
-        //     到这里 arms 必然非 null；仍然判一次是为了防 BRIDGE 中途不可用的边界。
         if (ShapeShifterCurseFabric.clientConfig.enableBetterCombatFix
                 && PlayerAnimatorCompat.isFirstPersonPass()
                 && player == Minecraft.getInstance().getCameraEntity()) {
@@ -299,7 +289,6 @@ public class FormRenderFeature <T extends Player, M extends HumanoidModel<T>, A 
             // 从 PlayerEntityRendererMixin.renderOverlayTexture 提取的代码并进行修改
             ResourceLocation OverlayTextureID = formModel.getOverlayTextureResource(playerEntityModel.slim);
             if (OverlayTextureID != null) {
-                // 玩家看自己绝对是非隐身
                 // boolean bl = this.isVisible(player);
                 // boolean bl2 = !bl && !player.isInvisibleTo(MinecraftClient.getInstance().player);
                 RenderType OverlayLayer = null;

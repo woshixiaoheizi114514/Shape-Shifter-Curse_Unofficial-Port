@@ -341,9 +341,6 @@ public class ModPacketsS2CServer {
         ServerPlayNetworking.send(player, new BytePayload(BytePayload.id(ModPackets.SET_SUPER_USER_LEVEL), buf));
     }
 
-    // 服务端也要注册 S2C payload 类型（fabric networking：发送端必须注册 playS2C，否则 id 未知会回退 DiscardedPayload codec、
-    // 把 BytePayload 强转 DiscardedPayload 抛 ClassCastException，玩家进服即崩 -- issue #21）。
-    // 只注册类型、不注册客户端 receiver（receiver 仍在客户端 ModPacketsS2C）。REGISTERED_S2C 幂等，双端注册互不冲突。
     public static void registerServerS2C() {
         BytePayload.registerS2C(ModPackets.SYNC_CURSED_MOON_DATA);
         BytePayload.registerS2C(ModPackets.SYNC_FORM_CHANGE);
@@ -367,10 +364,6 @@ public class ModPacketsS2CServer {
         BytePayload.registerS2C(ModPackets.MELT_AUTH_SUB_KEY);
         BytePayload.registerS2C(ModPackets.REQUEST_PATRON_AUTH_FILE);
         BytePayload.registerS2C(ModPackets.SET_SUPER_USER_LEVEL);
-        // 以下 4 个由本类 send（sendPerkAvailability / sendPerkData / sendOpenFormUpgradeMenu /
-        // sendOpenSelectSubFormMenu），此前只写在客户端 ModPacketsS2C#register 的清单里 ——
-        // 服务端编码时查不到 payload type，会抛 IllegalArgumentException("Unknown payload type: ...")，
-        // 即「一发就崩服」。与 issue #21 是同一类漏注册。
         BytePayload.registerS2C(ModPackets.SYNC_PERK_AVAILABILITY);
         BytePayload.registerS2C(ModPackets.SYNC_PERK_DATA);
         BytePayload.registerS2C(ModPackets.OPEN_FORM_UPGRADE_MENU);
@@ -399,7 +392,6 @@ public class ModPacketsS2CServer {
         for (IPerk perk : perks) {
             buf.writeResourceLocation(perk.getID());
             CompoundTag nbt = new CompoundTag();
-            // 1.21.1：ItemStack 序列化必须带 registry 上下文（ItemCost 的示例栈要用）。
             perk.getCost().__writeToNBT(nbt, player.level().registryAccess());
             buf.writeNbt(nbt);
         }

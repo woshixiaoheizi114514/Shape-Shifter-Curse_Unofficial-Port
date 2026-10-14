@@ -31,14 +31,10 @@ import static net.onixary.shapeShifterCurseFabric.blocks.RegCustomBlock.*;
 public class RegCustomItem {
     private RegCustomItem(){}
 
-    // ⚠ 1.21 起 SwordItem 的「伤害/攻速」不再走构造器参数，改由 Item.Properties.attributes(...) 携带；
-    //   createAttributes(tier, damage, speed) 会把 tier.getAttackDamageBonus() 加进 damage，
-    //   与原版钻石剑（createAttributes(DIAMOND, 3, -2.4F)）同一算式，故此处 4 / -2.4f 数值语义不变。
     public static final Item GRAPHENE_BLADE = register("graphene_blade", new SwordItem(Tiers.DIAMOND,
             new Item.Properties().durability(128).attributes(SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.4f))));
     public static final Item COMPOUND_KINETIC_BOW = register("compound_kinetic_bow", new BowItem(new Item.Properties().durability(768)));
 
-    //public static final Item CURSED_BOOK_OF_SHAPE_SHIFTER = register("cursed_book_of_shape_shifter", new StartBook(new Item.Properties()));
     public static final Item BOOK_OF_SHAPE_SHIFTER = register("book_of_shape_shifter", new BookOfShapeShifter(new Item.Properties()));
     public static final Item UNTREATED_MOONDUST = register("untreated_moondust", new UntreatedMoonDust(new Item.Properties()));
     public static final Item INHIBITOR = register("inhibitor", new Inhibitor(new Item.Properties()));

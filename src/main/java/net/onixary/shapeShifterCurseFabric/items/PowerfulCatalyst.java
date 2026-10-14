@@ -41,8 +41,6 @@ public class PowerfulCatalyst extends Item {
 
     @Override
     public @NotNull ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
-        // 1.21.1 修复：之前效果靠 ItemStackMixin 注入，但该 mixin 现已只处理金苹果/牛奶、不处理 powerful_catalyst，
-        // 导致 OnUsePowerfulCatalyst 从未被调用。对照上游（1.20.1 的 finishUsing 直接调用）改为自身直接调用。
         if (user instanceof Player player) {
             TransformRelatedItems.OnUsePowerfulCatalyst(player, stack);
         }

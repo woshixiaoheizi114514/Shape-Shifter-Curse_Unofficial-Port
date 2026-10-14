@@ -79,8 +79,6 @@ public class OriginDisplayScreen extends Screen {
         return layer;
     }
 
-    // renderBackground override removed — method became non-overrideable in 1.21
-
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         renderedBadges.clear();
@@ -172,10 +170,6 @@ public class OriginDisplayScreen extends Screen {
         }
     }
 
-    // NeoForge/Connector 兼容：原 @Invoker DrawContextAccessor（origins.mixins.json）在 Connector 下无法重映射
-    // intermediary 方法名（method_51435 → mojmap renderTooltipInternal）而启动崩溃，已从 mixins.json 移除。
-    // 改反射调用 GuiGraphics.renderTooltipInternal（Fabric 运行时=intermediary method_51435，NeoForge=mojmap
-    // renderTooltipInternal，方法名不同故尝试两者），运行时安全；失败时降级为不渲染 badge tooltip。
     private static void invokeRenderTooltipInternal(GuiGraphics context, Font font, List<ClientTooltipComponent> components, int x, int y) {
         for(String name : new String[]{"renderTooltipInternal", "method_51435"}) {
             try {
@@ -184,7 +178,6 @@ public class OriginDisplayScreen extends Screen {
                 m.invoke(context, font, components, x, y, DefaultTooltipPositioner.INSTANCE);
                 return;
             } catch (NoSuchMethodException ignored) {
-                // 尝试下一个环境的方法名
             } catch (Exception e) {
                 Origins.LOGGER.warn("[Origins] Failed to render badge tooltip via {}: {}", name, e.toString());
                 return;
@@ -253,8 +246,6 @@ public class OriginDisplayScreen extends Screen {
             }
         }
     }
-
-    // mouseScrolled signature changed in 1.21 (4 params: x, y, horizontal, vertical) */
 
     private void renderOriginContent(GuiGraphics context, int mouseX, int mouseY) {
 

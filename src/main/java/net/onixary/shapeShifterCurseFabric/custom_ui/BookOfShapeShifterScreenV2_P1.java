@@ -109,11 +109,6 @@ public class BookOfShapeShifterScreenV2_P1 extends Screen implements WidgetEXUti
         int y1 = y - size;
         int x2 = x + size;
         int y2 = y + size;
-        // ⚠ 本方法的 mouseX/mouseY 必须是**绝对屏幕坐标**（原版自己的调用点 InventoryScreen:97 传的就是
-        //   this.xMouse/this.yMouse）。原版内部按 p = atan(((x1+x2)/2 - mouseX)/40) 算朝向；
-        //   若传「中心 − 鼠标」的相对差值，枢轴会落到屏幕外，预览就几乎不随鼠标转 —— issue #27。
-        // （原先这里还有一套手写 atan/Quaternionf/朝向保存还原，那是 1.20.1 旧 API 的写法；
-        //   1.21 起本方法内部自己算并保存/还原实体状态，写在前面的朝向会被整个覆盖 —— 已删除。）
         InventoryScreen.renderEntityInInventoryFollowsMouse(context, x1, y1, x2, y2, size, 0.0625f, mouseX, mouseY, entity);
     }
 
@@ -151,7 +146,6 @@ public class BookOfShapeShifterScreenV2_P1 extends Screen implements WidgetEXUti
 
 	@Override
 	public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
-		// No blur — book texture serves as the background
 	}
 
     @Override
@@ -172,7 +166,6 @@ public class BookOfShapeShifterScreenV2_P1 extends Screen implements WidgetEXUti
         // Size -> (70, 66) Pos -> (35, 15)
         int PlayerX = BookPosX + 70 * BookScale;
 	    int PlayerY = BookPosY + 45 * BookScale;
-        // 传绝对鼠标坐标（不是「中心 − 鼠标」的差值）—— 见 RenderEntity 里的说明
         this.RenderEntity(context, PlayerX, PlayerY, 30 * BookScale, mouseX, mouseY, currentPlayer);
         // Cursed Moon Icon
         // Size -> (8, 8), Pos -> (115, 92)

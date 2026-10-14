@@ -81,7 +81,6 @@ public class Origins implements ModInitializer, OrderedResourceListenerInitializ
 		ModItems.register();
 		ModTags.register();
 		ModPacketsC2S.register();
-		// 服务端也要注册 S2C payload 类型（发送端必须注册 playS2C，否则 id 未知回退 DiscardedPayload 编码失败，进服即崩 -- issue #21）
 		BytePayload.registerS2C(ModPackets.ORIGIN_LIST);
 		BytePayload.registerS2C(ModPackets.LAYER_LIST);
 		BytePayload.registerS2C(ModPackets.OPEN_ORIGIN_SCREEN);
@@ -119,12 +118,10 @@ public class Origins implements ModInitializer, OrderedResourceListenerInitializ
 		ResourceLocation powerData = Apoli.identifier("powers");
 		ResourceLocation originData = Origins.identifier("origins");
 
-		// Ensure origins namespace tags are registered before power loading
 		OriginsTagLoader tagLoader = new OriginsTagLoader();
 		manager.register(PackType.SERVER_DATA, tagLoader).before(powerData).complete();
 		PowerTypes.DEPENDENCIES.add(tagLoader.getFabricId());
 
-		// 1.21.11: 用 registerWithRegistries 传入 HolderLookup.Provider（Origin 解析 icon 的 ItemStack 需要非 null registry）
 		manager.registerWithRegistries(originData, OriginManager::new).after(powerData).complete();
 		manager.register(PackType.SERVER_DATA, new OriginLayers()).after(originData).complete();
 

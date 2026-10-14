@@ -22,11 +22,6 @@ public class EmptyCostType implements IFUSDrawableCostType<EmptyCostType> {
 
     @Override
     public void drawIcon(GuiGraphics context, @NotNull ICost costObject, @Nullable Player player, int x, int y, int z) {
-        // ⚠ 真正的绘制（含贴图）在 CostTypeIcons（@Environment(CLIENT)），此处只做转发。
-        //   本类会在**专用服务端**被 RegCostType.<clinit> 加载，所以这里绝不能出现
-        //   「引用客户端类的静态字段/静态初始化」—— 那正是 3afa9362 修的启动崩溃
-        //   （new BaseSprite(FormUpgradeScreen.TEXTURE, …) 会让 <clinit> 去加载 Screen）。
-        //   方法体内的引用与形参类型都是惰性解析的，服务端不调用本方法就不会加载客户端类。
         CostTypeIcons.drawIcon(this, context, costObject, player, x, y, z);
     }
 

@@ -54,10 +54,8 @@ public class SubformPerkCheck {
                 """).getAsJsonObject();
         var a = actor.getBoundingBox().getCenter().add(1,2,3);
         var b = target.getBoundingBox().getCenter().add(-1,1,0);
-        // 1.21 起 SerializableData 的 read 要带 HolderLookup.Provider
         var registries = c.getLevel().registryAccess();
         var forward = DirectedParticlesAction.packet(factory.getSerializableData().read(json, registries),actor,target);
-        // ⚠ Yarn Vec3d.multiply(double) 是标量缩放 → Mojmap 的对应方法是 scale（multiply 是逐分量乘）
         var velocity = new Vec3(forward.getXDist(),forward.getYDist(),forward.getZDist()).scale(forward.getMaxSpeed());
         c.assertTrue(new Vec3(forward.getX(),forward.getY(),forward.getZ()).distanceTo(a)<1e-6,"Actor offset is relative to its body center");
         c.assertTrue(velocity.distanceTo(b.subtract(a).normalize().scale(.5))<1e-6 && forward.getCount()==0,"Packet uses directed velocity mode, not random spread");
@@ -85,7 +83,6 @@ public class SubformPerkCheck {
         var base = PowerTypeRegistry.get(id("sub_form_avali_water_slowness"));
         c.assertTrue(PowerHolderComponent.KEY.get(p).hasPower(upgraded),"Perk applies before death");
         p.setHealth(0);
-        // Yarn PlayerManager.respawnPlayer(p,false) → Mojmap 3 参版；原版死亡重生走的正是 KILLED
         var respawned = c.getLevel().getServer().getPlayerList().respawn(p,false,net.minecraft.world.entity.Entity.RemovalReason.KILLED);
         try {
             c.assertTrue(PerkUtils.getPlayerPerks(respawned,form.getPerkTreeID()).contains(id("avali_environmental_protection_1")),"Unlock record survives real respawn");
@@ -103,7 +100,6 @@ public class SubformPerkCheck {
         FormUtils.setForm(p,avali);
         var dispatcher = new CommandDispatcher<CommandSourceStack>();
         ShapeShifterCurseCommand.register(dispatcher);
-        // Yarn CommandSource.withLevel(n) → Mojmap withPermission(n)
         var source = p.createCommandSourceStack().withPermission(2);
         String prefix = "shape_shifter_curse perk ";
         c.assertTrue(!dispatcher.getRoot().getChild("shape_shifter_curse").getChild("perk").canUse(source.withPermission(0)),"Non-OP cannot use debug commands");
@@ -150,7 +146,6 @@ public class SubformPerkCheck {
         var jump=(AirJumpPower)add(p,"marbled_polecat_double_air_jump");
         var registries = c.getLevel().registryAccess();
         p.setOnGround(false);jump.tick();jump.tick();jump.onUse();jump.onUse();
-        // 1.21 起 Power#toTag/fromTag 多了 HolderLookup.Provider 参数
         c.assertTrue(((IntTag)jump.toTag(registries)).getAsInt()==2,"Two extra jumps");
         p.setDeltaMovement(0,-1,0);jump.onUse();c.assertTrue(p.getDeltaMovement().y==-1,"Third extra jump blocked");
         p.setOnGround(true);jump.tick();c.assertTrue(((IntTag)jump.toTag(registries)).getAsInt()==0,"Landing resets jumps");
@@ -171,7 +166,6 @@ public class SubformPerkCheck {
             var craft=(ItemOnItemPower)add(p,"avali_tool_modification_"+tier);
             var using=new ItemStack(tier==1?Items.COAL_BLOCK:Items.DIAMOND,2);
             var old=new ItemStack(tier==1?Items.GOLDEN_SWORD:Items.BOW);old.setDamageValue(10);
-            // Enchantments.UNBREAKING 是 ResourceKey，enchant 只收 Holder（直接强转会 ClassCastException）
             old.enchant(c.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.UNBREAKING),3);
             p.getInventory().setItem(0,old);var slot=new Slot(p.getInventory(),0,0,0);
             c.assertTrue(craft.doesApply(using,old),"Recipe input");craft.execute(using,old,slot);
@@ -180,7 +174,6 @@ public class SubformPerkCheck {
         add(p,"avali_nano_coating_1");add(p,"avali_nano_coating_2");
         var iron=new ItemStack(Items.IRON_INGOT,2);p.setItemInHand(InteractionHand.MAIN_HAND,iron);iron.use(c.getLevel(),p,InteractionHand.MAIN_HAND);
         c.assertTrue(iron.getCount()==1 && p.getEffect(MobEffects.DAMAGE_RESISTANCE).getAmplifier()==0,"Tier II retains iron use");
-        // Yarn PlayerEntity.getItemCooldownManager().remove(item) → Mojmap ItemCooldowns.removeCooldown(item)
         p.getCooldowns().removeCooldown(Items.IRON_INGOT);p.getCooldowns().removeCooldown(Items.DIAMOND);
         var diamond=new ItemStack(Items.DIAMOND,2);p.setItemInHand(InteractionHand.MAIN_HAND,diamond);diamond.use(c.getLevel(),p,InteractionHand.MAIN_HAND);
         c.assertTrue(diamond.getCount()==1 && p.getEffect(MobEffects.DAMAGE_RESISTANCE).getAmplifier()==1 && p.hasEffect(MobEffects.FIRE_RESISTANCE),"Diamond adds stronger coating");c.succeed();
@@ -192,8 +185,6 @@ public class SubformPerkCheck {
         p.getInventory().setItem(1,new ItemStack(Items.ARROW,2));
         var bow=new ItemStack(RegCustomItem.COMPOUND_KINETIC_BOW);
         p.setItemInHand(InteractionHand.MAIN_HAND,bow);
-        // Mojmap 的 Item#onStoppedUsing 是 protected，公开入口是 releaseUsing；
-        // 且 getMaxUseTime() → getUseDuration(实体)
         bow.getItem().releaseUsing(bow,c.getLevel(),p,bow.getUseDuration(p)-20);
         var arrows=c.getLevel().getEntitiesOfClass(AbstractArrow.class,p.getBoundingBox().inflate(3),a->a.getOwner()==p);
         c.assertTrue(arrows.size()==1 && arrows.get(0).getBaseDamage()==2.5,"Actual bow shot applies 25 percent base damage bonus");

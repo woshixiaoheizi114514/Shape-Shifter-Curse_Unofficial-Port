@@ -80,8 +80,6 @@ public class FormAttunerBeamRenderer implements BlockEntityRenderer<FormAttunerB
     }
 
     private static void renderBeamLayer(PoseStack matrices, VertexConsumer vertices, float red, float green, float blue, float alpha, int yOffset, int height, float x1, float z1, float x2, float z2, float x3, float z3, float x4, float z4, float u1, float u2, float v1, float v2) {
-        // 1.21.1 Mojmap：Pose.getPositionMatrix()/getNormalMatrix() 改名为 pose()/normal()；
-        // 且 VertexConsumer.setNormal 收的是 PoseStack.Pose（不是 Matrix3f），所以整个渲染链传 Pose。
         PoseStack.Pose entry = matrices.last();
         renderBeamFace(entry, vertices, red, green, blue, alpha, yOffset, height, x1, z1, x2, z2, u1, u2, v1, v2);
         renderBeamFace(entry, vertices, red, green, blue, alpha, yOffset, height, x4, z4, x3, z3, u1, u2, v1, v2);
@@ -96,26 +94,20 @@ public class FormAttunerBeamRenderer implements BlockEntityRenderer<FormAttunerB
         renderBeamVertex(entry, vertices, red, green, blue, alpha, height, x2, z2, u1, v1);
     }
 
-    // ⚠ 必须收 PoseStack.Pose：1.21.1 的 VertexConsumer.setNormal 只有 (Pose,float,float,float) 重载
-    //   （addVertex 两者都收，但 setNormal 不收 Matrix3f）。原版 BeaconRenderer 也是这么写的。
     private static void renderBeamVertex(PoseStack.Pose entry, VertexConsumer vertices, float red, float green, float blue, float alpha, int y, float x, float z, float u, float v) {
-        vertices.addVertex(entry, x, y, z).setColor(red, green, blue, alpha).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xfa8eff).setNormal(entry, 0.0f, 1.0f, 0.0f);   // Mojmap 的 VertexConsumer 没有 Yarn 的 next()/endVertex()
+        vertices.addVertex(entry, x, y, z).setColor(red, green, blue, alpha).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(0xfa8eff).setNormal(entry, 0.0f, 1.0f, 0.0f);
     }
 
-    // Yarn→Mojmap 改名：rendersOutsideBoundingBox → shouldRenderOffScreen
     @Override
     public boolean shouldRenderOffScreen(FormAttunerBlockEntity blockEntity) {
         return true;
     }
 
-    // Yarn→Mojmap 改名：getRenderDistance → getViewDistance
     @Override
     public int getViewDistance() {
         return 256;
     }
 
-    // Yarn→Mojmap 改名：isInRenderDistance → shouldRender
-    // （原版默认实现用的是 getBlockPos()，这里沿用上游的「只算水平距离」写法）
     @Override
     public boolean shouldRender(FormAttunerBlockEntity blockEntity, Vec3 cameraPos) {
         return Vec3.atCenterOf(blockEntity.getBlockPos()).multiply(1.0, 0.0, 1.0)

@@ -16,12 +16,6 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-/**
- * Curios 兼容层（NeoForge 版，重写自上游 Forge 预编译 CurioImpl.class）。
- * 让 AccessoryItem 实现 Curios 的 {@link ICurioItem}，构造时注册到 Curios，并把 Curios 的
- * 生命周期回调（tick/装备/卸下/可装/可卸/破坏/掉落）转发到 AccessoryItem 对应方法。
- * 仅在 Curios mod 存在时经 MixinConfigPlugin 条件注入。
- */
 @Mixin(AccessoryItem.class)
 public class CurioImpl implements ICurioItem {
 

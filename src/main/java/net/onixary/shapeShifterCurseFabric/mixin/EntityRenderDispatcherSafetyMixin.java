@@ -7,10 +7,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-/**
- * Safeguard: prevents NPE when EntityRenderDispatcher has a null renderer
- * (can happen during form transitions or renderer cache mismatches).
- */
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherSafetyMixin {
 
@@ -32,7 +28,7 @@ public class EntityRenderDispatcherSafetyMixin {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Redirect(method = "getPackedLightCoords", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderer;getPackedLightCoords(Lnet/minecraft/world/entity/Entity;F)I"))
 	private int preventNullRendererGetLight(EntityRenderer instance, net.minecraft.world.entity.Entity entity, float tickDelta) {
-		if (instance == null) return 15; // 默认最大亮度
+		if (instance == null) return 15;
 		return instance.getPackedLightCoords(entity, tickDelta);
 	}
 }

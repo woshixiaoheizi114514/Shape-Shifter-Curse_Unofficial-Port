@@ -44,14 +44,11 @@ public class AltarShapedRecipe extends AltarRecipe {
         this.recipeTime = recipeTime;
         this.fuelCostPerTick = fuelCostPerTick;
         this.requireAdvancement = requireAdvancement;
-        // 精确燃料预算（单位 fuel unit，1 个月尘 = 800）；-1 表示未指定，走 legacy 的逐 tick fuel_cost。
         this.totalFuelCost = totalFuelCost;
     }
 
     @Override
     public @NotNull NonNullList<Ingredient> getIngredients() {
-        // 本类存的是 ShapedRecipePattern（字段名 pattern），没有上游那种 input 字段
-        // ——此前误把 AltarShapelessRecipe 的写法拷了过来。
         return this.pattern.ingredients();
     }
 
@@ -60,7 +57,6 @@ public class AltarShapedRecipe extends AltarRecipe {
         return recipeTime;
     }
 
-    // 进度锁：require_advancement 未完成则不可合成
     @Override
     public boolean canCraft(@Nullable Player player) {
         if (requireAdvancement == null) {
@@ -158,10 +154,6 @@ public class AltarShapedRecipe extends AltarRecipe {
                 Codec.INT.optionalFieldOf("time", 200).forGetter(r -> r.recipeTime),
                 Codec.INT.optionalFieldOf("fuel_cost", 1).forGetter(r -> r.fuelCostPerTick),
                 ResourceLocation.CODEC.optionalFieldOf("require_advancement").forGetter(r -> Optional.ofNullable(r.requireAdvancement)),
-                // 数据包用「月尘个数」表达燃料预算，内部换算成 fuel unit（1 个尘 = 800）。
-                // ⚠ 字段缺省值与「显式写了 0」必须区分：0 表示「本配方不耗燃料」（totalFuelCost=0），
-                //   而字段整个缺失才表示「未指定」（totalFuelCost=-1 → 退回逐 tick fuel_cost）。
-                //   所以这里用无默认值的 optionalFieldOf（拿到 Optional），不要写死默认 0。
                 Codec.INT.optionalFieldOf("moondust_cost")
                         .forGetter(r -> r.totalFuelCost >= 0 ? Optional.of(r.totalFuelCost / 800) : Optional.empty())
             ).apply(instance, (pattern, output, catalyst, time, fuelCost, requireAdvancement, moondustCost) ->
@@ -266,8 +258,6 @@ public class AltarShapedRecipe extends AltarRecipe {
             ItemStack output = ItemStack.STREAM_CODEC.decode(buf);
             int time = buf.readVarInt();
             int fuelCost = buf.readVarInt();
-            // 必须与 toNetwork 的写入顺序严格对应 —— 那边最后还写了 totalFuelCost，
-            // 这里此前漏读，会让后续读到的字节整体错位。
             int totalFuelCost = buf.readVarInt();
             return new AltarShapedRecipe(pattern, output, catalyst, time, fuelCost, requireAdvancement, totalFuelCost);
         }

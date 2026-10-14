@@ -27,12 +27,7 @@ public class SmithingScreenHandlerMixin {
         }
         SmithingRecipe recipe = list.getFirst().value();
         if (recipe instanceof ISmithingRecipeEX iSmithingRecipeEX && iSmithingRecipeEX.overrideVanillaOnTakeOutput()) {
-            // 在 vanilla onTake 的 shrinkStackInSlot(0..2) 之前运行，onTakeOutput 成为唯一消费者：
-            // 核心配方 branch 只 damage core + shrink base/addition（不 shrink slot0=核心），避免核心被 vanilla 当作模板吞掉。
             iSmithingRecipeEX.onTakeOutput(realThis, player, itemStack);
-            // 复现被 ci.cancel() 跳过的原版 onTake 部分 housekeeping（onCraftedBy 合成统计 / levelEvent 音效粒子）。
-            // 注：原版 awardUsedRecipes 需 resultSlots（父类 ItemCombinerMenu 的 protected 字段，@Shadow 解析受限），此处省略，
-            // 仅影响"配方的使用记录/成就"，不影响产出与消耗。
             itemStack.onCraftedBy(player.level(), player, itemStack.getCount());
             realThis.access.execute((world, pos) -> world.levelEvent(1044, pos, 0));
             ci.cancel();

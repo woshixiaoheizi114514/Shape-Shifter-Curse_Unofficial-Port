@@ -160,9 +160,9 @@ public class FormColorSelectMenuV2 extends Screen implements FormTextureUtils.Te
     public static FormColorSelectMenuV2 instance;
     private boolean isLockTempTextureSystem = false;  // 用于还原
     private boolean isLockTempModelSystem = false;  // 用于还原
-    private boolean isLockTempConfigSystem = false;  // 用于还原
+    private boolean isLockTempConfigSystem = false;
     private @Nullable Screen parsetScreen = null;
-    private final HashMap<String, HashMap<FormTextureUtils.ColorSetting, ResourceLocation>> colorSettingCacheMap = new HashMap<>();  // 防止内存泄漏
+    private final HashMap<String, HashMap<FormTextureUtils.ColorSetting, ResourceLocation>> colorSettingCacheMap = new HashMap<>();
     private int modelID = -1;
     private static final String identifierNameSpace = MOD_ID;
     private static final String identifierPrefix = "dynamic_fcs_v2_";
@@ -309,7 +309,6 @@ public class FormColorSelectMenuV2 extends Screen implements FormTextureUtils.Te
 
     @Override
     public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        // 自定义背景纹理完全遮挡，不需要暗色渐变
     }
 
     // FCS按钮生成函数
@@ -421,7 +420,6 @@ public class FormColorSelectMenuV2 extends Screen implements FormTextureUtils.Te
         //     case 2 -> { this.PanelConfigNameLabel.setMessage(AccentColor2Label); }
         //     case 3 -> { this.PanelConfigNameLabel.setMessage(EyeColorALabel); }
         //     case 4 -> { this.PanelConfigNameLabel.setMessage(EyeColorBLabel); }
-        // }
         int Color = 0x00FFFFFF;
         switch (this.SliderIndex) {
             case 0 -> Color = this.primaryColor;
@@ -588,7 +586,6 @@ public class FormColorSelectMenuV2 extends Screen implements FormTextureUtils.Te
             case 3, 4, 5 -> this.updateRGBFromHSV();
         }
     }
-    // 二级菜单
     public void updatePanel() {
         if (isOpenPanel02) {
             ConfigPanel01.forEach(element -> element.visible = false);
@@ -765,8 +762,8 @@ public class FormColorSelectMenuV2 extends Screen implements FormTextureUtils.Te
     @Override
     public void init() {
         super.init();
-        int BPosX = width / 2 - BG_WIDTH / 2;  // 图片左上角 X
-        int BPosY = height / 2 - BG_HEIGHT / 2;  // 图片左上角 Y
+        int BPosX = width / 2 - BG_WIDTH / 2;
+        int BPosY = height / 2 - BG_HEIGHT / 2;
         int TextColor = 0xDDDDDD;
         // 330,20,70,11 - Global Slot Label
         this.addRenderableWidget(new StringWidget(BPosX + 330, BPosY + 20, 70, 11, GlobalSlotTitle, font)).setColor(TextColor);
@@ -1244,7 +1241,6 @@ public class FormColorSelectMenuV2 extends Screen implements FormTextureUtils.Te
             this.modelID = modelID;
             CleanColorSettingCache();
         }
-        // 可以关闭这个功能
         if (!this.enableFormColorSystem) {
             return texture;
         }

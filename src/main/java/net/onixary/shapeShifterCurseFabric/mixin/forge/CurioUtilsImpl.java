@@ -17,37 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Curios 兼容层（NeoForge 版，重写自上游 Forge 预编译 CurioUtilsImpl.class）。
- * 把 {@link CurioUtils} 的全部 fallback 空桩替换为基于 Curios API 的真实现，
- * 并让 {@code isLoaded()} 返回 true。仅在 Curios mod 存在时经 MixinConfigPlugin 条件注入。
- * <p>
- * 之所以用 {@code @Overwrite} 而不是把实现直接写进 {@link CurioUtils}：
- * {@code CurioUtils} 在没有 Curios 的整合包里也必须能被安全加载（{@code DefaultAccessory:109} 用
- * {@code Class.forName} 探测它），所以它不能 import 任何 Curios 类。
- * <p>
- * 所有 {@code @Overwrite} 都写了 {@code remap = false}：{@link CurioUtils} 是本项目自己的类，
- * 不参与混淆，dev 与线上方法名一致。不加这个参数 Mixin AP 会去查混淆映射表并直接报
- * "Unable to locate obfuscation mapping for @Overwrite method"。
- * <p>
- * 写入方法都做了下标越界防护（上游预编译版没有，越界会直接抛 IndexOutOfBoundsException）。
- */
 @Mixin(CurioUtils.class)
 public class CurioUtilsImpl {
 
-    /**
-     * @author XuHaoNan
-     * @reason 能走到这里就说明 Curios 门控已通过，直接返回 true。
-     */
     @Overwrite(remap = false)
     public static boolean isLoaded() {
         return true;
     }
 
-    /**
-     * @author XuHaoNan
-     * @reason 用 Curios API 替换 fallback 空桩。
-     */
     @Overwrite(remap = false)
     public static boolean isEquipped(LivingEntity entity, Item item) {
         ICuriosItemHandler handler = CuriosApi.getCuriosInventory(entity).orElse(null);
@@ -65,10 +42,6 @@ public class CurioUtilsImpl {
         return false;
     }
 
-    /**
-     * @author XuHaoNan
-     * @reason 用 Curios API 替换 fallback 空桩。
-     */
     @Overwrite(remap = false)
     public static Map<String, List<ItemStack>> getEntitySlots(LivingEntity entity) {
         Map<String, List<ItemStack>> map = new HashMap<>();
@@ -87,10 +60,6 @@ public class CurioUtilsImpl {
         return map;
     }
 
-    /**
-     * @author XuHaoNan
-     * @reason 用 Curios API 替换 fallback 空桩。
-     */
     @Overwrite(remap = false)
     public static List<ItemStack> getEntitySlot(LivingEntity entity, String SlotName) {
         List<ItemStack> list = new ArrayList<>();
@@ -108,10 +77,6 @@ public class CurioUtilsImpl {
         return list;
     }
 
-    /**
-     * @author XuHaoNan
-     * @reason 用 Curios API 替换 fallback 空桩。
-     */
     @Overwrite(remap = false)
     public static void setEntitySlot(LivingEntity entity, String SlotName, int Index, ItemStack stack) {
         ICuriosItemHandler handler = CuriosApi.getCuriosInventory(entity).orElse(null);
@@ -124,10 +89,6 @@ public class CurioUtilsImpl {
         }
     }
 
-    /**
-     * @author XuHaoNan
-     * @reason 用 Curios API 替换 fallback 空桩（外观槽 = getCosmeticStacks）。
-     */
     @Overwrite(remap = false)
     public static Map<String, List<ItemStack>> getEntityCosmeticSlots(LivingEntity entity) {
         Map<String, List<ItemStack>> map = new HashMap<>();
@@ -146,10 +107,6 @@ public class CurioUtilsImpl {
         return map;
     }
 
-    /**
-     * @author XuHaoNan
-     * @reason 用 Curios API 替换 fallback 空桩（外观槽 = getCosmeticStacks）。
-     */
     @Overwrite(remap = false)
     public static List<ItemStack> getEntityCosmeticSlot(LivingEntity entity, String SlotName) {
         List<ItemStack> list = new ArrayList<>();
@@ -167,10 +124,6 @@ public class CurioUtilsImpl {
         return list;
     }
 
-    /**
-     * @author XuHaoNan
-     * @reason 用 Curios API 替换 fallback 空桩（外观槽 = getCosmeticStacks）。
-     */
     @Overwrite(remap = false)
     public static void setEntityCosmeticSlot(LivingEntity entity, String SlotName, int Index, ItemStack stack) {
         ICuriosItemHandler handler = CuriosApi.getCuriosInventory(entity).orElse(null);
@@ -183,10 +136,6 @@ public class CurioUtilsImpl {
         }
     }
 
-    /**
-     * @author XuHaoNan
-     * @reason 用 Curios API 替换 fallback 空桩（渲染开关 = getRenders）。
-     */
     @Overwrite(remap = false)
     public static Map<String, List<Boolean>> getEntitySlotRenders(LivingEntity entity) {
         Map<String, List<Boolean>> map = new HashMap<>();
@@ -200,10 +149,6 @@ public class CurioUtilsImpl {
         return map;
     }
 
-    /**
-     * @author XuHaoNan
-     * @reason 用 Curios API 替换 fallback 空桩（渲染开关 = getRenders）。
-     */
     @Overwrite(remap = false)
     public static List<Boolean> getEntitySlotRender(LivingEntity entity, String SlotName) {
         List<Boolean> list = new ArrayList<>();
@@ -218,10 +163,6 @@ public class CurioUtilsImpl {
         return list;
     }
 
-    /**
-     * @author XuHaoNan
-     * @reason 用 Curios API 替换 fallback 空桩（渲染开关 = getRenders）。
-     */
     @Overwrite(remap = false)
     public static void setEntitySlotRender(LivingEntity entity, String SlotName, int Index, boolean render) {
         ICuriosItemHandler handler = CuriosApi.getCuriosInventory(entity).orElse(null);

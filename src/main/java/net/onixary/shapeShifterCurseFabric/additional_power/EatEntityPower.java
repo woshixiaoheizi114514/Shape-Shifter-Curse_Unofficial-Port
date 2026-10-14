@@ -66,9 +66,6 @@ public class EatEntityPower extends Power {
 
     public record FoodPair(ResourceLocation entity, FoodProperties food) {}
 
-    // 1.21.1: FoodProperties 是 6 字段 record（nutrition/saturation/canAlwaysEat/eatSeconds/usingConvertsTo/effects）。
-    // Calio-Legacy 的 FOOD_COMPONENT 返回 DataComponentPatch 且 write 不完整（meat 字段报错导致 power_list 编码崩），
-    // 改用自定义类型直接解析 FoodProperties，read/write 完整。
     public static final SerializableDataType<FoodProperties.PossibleEffect> POSSIBLE_EFFECT_TYPE = SerializableDataType.compound(
             FoodProperties.PossibleEffect.class,
             new SerializableData()
@@ -83,16 +80,11 @@ public class EatEntityPower extends Power {
             }
     );
 
-    // NeoForge/Connector 兼容：NeoForge 重编译把 FoodProperties$PossibleEffect 的 canonical 构造器改成
-    // (Supplier<MobEffectInstance>, float)（effect 延迟实例化），并保留 private (MobEffectInstance, float) 兼容构造器。
-    // 直接 new 在 NeoForge 下撞 private 构造器 IllegalAccessError。改用反射选 public canonical 构造器
-    // （Fabric=(MobEffectInstance,float)，NeoForge=(Supplier,float)），跨环境安全。
     private static FoodProperties.PossibleEffect createPossibleEffect(MobEffectInstance effect, float probability) {
         try {
             Constructor<FoodProperties.PossibleEffect> c = FoodProperties.PossibleEffect.class.getConstructor(Supplier.class, float.class);
             return c.newInstance((Supplier<MobEffectInstance>) () -> effect, probability);
         } catch (NoSuchMethodException ignored) {
-            // Fabric：canonical 构造器是 (MobEffectInstance, float)
             try {
                 Constructor<FoodProperties.PossibleEffect> c = FoodProperties.PossibleEffect.class.getConstructor(MobEffectInstance.class, float.class);
                 return c.newInstance(effect, probability);

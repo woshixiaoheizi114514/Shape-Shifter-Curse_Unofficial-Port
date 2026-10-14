@@ -53,12 +53,6 @@ import static net.onixary.shapeShifterCurseFabric.screen_effect.TransformFX.begi
 public class ModPacketsS2C {
 
     public static void register() {
-        // S2C payload 类型的注册清单**只有一份**，在 ModPacketsS2CServer#registerServerS2C() 里。
-        // 这里刻意不再复制一份 —— 两份清单真的漂移过：SYNC_PERK_AVAILABILITY / SYNC_PERK_DATA /
-        // OPEN_FORM_UPGRADE_MENU / OPEN_SELECT_SUB_FORM_MENU 这 4 个包只写在了本类，服务端那份没跟上，
-        // 而它们恰恰是服务端发的，于是服务端一 send 就抛 IllegalArgumentException("Unknown payload type: ...")
-        // 崩服（与 issue #21 同一类漏注册）。收敛成一份后结构上不可能再漂移。
-        // 该方法幂等，且 common 入口（ShapeShifterCurseFabric#onInitialize）已先行调用过，此处只是兜底。
         ModPacketsS2CServer.registerServerS2C();
         ClientPlayNetworking.registerGlobalReceiver(BytePayload.id(ModPackets.SYNC_CURSED_MOON_DATA), ModPacketsS2C::receiveCursedMoonData);
         ClientPlayNetworking.registerGlobalReceiver(BytePayload.id(ModPackets.SYNC_FORM_CHANGE), ModPacketsS2C::receiveFormChange);
@@ -112,9 +106,6 @@ public class ModPacketsS2C {
         });
     }
 
-    /**
-     * 接收形态变化同步包
-     */
     public static void receiveFormChange(BytePayload payload, ClientPlayNetworking.Context ctx) {
         ResourceLocation newFormID = payload.data().readResourceLocation();
 
@@ -129,9 +120,6 @@ public class ModPacketsS2C {
         });
     }
 
-    /**
-     * 接收变身状态同步包
-     */
     public static void receiveTransformState(BytePayload payload, ClientPlayNetworking.Context ctx) {
         UUID playerUuid = payload.data().readUUID();
         boolean isTransforming = payload.data().readBoolean();
@@ -156,16 +144,10 @@ public class ModPacketsS2C {
         });
     }
 
-    /**
-     * 接收FirstPerson重置包
-     */
     public static void receiveResetFirstPerson(BytePayload payload, ClientPlayNetworking.Context ctx) {
         ctx.client().execute(TransformManager::executeClientFirstPersonReset);
     }
 
-    /**
-     * 接收蝙蝠吸附状态同步包
-     */
     public static void receiveBatAttachState(BytePayload payload, ClientPlayNetworking.Context ctx) {
         boolean isAttached = payload.data().readBoolean();
         int attachTypeOrdinal = payload.data().readInt();
@@ -192,9 +174,6 @@ public class ModPacketsS2C {
         });
     }
 
-    /**
-     * 接收其他玩家的蝙蝠吸附状态同步包
-     */
     public static void receiveOtherPlayerBatAttachState(BytePayload payload, ClientPlayNetworking.Context ctx) {
         UUID targetPlayerUuid = payload.data().readUUID();
         boolean isAttached = payload.data().readBoolean();
@@ -672,7 +651,6 @@ public class ModPacketsS2C {
         boolean fullUpdate = payload.data().readBoolean();
         int updateCount = payload.data().readInt();
         HashMap<ResourceLocation, ICost> perkCostMap = new HashMap<>();
-        // 1.21.1：ItemStack 反序列化必须带 registry 上下文（ItemCost 的示例栈要用）。
         net.minecraft.core.RegistryAccess registries = ctx.client().level != null
                 ? ctx.client().level.registryAccess()
                 : net.minecraft.core.RegistryAccess.EMPTY;

@@ -16,12 +16,6 @@ import top.theillusivec4.curios.api.CuriosApi;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Curios 兼容层（NeoForge 版，重写自上游 Forge 预编译 CurioItemImpl.class）。
- * 仿照 TrinketItemMixin 检测 Curios 槽位变化，装备/卸下时经 AccessoryUtils 应用到 accessory_power。
- * 用 NeoForge 的 {@code CuriosApi.getCuriosInventory(...) → Optional}（上游 Forge 用 LazyOptional，NeoForge 已改）。
- * 仅在 Curios mod 存在时经 MixinConfigPlugin 条件注入。
- */
 @Mixin(value = LivingEntity.class, priority = 1001)
 public class CurioItemImpl {
     @Unique

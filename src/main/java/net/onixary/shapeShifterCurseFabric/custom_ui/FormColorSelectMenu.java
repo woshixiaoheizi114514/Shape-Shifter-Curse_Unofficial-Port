@@ -138,7 +138,7 @@ public class FormColorSelectMenu extends Screen implements FormTextureUtils.Temp
 
     private static final Minecraft minecraftClient = Minecraft.getInstance();
 
-    private final HashMap<String, HashMap<FormTextureUtils.ColorSetting, ResourceLocation>> colorSettingCacheMap = new HashMap<>();  // 防止内存泄漏
+    private final HashMap<String, HashMap<FormTextureUtils.ColorSetting, ResourceLocation>> colorSettingCacheMap = new HashMap<>();
     private int modelID = -1;
     private static final String IdentifierNameSpace = MOD_ID;
     private static final String IdentifierPrefix = "dynamic_fcs_v1_";
@@ -1097,7 +1097,6 @@ public class FormColorSelectMenu extends Screen implements FormTextureUtils.Temp
         } else {
             timer++;
         }
-        // 20,5,60,120
         if (minecraftClient.player != null) {
             RenderEntity(context, BPosX + 50, BPosY + 100, 30, BPosX + 50 - mouseX, BPosY + 100 - mouseY, minecraftClient.player);
         }
@@ -1110,7 +1109,6 @@ public class FormColorSelectMenu extends Screen implements FormTextureUtils.Temp
             this.modelID = modelID;
             CleanColorSettingCache();
         }
-        // 可以关闭这个功能
         if (!this.enableFormColorSystem) {
             return texture;
         }
@@ -1551,6 +1549,5 @@ public class FormColorSelectMenu extends Screen implements FormTextureUtils.Temp
 
     @Override
     public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        // 自定义背景纹理完全遮挡，不需要暗色渐变
     }
 }

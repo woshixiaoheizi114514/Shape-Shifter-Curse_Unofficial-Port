@@ -41,7 +41,6 @@ public class BaseCost implements ICost {
     }
 
 
-    // BaseCost 只存 type + amount，用不到 registries，但签名必须与 ICost 一致。
     @Override
     public void writeToNBT(CompoundTag nbt, HolderLookup.Provider registries) {
         nbt.putString("type", type.getID().toString());

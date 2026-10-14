@@ -25,9 +25,6 @@ public class AltarCraftUIHandler extends RecipeBookMenu<RecipeInput, AltarRecipe
     public final ContainerData propertyDelegate;
 
     public static AltarCraftUIHandler createMenu(int i, Inventory inventory) {
-        // ⚠ 槽数必须与 AltarBlockEntity.propertyDelegate 的 getCount() 一致（现为 4）：
-        //   slot2=fuelTime 低16位、slot3=高16位。此处若只给 3，服务端广播的 slot3 会在客户端越界
-        //   （ClientboundContainerSetDataPacket 处理失败），且 getNowFuel() 读 slot3 时直接崩渲染。
         return new AltarCraftUIHandler(RegMenuType.AltarCraftUI, i, inventory, new SimpleContainer(12), ContainerLevelAccess.NULL, new SimpleContainerData(4));
     }
 
@@ -83,7 +80,6 @@ public class AltarCraftUIHandler extends RecipeBookMenu<RecipeInput, AltarRecipe
     @Override
     public boolean recipeMatches(RecipeHolder<AltarRecipe> recipeHolder) {
         if (this.altarBlockEntity instanceof AltarBlockEntity realAltar) {
-            // 用 craftInput()（含 slot 9 燃料/催化剂槽）而不是把 BlockEntity 本身当 RecipeInput
             return recipeHolder.value().matches(realAltar.craftInput(), world);
         }
         return false;
@@ -171,8 +167,6 @@ public class AltarCraftUIHandler extends RecipeBookMenu<RecipeInput, AltarRecipe
     }
 
     public int getNowFuel() {
-        // data slot 以 16-bit(short) 传输，原先只传 slot2=fuelTime 会被 writeShort 截断成负值。
-        // 现在 slot2=低16位、slot3=高16位，这里拼回完整 fuelTime（无损）。
         return (this.propertyDelegate.get(2) & 0xFFFF) | ((this.propertyDelegate.get(3) & 0xFFFF) << 16);
     }
 

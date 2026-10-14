@@ -58,7 +58,6 @@ public class RegPerks {
     public static final ResourceLocation P_BatArrowThrow = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("bat_arrow_throw"))
             .setIcon(PerkSpriteMap.bi(9, 4)).cost(new BaseCost(RegCostType.COST_XP, 100))
             .addPower(ShapeShifterCurseFabric.identifier("perks/bat_arrow_throw")).removePower());
-    // public static final ResourceLocation P_BatAirBlast = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("bat_air_blast"))
     //         .setIcon(FALLBACK_PERK_ICON).cost(new ItemCost(RegCostType.COST_ITEM, new ItemStack(RegCustomItem.GLINT_PRISM), 2))
     //         .addPower(ShapeShifterCurseFabric.identifier("perks/bat_air_blast")).removePower());
     public static final ResourceLocation P_BatSunResistance_1 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("bat_sun_resistance_1"))
@@ -67,7 +66,6 @@ public class RegPerks {
     public static final ResourceLocation P_BatSunResistance_2 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("bat_sun_resistance_2"))
             .setIcon(PerkSpriteMap.bi(13, 8)).cost(new BaseCost(RegCostType.COST_XP, 150))
             .addPower(ShapeShifterCurseFabric.identifier("perks/bat_sun_resistance_2")).removePower(ShapeShifterCurseFabric.identifier("perks/bat_sun_resistance_1")));
-    // public static final ResourceLocation P_BatNightVeil = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("bat_night_veil"))
     //         .setIcon(FALLBACK_PERK_ICON).cost(new ItemCost(RegCostType.COST_ITEM, new ItemStack(RegCustomItem.GLINT_PRISM), 1))
     //         .addPower(ShapeShifterCurseFabric.identifier("perks/bat_night_veil")).removePower());
     public static final ResourceLocation P_AxolotlVegetation = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("axolotl_vegetation"))
@@ -85,7 +83,6 @@ public class RegPerks {
     public static final ResourceLocation P_AxolotlMoistureReturn_2 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("axolotl_moisture_return_2"))
             .setIcon(PerkSpriteMap.bi(16, 8)).cost(new BaseCost(RegCostType.COST_XP, 200))
             .addPower(ShapeShifterCurseFabric.identifier("perks/axolotl_moisture_return_2")).removePower(ShapeShifterCurseFabric.identifier("perks/axolotl_moisture_return_1")));
-    // public static final ResourceLocation P_AxolotlCollectWater = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("axolotl_collect_water"))
     //         .setIcon(FALLBACK_PERK_ICON).cost(new ItemCost(RegCostType.COST_ITEM, new ItemStack(RegCustomItem.GLINT_PRISM), 2))
     //         .addPower(ShapeShifterCurseFabric.identifier("perks/axolotl_collect_water")).removePower());
     public static final ResourceLocation P_AxolotlPropulsionEfficiency = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("axolotl_propulsion_efficiency"))
@@ -133,7 +130,6 @@ public class RegPerks {
     public static final ResourceLocation P_FamiliarFoxSiphon_2 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("familiar_fox_siphon_2"))
             .setIcon(PerkSpriteMap.bi(30, 6)).cost(new BaseCost(RegCostType.COST_XP, 250))
             .addPower(ShapeShifterCurseFabric.identifier("perks/familiar_fox_siphon_2")).removePower(ShapeShifterCurseFabric.identifier("perks/familiar_fox_siphon_1")));
-    // public static final ResourceLocation P_FamiliarFoxSiphoningRing = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("familiar_fox_siphoning_ring"))
     //         .setIcon(PerkSpriteMap.bi(4, 1)).cost(new ItemCost(RegCostType.COST_ITEM, new ItemStack(RegCustomItem.GLINT_PRISM), 2))
     //         .addPower(ShapeShifterCurseFabric.identifier("perks/familiar_fox_siphoning_ring")).removePower());
     public static final ResourceLocation P_FamiliarFoxManaCapacity_1 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("familiar_fox_mana_capacity_1"))
@@ -142,7 +138,6 @@ public class RegPerks {
     public static final ResourceLocation P_FamiliarFoxManaCapacity_2 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("familiar_fox_mana_capacity_2"))
             .setIcon(PerkSpriteMap.bi(15, 6)).cost(new BaseCost(RegCostType.COST_XP, 200))
             .addPower(ShapeShifterCurseFabric.identifier("perks/familiar_fox_mana_capacity_2")).removePower(ShapeShifterCurseFabric.identifier("perks/familiar_fox_mana_capacity_1")));
-//    public static final ResourceLocation P_FamiliarFoxReservoir = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("familiar_fox_reservoir"))
 //            .setIcon(PerkSpriteMap.bi(7, 1)).cost(new ItemCost(RegCostType.COST_ITEM, new ItemStack(RegCustomItem.GLINT_PRISM), 1))
 //            .addPower(ShapeShifterCurseFabric.identifier("perks/familiar_fox_reservoir")).removePower());
     public static final ResourceLocation P_FamiliarFoxPermeableField_1 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("familiar_fox_permeable_field_1"))
@@ -166,10 +161,8 @@ public class RegPerks {
     public static final ResourceLocation P_SnowFoxFrostDive = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("snow_fox_frost_dive"))
             .setIcon(PerkSpriteMap.bi(21, 7)).cost(new ItemCost(RegCostType.COST_ITEM, new ItemStack(RegCustomItem.GLINT_PRISM), 2))
             .addPower(ShapeShifterCurseFabric.identifier("perks/snow_fox_frost_dive")).removePower());
-    // public static final ResourceLocation P_SnowFoxColdWhirlwind_1 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("snow_fox_cold_whirlwind_1"))
     //         .setIcon(FALLBACK_PERK_ICON).cost(new ItemCost(RegCostType.COST_ITEM, new ItemStack(RegCustomItem.GLINT_PRISM), 1))
     //         .addPower(ShapeShifterCurseFabric.identifier("perks/snow_fox_cold_whirlwind_1")).removePower());
-    // public static final ResourceLocation P_SnowFoxColdWhirlwind_2 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("snow_fox_cold_whirlwind_2"))
     //         .setIcon(FALLBACK_PERK_ICON).cost(new ItemCost(RegCostType.COST_ITEM, new ItemStack(RegCustomItem.GLINT_PRISM), 2))
     //         .addPower(ShapeShifterCurseFabric.identifier("perks/snow_fox_cold_whirlwind_2")).removePower(ShapeShifterCurseFabric.identifier("perks/snow_fox_cold_whirlwind_1")));
     public static final ResourceLocation P_SnowFoxFireTraining_1 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("snow_fox_fire_training_1"))
@@ -235,7 +228,6 @@ public class RegPerks {
     public static final ResourceLocation P_SpiderSilkSecretion_2 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("spider_silk_secretion_2"))
             .setIcon(PerkSpriteMap.bi(24, 9)).cost(new BaseCost(RegCostType.COST_XP, 300))
             .addPower(ShapeShifterCurseFabric.identifier("perks/spider_silk_secretion_2")).removePower(ShapeShifterCurseFabric.identifier("form_spider_3_mana_recover"), ShapeShifterCurseFabric.identifier("perks/spider_silk_secretion_1")));
-    // public static final ResourceLocation P_SpiderSilkGrapple = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("spider_silk_grapple"))
     //         .setIcon(FALLBACK_PERK_ICON).cost(new ItemCost(RegCostType.COST_ITEM, new ItemStack(RegCustomItem.GLINT_PRISM), 1))
     //         .addPower(ShapeShifterCurseFabric.identifier("perks/spider_silk_grapple")).removePower());
     public static final ResourceLocation P_MarbledPolecatDoubleAirJump = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("marbled_polecat_double_air_jump"))
@@ -274,7 +266,6 @@ public class RegPerks {
     public static final ResourceLocation P_AvaliToolModification_2 = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("avali_tool_modification_2"))
             .setIcon(PerkSpriteMap.bi(4, 4)).cost(new BaseCost(RegCostType.COST_XP, 200))
             .addPower(ShapeShifterCurseFabric.identifier("perks/avali_tool_modification_2")).removePower());
-    // public static final ResourceLocation P_AvaliEmergencyProtocol = registerPerkCommon(new NormalPerk(ShapeShifterCurseFabric.identifier("avali_emergency_protocol"))
     //         .setIcon(FALLBACK_PERK_ICON).cost(new ItemCost(RegCostType.COST_ITEM, new ItemStack(RegCustomItem.GLINT_PRISM), 2))
     //         .addPower(ShapeShifterCurseFabric.identifier("perks/avali_emergency_protocol")).removePower());
 

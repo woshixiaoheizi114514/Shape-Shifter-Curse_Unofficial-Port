@@ -17,8 +17,6 @@ public class FrostClawEffect extends MobEffect {
     public FrostClawEffect() { super(MobEffectCategory.BENEFICIAL, 0xB9EDFF); }
 
     @Override public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) { return true; }
-    // ⚠ 1.21 起 MobEffect#applyEffectTick 返回 boolean：返回 false 会移除该效果实例。
-    //   霜爪是持续效果（shouldApplyEffectTickThisTick 恒 true），必须返回 true 维持。
     @Override public boolean applyEffectTick(LivingEntity entity, int amplifier) {
         freeze(entity, entity.position());
         return true;

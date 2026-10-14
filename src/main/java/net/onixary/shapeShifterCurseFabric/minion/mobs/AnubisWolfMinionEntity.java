@@ -45,7 +45,6 @@ public class AnubisWolfMinionEntity extends Wolf implements IMinion<AnubisWolfMi
 
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType spawnReason, @Nullable SpawnGroupData entityData) {
-        // AgeableMobGroupData.shouldSpawnBaby is final in MojMap 1.21.1, cannot reuse passed data
         return super.finalizeSpawn(world, difficulty, spawnReason, new AgeableMobGroupData(false));
     }
 
@@ -94,11 +93,6 @@ public class AnubisWolfMinionEntity extends Wolf implements IMinion<AnubisWolfMi
 
     @Override
     public void setOwner(Player player) {
-        // ⚠ 这里必须是「设置」。上游 Yarn 写的是 `super.setOwner(player)`（Yarn 的 TamableAnimal 有 setOwner(PlayerEntity)），
-        //   Mojmap 的 TamableAnimal 只有 setOwnerUUID(UUID) / tame(Player)，没有 setOwner，移植时被写成
-        //   `super.getOwner();` —— 只取值、什么都不设（编译还照样通过）。
-        //   后果：狼的 ownerUUID 恒为 null → shouldExist() 恒 false → 召唤出来下一 tick 就自杀；
-        //   召回找不到它、死亡回血（WolfMinionPower.onDeath）更不会触发。与 MinionBase.setOwner 保持同一写法。
         this.setOwnerUUID(player == null ? null : player.getUUID());
     }
 
@@ -111,13 +105,9 @@ public class AnubisWolfMinionEntity extends Wolf implements IMinion<AnubisWolfMi
         return this;
     }
 
-    // isUndead() removed in 1.21 → use entity_type tag #minecraft:undead
-    // canBreatheInWater() is final in LivingEntity 1.21 → use entity_type tag #minecraft:can_breathe_under_water
-
     @Override
     public boolean canBeAffected(MobEffectInstance effect) {
         MobEffect statusEffect = effect.getEffect().value();
-        // ⚠ statusEffect 是裸 MobEffect，常量是 Holder —— `!=` 恒为 true，等于免疫完全没生效。取 .value() 比。
         return statusEffect != MobEffects.REGENERATION.value() && statusEffect != MobEffects.POISON.value();
     }
 

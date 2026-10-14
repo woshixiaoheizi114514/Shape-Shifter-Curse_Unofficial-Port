@@ -9,15 +9,6 @@ import net.minecraft.world.item.component.CustomData;
 import net.onixary.shapeShifterCurseFabric.additional_power.IsMorphScaleItemCondition;
 import net.onixary.shapeShifterCurseFabric.event.SSCEvent;
 
-/**
- * 上游原文是 Yarn 写法，1.21.1 起「物品上的 NBT」已并入数据组件，需按组件读写：
- * <ul>
- *   <li>Yarn {@code ItemStack.isFood()} → Mojmap 由 {@link DataComponents#FOOD} 组件判定</li>
- *   <li>Yarn {@code ItemStack.getNbt()} → {@code getOrDefault(CUSTOM_DATA, CustomData.EMPTY).copyTag()}</li>
- *   <li>Yarn {@code ItemStack.getOrCreateNbt()} + 改写 → {@link CustomData#update}（内部 get-改-写回）</li>
- * </ul>
- */
-
 public class RegBuiltinAlterRecipe {
     public static final ResourceLocation MorphScaleFood = ResourceLocation.fromNamespaceAndPath("shape_shifter_curse_fabric", "altar/morph_scale_food");
     public static final BuiltinAltarRecipe.BARecipeConfig MorphScaleFoodConfig = new BuiltinAltarRecipe.BARecipeConfigBuilder()

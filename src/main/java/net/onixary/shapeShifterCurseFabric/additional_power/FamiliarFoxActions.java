@@ -33,7 +33,6 @@ public final class FamiliarFoxActions {
                 ShapeShifterCurseFabric.identifier("fireball_at_target"), new SerializableData(), (data, pair) -> {
             if (!(pair.getA() instanceof LivingEntity actor) || !(actor.level() instanceof ServerLevel world)) return;
             Vec3 direction = pair.getB().getBoundingBox().getCenter().subtract(actor.getEyePosition()).normalize();
-            // SmallFireball 的第 3 参是 Vec3（不是三个 double）；Vec3 标量缩放用 scale，不是 multiply
             var fireball = new SmallFireball(world, actor, direction);
             fireball.setPos(actor.getEyePosition().add(direction.scale(0.6)));
             world.addFreshEntity(fireball);

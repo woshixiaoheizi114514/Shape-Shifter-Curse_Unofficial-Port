@@ -17,7 +17,6 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class AdvancementUtils {
-    // === Upstream-compatible API ===
     public static final HashMap<ResourceLocation, List<Consumer<Advancement>>> advancementAddedCallbacks = new HashMap<>();
 
     public static void registerAdvancementAddedCallback(ResourceLocation id, Consumer<Advancement> callback) {
@@ -28,26 +27,18 @@ public class AdvancementUtils {
         }
     }
 
-    /**
-     * Called from ServerAdvancementMixin for each loaded advancement.
-     * Runs registered callbacks then applies pending item patches.
-     * Returns the (possibly patched) AdvancementEntry — adaptation for 1.21.1 immutability.
-     */
     public static AdvancementHolder onAdvancementAdded(AdvancementHolder entry) {
         Advancement advancement = entry.value();
         ResourceLocation id = entry.id();
 
-        // Run registered callbacks (for side effects: they register into pendingPatches)
         List<Consumer<Advancement>> callbacks = advancementAddedCallbacks.get(id);
         if (callbacks != null) {
             callbacks.forEach(cb -> cb.accept(advancement));
         }
 
-        // Apply pending patches and return result
         return applyPendingPatches(entry);
     }
 
-    // === 1.21.1 patch infrastructure (immutable Advancement, RegistryEntryList) ===
     private static final Map<ResourceLocation, List<ItemPatch>> pendingPatches = new HashMap<>();
 
     private static void addItemPatch(ResourceLocation id, Item original, Item custom) {
@@ -128,7 +119,6 @@ public class AdvancementUtils {
         );
     }
 
-    // === Patches — follows upstream structure adapted for 1.21.1 ===
     static {
         addItemPatch(ResourceLocation.fromNamespaceAndPath("minecraft", "nether/netherite_armor"), Items.NETHERITE_HELMET, RegCustomItem.NETHERITE_MORPHSCALE_HEADRING);
         addItemPatch(ResourceLocation.fromNamespaceAndPath("minecraft", "nether/netherite_armor"), Items.NETHERITE_CHESTPLATE, RegCustomItem.NETHERITE_MORPHSCALE_VEST);

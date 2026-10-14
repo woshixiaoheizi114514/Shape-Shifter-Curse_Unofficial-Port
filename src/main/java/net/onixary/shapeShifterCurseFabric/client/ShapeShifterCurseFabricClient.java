@@ -57,9 +57,6 @@ import static net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric.*;
 
 public class ShapeShifterCurseFabricClient implements ClientModInitializer {
 	// 由于咒文生物使用的都是原版模型，所以无需注册Layer
-	//public static final EntityModelLayer T_BAT_LAYER = new EntityModelLayer(Identifier.of(MOD_ID, "t_bat"), "main");
-	//public static final EntityModelLayer T_AXOLOTL_LAYER = new EntityModelLayer(Identifier.of(MOD_ID, "t_axolotl"), "main");
-	//public static final EntityModelLayer T_OCELOT_LAYER = new EntityModelLayer(Identifier.of(MOD_ID, "t_ocelot"), "main");
 
 	public static final FormColorData formColorData = new FormColorData();
 
@@ -122,13 +119,10 @@ public class ShapeShifterCurseFabricClient implements ClientModInitializer {
 		if(clientPlayer == null){
 			return;
 		}
-		// Mana System
 		if (!Minecraft.getInstance().isPaused()) {
 			ManaUtils.manaTick(minecraftClient.player);
-			// Transform overlay tick (black screen + nausea)
 			TransformManager.clientTick();
 		}
-		// ItemStorePower restored — clientTick needs PowerHolderComponent.getPowers usage
 	}
 
 	public static void emitTransformParticle(int duration) {
@@ -172,12 +166,10 @@ public class ShapeShifterCurseFabricClient implements ClientModInitializer {
 		}
 	}
 
-	// 添加动画刷新方法
 	public static void refreshPlayerAnimations() {
 		Minecraft client = Minecraft.getInstance();
 		if (client.player != null) {
 			ShapeShifterCurseFabric.LOGGER.info("Refreshing player animations on client");
-			// 强制重新初始化动画系统
 			// 这里可以触发动画重新注册或刷新
 		}
 	}
@@ -222,18 +214,12 @@ public class ShapeShifterCurseFabricClient implements ClientModInitializer {
 		return getClientTransformState(playerUuid).TransformToForm;
 	}
 
-	// [已移除] registerShaderResource()：原先经 CoreShaderRegistrationCallback 注册 core shader
-	// shape-shifter-curse:fur_gradient_remap。移除 Satin 的同时一并撤掉 —— 毛皮渐变整套
-	// （FurColorGradientRenderLayer.getFurLayer）三个分支上都从未接线，注册了也没人用；
-	// 而项目约束是不要自定义着色器（会与光影包冲突，见 FurGradientRenderLayer 的说明）。
-
 	@Override
 	public void onInitializeClient() {
 		ItemTooltipWrapping.register();
 		registerEntityModels();
 		ModPacketsS2C.register();
         ModPacketsC2S.registerClient();
-        // 网络包注册自检：防「注册了类型却忘挂 receiver」的静默失效，在客户端启动完成时执行
         NetworkRegistrationSelfCheck.registerClient();
 
 		FurGradientRenderLayer.onInitializeClient();
@@ -246,7 +232,6 @@ public class ShapeShifterCurseFabricClient implements ClientModInitializer {
 		formColorData.loadFormConfig();
 
 		ClientTickEvents.END_CLIENT_TICK.register(ShapeShifterCurseFabricClient::onClientTick);
-		// 客户端能力处理
 		ClientTickEvents.START_CLIENT_TICK.register((minecraftClient) -> {
 			LocalPlayer clientPlayer = minecraftClient.player;
 			if(clientPlayer == null){
@@ -258,7 +243,6 @@ public class ShapeShifterCurseFabricClient implements ClientModInitializer {
 			// 	// getFirst是Java21的新特性 Java17没有
 			// 	LevitatePower power = clientLevitatePower.get(0);
 			// 	power.clientTick(clientPlayer);
-			// }
 			PowerHolderComponent.KEY.get(clientPlayer).getPowers().stream().filter(p -> p instanceof LevitatePower).forEach(p -> ((LevitatePower) p).clientTick(clientPlayer));
 			CustomEdiblePower.OnClientTick(clientPlayer);
 		});

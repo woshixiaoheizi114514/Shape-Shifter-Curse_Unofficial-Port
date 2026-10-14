@@ -5,8 +5,8 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(EntityRenderDispatcher.class) // 指定目标类
+@Mixin(EntityRenderDispatcher.class)
 public interface IEntityRenderDispatcherAccessor {
-    @Accessor("itemRenderer") // 访问目标类中的字段
+    @Accessor("itemRenderer")
     ItemRenderer getItemRenderer();
 }

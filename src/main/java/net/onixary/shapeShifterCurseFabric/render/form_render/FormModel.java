@@ -516,11 +516,7 @@ public class FormModel extends GeoModel<FormAnimatable> {
         return this.Animation;
     }
 
-//    @Override
-//    public void handleAnimations(FormAnimatable animatable, long instanceId, AnimationState<FormAnimatable> animationState, float partialTick) {
 //        if (this.UseAzureAnim) {
 //            super.handleAnimations(animatable, instanceId, animationState);
-//        }
-//    }
 
 }

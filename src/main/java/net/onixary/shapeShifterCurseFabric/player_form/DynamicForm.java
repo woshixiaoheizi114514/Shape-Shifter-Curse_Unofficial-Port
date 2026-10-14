@@ -331,14 +331,12 @@ public class DynamicForm implements IForm, ISubForm, NeedCheckUsableForm {
         try {
             ResourceLocation PowerID = ResourceLocation.tryParse(powerData.get("type").getAsString());
             PowerFactory<Power> pf = null;
-            // Apoli-Legacy: 用全局 NamespaceAlias（resolveAlias 无 predicate 重载，未 alias 命名空间抛异常，先 hasAlias 判断）
             ResourceLocation resolvedID = NamespaceAlias.hasAlias(PowerID) ? NamespaceAlias.resolveAlias(PowerID) : PowerID;
             pf = ApoliRegistries.POWER_FACTORY.get(resolvedID);
             if (pf == null) {
                 ShapeShifterCurseFabric.LOGGER.warn("Power Factory is null! From {}", this.formID.toString());
                 return null;
             }
-            // Apoli-Legacy 的 read 需 HolderLookup.Provider；与 1.21.11 分支一致传 null（form power 数据不含需 provider 的注册表引用）
             PowerFactory<Power>.Instance pi = pf.read(powerData, null);
             PowerType<?> powerType = new PowerType<>(powerID, pi);
             PowerTypeRegistryAccessor.Invoke_Update(powerID, powerType);

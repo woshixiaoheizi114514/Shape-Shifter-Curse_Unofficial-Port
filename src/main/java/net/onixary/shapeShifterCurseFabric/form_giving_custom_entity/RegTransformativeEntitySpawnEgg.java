@@ -1,7 +1,5 @@
 package net.onixary.shapeShifterCurseFabric.form_giving_custom_entity;
 
-// FabricItemSettings removed in 1.21, use Item.Settings directly
-
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -47,7 +45,6 @@ public class RegTransformativeEntitySpawnEgg {
     }
 
     public static void initialize() {
-        //Registry.register(Registries.ITEM, RegistryKey.of(Registries.ITEM.getKey(), Identifier.of(ShapeShifterCurseFabric.MOD_ID, "custom_bat_spawn_egg")), T_BAT_SPAWN_EGG);
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(content -> {
             content.accept(T_BAT_SPAWN_EGG);
             content.accept(T_AXOLOTL_SPAWN_EGG);

@@ -62,7 +62,7 @@ public class VirtualTotemPower extends CooldownPower {
         });
     }
 
-    public ResourceLocation virtualTotemType;  // 用于播放动画
+    public ResourceLocation virtualTotemType;
     public ItemStack totemStack;  // 当VirtualTotemPowerID == 0时 模拟原版不死图腾
     private final List<Consumer<Entity>> entityAction;
     private final int totemHealth;

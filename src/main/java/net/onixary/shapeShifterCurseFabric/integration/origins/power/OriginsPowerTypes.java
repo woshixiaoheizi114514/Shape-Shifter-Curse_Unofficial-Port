@@ -24,12 +24,8 @@ public class OriginsPowerTypes {
     public static final PowerType<?> CONDUIT_POWER_ON_LAND = new PowerTypeReference<>(Origins.identifier("conduit_power_on_land"));
 
     public static void register() {
-        // Register namespace alias so origins:* types resolve to apoli:* equivalents.
-        // Apoli-Legacy 用全局静态 NamespaceAlias（一次注册即覆盖 power/condition/action 数据加载解析）。
         NamespaceAlias.addAlias("origins", "apoli");
 
-        // Register all apoli:* types as origins:* aliases
-        // Needed because SSC JSONs use origins: namespace but Origins mod is not installed
         for (var registry : new Registry[]{
             ApoliRegistries.POWER_FACTORY,
             ApoliRegistries.ENTITY_CONDITION,
@@ -45,7 +41,6 @@ public class OriginsPowerTypes {
             ApoliRegistries.BIENTITY_ACTION,
         }) {
             try {
-                // Copy values first to avoid ConcurrentModificationException
                 var values = new java.util.ArrayList<>();
                 registry.forEach(values::add);
                 for (var value : values) {
@@ -66,7 +61,6 @@ public class OriginsPowerTypes {
             } catch (Exception e) {
                 Origins.LOGGER.error("Failed to alias registry", e);
             }
-            // Debug: check if apoli:multiple was aliased
             if (!ApoliRegistries.POWER_FACTORY.containsKey(Origins.identifier("multiple"))) {
                 Origins.LOGGER.warn("origins:multiple not found in POWER_FACTORY after alias!");
             }

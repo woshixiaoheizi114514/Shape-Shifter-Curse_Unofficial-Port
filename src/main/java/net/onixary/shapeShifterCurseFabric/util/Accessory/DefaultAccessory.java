@@ -103,8 +103,6 @@ public class DefaultAccessory {
             }
         });
 
-        // Curios 仅在 Forge 下存在，Fabric/NeoForge 下不加载
-        // 用 try-catch 包裹避免 ClassNotFoundException/NoClassDefFoundError
         try {
             Class.forName("net.onixary.shapeShifterCurseFabric.util.Accessory.CurioUtils");
             AccessoryUtils.registerAccessoryMod("curios", new AccessoryUtils.AccessoryIO() {
@@ -148,7 +146,6 @@ public class DefaultAccessory {
                 }
             });
         } catch (ClassNotFoundException | NoClassDefFoundError ignored) {
-            // Curios not available, skip registration
         }
 
         AccessoryUtils.reCalcAccessoryMod();

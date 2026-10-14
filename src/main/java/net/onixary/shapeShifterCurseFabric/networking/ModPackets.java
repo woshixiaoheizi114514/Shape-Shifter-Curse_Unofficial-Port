@@ -8,7 +8,6 @@ public class ModPackets {
 
     // 新增服务端到客户端的附件同步包
     // New server-to-client attachment sync packet
-    // public static final ResourceLocation SYNC_EFFECT_ATTACHMENT = ResourceLocation.of(ShapeShifterCurseFabric.MOD_ID, "sync_effect_attachment");
 
 
     public static final ResourceLocation SYNC_CURSED_MOON_DATA = ResourceLocation.fromNamespaceAndPath(ShapeShifterCurseFabric.MOD_ID, "sync_cursed_moon_data");
@@ -48,9 +47,7 @@ public class ModPackets {
     public static final ResourceLocation OLD_OPEN_PATRON_FORM_SELECT_MENU = ResourceLocation.fromNamespaceAndPath(ShapeShifterCurseFabric.MOD_ID, "old_open_patron_form_select_menu");
     public static final ResourceLocation OLD_SET_PATRON_FORM = ResourceLocation.fromNamespaceAndPath(ShapeShifterCurseFabric.MOD_ID, "old_set_patron_form");
 
-    // S2C 结构: UUID-玩家UUID Boolean-是否启用动画, (仅在启用动画时包含)ResourceLocation-动画ID, Int-动画次数. Int-动画时长
     public static final ResourceLocation UPDATE_POWER_ANIM_DATA_TO_CLIENT = ResourceLocation.fromNamespaceAndPath(ShapeShifterCurseFabric.MOD_ID, "update_power_anim_data_to_client");
-    // C2S 结构: Boolean-是否启用动画, (仅在启用动画时包含)ResourceLocation-动画ID, Int-动画次数. Int-动画时长
     public static final ResourceLocation UPDATE_POWER_ANIM_DATA_TO_SERVER = ResourceLocation.fromNamespaceAndPath(ShapeShifterCurseFabric.MOD_ID, "update_power_anim_data_to_server");
     // C2S 结构: UUID-玩家UUID
     public static final ResourceLocation REQUEST_POWER_ANIM_DATA = ResourceLocation.fromNamespaceAndPath(ShapeShifterCurseFabric.MOD_ID, "request_power_anim_data");

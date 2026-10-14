@@ -27,7 +27,6 @@ public class MinionRegister {
                     .build()
     );
     public static final EntityType<ManaReservoirEntity> MANA_RESERVOIR = Registry.register(
-            // ⚠ 同 RegCustomEntity：注册要用 BuiltInRegistries，Registries.* 只是 ResourceKey
             BuiltInRegistries.ENTITY_TYPE,
             ShapeShifterCurseFabric.identifier("mana_reservoir"),
             FabricEntityTypeBuilder

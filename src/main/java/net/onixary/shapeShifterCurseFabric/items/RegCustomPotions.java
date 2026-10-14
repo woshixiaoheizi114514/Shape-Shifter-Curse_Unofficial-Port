@@ -68,9 +68,6 @@ public class RegCustomPotions {
     }
 
     public static void registerPotionsRecipes(){
-        // 代码内定义配方：走 Fabric 官方酿造注册钩子（1.21 的 PotionBrewing 是不可变 Builder 模型，
-        // 原 BrewingRecipeUtils 私有列表只供数据包配方使用，官方 BUILD 事件同时解决材料格校验 + 酿造结果）。
-        // BUILD 回调在 MinecraftServer 构造时才执行，此时下方自定义 potion 均已注册，无时序问题。
         // awkward + moondust_matrix = moondust_potion
         FabricBrewingRecipeRegistryBuilder.BUILD.register(builder -> {
             builder.addMix(Potions.AWKWARD, RegCustomItem.MOONDUST_MATRIX, holder(MOONDUST_POTION));
@@ -89,7 +86,6 @@ public class RegCustomPotions {
         });
     }
 
-    /** 把 Potion 转 Holder<Potion>（mod 自定义 potion 用 Registry.register 注册为 Potion，addMix 需要 Holder）。 */
     private static Holder<Potion> holder(Potion potion) {
         return BuiltInRegistries.POTION.wrapAsHolder(potion);
     }

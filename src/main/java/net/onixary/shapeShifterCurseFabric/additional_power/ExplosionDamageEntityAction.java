@@ -53,7 +53,6 @@ public class ExplosionDamageEntityAction {
         DamageSource source = entity.level().damageSources().explosion(entity, entity);
         entity.level().gameEvent(entity, GameEvent.EXPLODE, new Vec3(ExplosionPos.x(), ExplosionPos.y(), ExplosionPos.z()));
 
-        // 从net.minecraft.world.level.Explosion类中explode函数提取的代码
         float q = power * 2.0F;
         int k = Mth.floor(ExplosionPos.x() - (double)q - 1.0);
         int l = Mth.floor(ExplosionPos.x() + (double)q + 1.0);

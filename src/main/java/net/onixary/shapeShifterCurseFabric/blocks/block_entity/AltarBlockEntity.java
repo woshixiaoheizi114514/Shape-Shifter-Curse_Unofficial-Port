@@ -41,14 +41,6 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
     public RecipeHolder<?> nowRecipeHolder;
     private @Nullable ResourceLocation resumeRecipeId;
     public static final int maxFuel = 102400;
-    // data slot 网络用 16-bit(short) 传输，值域 [-32768,32767]；而 fuelTime 可累积到 102400 超上限，
-    // 超过 32767 会被 writeShort 截断成负值 → 客户端燃料条"消失-重涨"。
-    // 按原作者建议：用 2 个 short 无损拆分传输 fuelTime —— slot 2=低16位, slot 3=高16位，
-    // 客户端 getNowFuel() 拼回完整 int。getCount() 相应从 3 增到 4。
-    // ⚠ 这里不要写 `public int size()`：1.21 Mojmap 的 ContainerData 只有 get/set/getCount，
-    //   `size()` 是 1.20.1 Yarn 时代的遗留（已无调用方）。它会让匿名类同时存在 `size` 和
-    //   `method_17389`(=getCount)，下游用 Yarn 映射的模组（Addon）把 jar 从 intermediary remap 回
-    //   yarn 时两者都叫 size → tiny-remapper "Unfixable conflicts"，整个包 remap 失败。
     public int progress = 0;
     public int totalProgress = 0;  // Only Client
     public int fuelTime = 0;
@@ -172,13 +164,7 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
         this.setChanged();
     }
 
-    // 构造包含燃料/催化剂槽(slot 9)的 RecipeInput 给 Recipe 匹配。
-    // 1.21.1 的 CraftingInput.of 会按非空网格裁剪、丢弃 slot 9，使 matches().getItem(9) 越界；
-    // 故改用自定义 AltarRecipeInput 线性映射 inventory 0-9（0-8 键材 + slot 9 燃料/催化剂）。
-    // AltarBlockEntity 自身不 implements RecipeInput，避免与 WorldlyContainer 的 getItem/isEmpty 双接口在 remap 时二义。
     public RecipeInput craftInput() {
-        // 带上 owner：BuiltinAltarRecipe 需要拿回 BE 才能跑它的运行时匹配/产出函数
-        //（BE 本身不是 RecipeInput，见上方注释）。
         return new AltarRecipeInput(this.inventory, this);
     }
 
@@ -265,8 +251,6 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
             this.nowRecipeHolder = null;
             this.totalProgress = 0;
         }
-        // 必须传 craftInput()（含 slot 9 燃料/催化剂槽的线性 RecipeInput），不能把 BlockEntity 本身当 RecipeInput；
-        // 且 getRecipeFor 返回的是 RecipeHolder，配方本体要 .value()
         var altarRecipe = this.matchGetter.getRecipeFor(this.craftInput(), world);
         if (altarRecipe.isPresent()) {
             this.nowRecipe = altarRecipe.get().value();
@@ -282,7 +266,6 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
             this.nowRecipeHolder = null;
             this.totalProgress = 0;
         }
-        // 1.21.1: Recipe 不再自带 id（改由 RecipeHolder 管理），所以判 holder 而不是 recipe。
         this.progress = this.nowRecipeHolder != null && this.nowRecipeHolder.id().equals(savedRecipe)
                 && savedTotal == this.totalProgress
                 ? Math.max(0, Math.min(savedProgress, this.totalProgress - 1)) : 0;
@@ -303,7 +286,6 @@ public class AltarBlockEntity extends BaseContainerBlockEntity implements Worldl
         if (!nowRecipe.matches(this.craftInput(), world) || !nowRecipe.InputsCountEnough(this)) {
             return false;
         }
-        // 同第 270 行：assemble 收 RecipeInput，BE 本身不是 → 必须走 craftInput()
         ItemStack output = this.nowRecipe.assemble(this.craftInput(), registryManager);
         if (output.isEmpty() || this.inventory.get(11).isEmpty()) {
             return true;
