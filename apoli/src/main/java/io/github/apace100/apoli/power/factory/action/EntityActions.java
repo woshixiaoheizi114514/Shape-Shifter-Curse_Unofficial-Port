@@ -201,8 +201,8 @@ public class EntityActions {
                 }
                 MinecraftServer server = entity.level().getServer();
                 // 无条件 CALLED 日志(warn 级)：进入 lambda 即打印，用于确认 execute_command 是否真的被调用、是否拿到了 server。
-                Apoli.LOGGER.warn("[ShapeShifterCurse] execute_command CALLED: cmd={} | entity={} | server={}",
-                        data.getString("command"), entity.getName().getString(), server != null);
+//                Apoli.LOGGER.warn("[ShapeShifterCurse] execute_command CALLED: cmd={} | entity={} | server={}",
+//                        data.getString("command"), entity.getName().getString(), server != null);
                 if(server != null) {
                     // 修复：source 总是用实体，避免 CommandSource.NULL 抑制 /say 输出及使 /give @s 等命令失效。
                     CommandSourceStack source = new CommandSourceStack(
@@ -230,11 +230,11 @@ public class EntityActions {
                         // 用 dispatcher.execute（返回 int + 抛 CommandSyntaxException），可判断结果并非静默记录失败
                         int result = server.getCommands().getDispatcher().execute(execCommand, source);
                         // 无条件日志：确认 execute_command 是否走到、命令原文、返回结果（warn 级避免被日志配置过滤）
-                        Apoli.LOGGER.warn("[ShapeShifterCurse] execute_command EXEC: cmd={} | result={} | entity={}",
-                                data.getString("command"), result, entity.getName().getString());
+//                        Apoli.LOGGER.warn("[ShapeShifterCurse] execute_command EXEC: cmd={} | result={} | entity={}",
+//                                data.getString("command"), result, entity.getName().getString());
                     } catch (com.mojang.brigadier.exceptions.CommandSyntaxException e) {
-                        Apoli.LOGGER.warn("[ShapeShifterCurse] execute_command ERROR: cmd={} | entity={} | {}",
-                                data.getString("command"), entity.getName().getString(), e.getMessage());
+//                        Apoli.LOGGER.warn("[ShapeShifterCurse] execute_command ERROR: cmd={} | entity={} | {}",
+//                                data.getString("command"), entity.getName().getString(), e.getMessage());
                     }
                 }
             }));
