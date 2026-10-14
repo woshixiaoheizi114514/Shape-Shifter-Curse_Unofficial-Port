@@ -1,22 +1,18 @@
 package net.onixary.shapeShifterCurseFabric.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import io.github.apace100.apoli.ApoliClient;
 import io.github.apace100.apoli.component.PowerHolderComponent;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.CoreShaderRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import net.onixary.shapeShifterCurseFabric.additional_power.AdditionalPowers;
@@ -81,7 +77,6 @@ public class ShapeShifterCurseFabricClient implements ClientModInitializer {
 	public static Minecraft getClient() {
 		return Minecraft.getInstance();
 	}
-	private static ShaderInstance furGradientShader;
 
 	public static KeyMapping makeSound;
 	public static KeyMapping useActiveSkill1PowerKeybind;
@@ -227,20 +222,10 @@ public class ShapeShifterCurseFabricClient implements ClientModInitializer {
 		return getClientTransformState(playerUuid).TransformToForm;
 	}
 
-	private void registerShaderResource()
-	{
-		CoreShaderRegistrationCallback.EVENT.register(context -> {
-			// 1. 定义着色器的 Identifier
-			ResourceLocation shaderId = ResourceLocation.fromNamespaceAndPath(ShapeShifterCurseFabric.MOD_ID, "fur_gradient_remap");
-
-			// 2. 使用 context.register 方法注册
-			//    这个方法会处理底层的加载逻辑
-			context.register(shaderId, DefaultVertexFormat.NEW_ENTITY, program -> {
-				// 3. 将加载好的 ShaderProgram 实例保存到我们的静态变量中
-				ShapeShifterCurseFabricClient.furGradientShader = program;
-			});
-		});
-	}
+	// [已移除] registerShaderResource()：原先经 CoreShaderRegistrationCallback 注册 core shader
+	// shape-shifter-curse:fur_gradient_remap。移除 Satin 的同时一并撤掉 —— 毛皮渐变整套
+	// （FurColorGradientRenderLayer.getFurLayer）三个分支上都从未接线，注册了也没人用；
+	// 而项目约束是不要自定义着色器（会与光影包冲突，见 FurGradientRenderLayer 的说明）。
 
 	@Override
 	public void onInitializeClient() {
@@ -251,7 +236,6 @@ public class ShapeShifterCurseFabricClient implements ClientModInitializer {
         // 网络包注册自检：防「注册了类型却忘挂 receiver」的静默失效，在客户端启动完成时执行
         NetworkRegistrationSelfCheck.registerClient();
 
-		registerShaderResource();
 		FurGradientRenderLayer.onInitializeClient();
 
 		ManaRegistriesClient.register();
@@ -347,10 +331,6 @@ public class ShapeShifterCurseFabricClient implements ClientModInitializer {
 		BlockEntityRenderers.register(RegCustomBlock.FORM_ATTUNER_BLOCK_ENTITY, FormAttunerBeamRenderer::new);
 
 		// NetWorkTest.init();
-	}
-
-	public static ShaderInstance getFurGradientShader() {
-		return furGradientShader;
 	}
 
 }

@@ -1,30 +1,22 @@
 package net.onixary.shapeShifterCurseFabric.render.render_layer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.resources.ResourceLocation;
-import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
-import org.ladysnake.satin.api.event.EntitiesPreRenderCallback;
-import org.ladysnake.satin.api.managed.ManagedCoreShader;
-import org.ladysnake.satin.api.managed.ShaderEffectManager;
-import org.ladysnake.satin.api.managed.uniform.Uniform1f;
 
+/**
+ * [未启用，勿再当作待办] 本分支已移除 Satin 依赖，原 Satin 的
+ * {@code ShaderEffectManager} / {@code ManagedCoreShader} / {@code Uniform1f} /
+ * {@code EntitiesPreRenderCallback} 均已删除，本类只剩一个 tick 计数器。
+ *
+ * <p>关键事实：fur gradient 整套在 1.21.1 / 1.21.11 / 26.1 三个分支上都**无调用点**
+ * （{@code FurColorGradientRenderLayer.getFurLayer} 只有定义），从未接线启用。
+ * 要真正恢复需要自定义 core shader，但那会与光影包（Iris 等）冲突，故不采用着色器方案
+ * —— 详见记忆 {@code ssc-no-custom-shader}。如需恢复请先确认调用方与光影兼容性。</p>
+ */
 public abstract class FurGradientRenderLayer {
 
-    public static final ManagedCoreShader furGradientRemap = ShaderEffectManager.getInstance().manageCoreShader(ResourceLocation.fromNamespaceAndPath(ShapeShifterCurseFabric.MOD_ID, "fur_gradient_remap"));
-    private static final Uniform1f uniformSTime = furGradientRemap.findUniform1f("STime");
     private static int ticks;
 
     public static void onInitializeClient() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> ticks++);
-        EntitiesPreRenderCallback.EVENT.register((camera, frustum, tickDelta) -> uniformSTime.set((ticks + tickDelta) * 0.05f));
-//        ShaderEffectRenderCallback.EVENT.register(tickDelta -> {
-//                    MinecraftClient client = MinecraftClient.getInstance();
-//                    client.getFramebuffer().beginWrite(true);
-//                    RenderSystem.enableBlend();
-//                    RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ZERO, GlStateManager.DstFactor.ONE);
-//                    client.getFramebuffer().beginWrite(true);
-//                    RenderSystem.disableBlend();
-//                }
-//        );
     }
 }

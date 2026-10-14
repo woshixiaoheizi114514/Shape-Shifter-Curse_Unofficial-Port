@@ -196,8 +196,9 @@ dependencies {
     //GeckoLib
     modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
 
-    // satin shader
-    modImplementation "org.ladysnake:satin:${satin_version}"
+    // [已移除] Satin 2.0.0（org.ladysnake:satin）：原先只为 fur gradient core shader 与一个
+    // 已停用的 TransformFX 后处理服务，两者都没在用（见 FurGradientRenderLayer 的说明）。
+    // ⚠ 上面那两个 maven.ladysnake.org 仓库**必须保留** —— CCA（cardinal-components-*）也在那儿。
 
     // Apoli-Legacy（本仓库子项目，源码已并入；Calio 由它自己传递进来）
     // ⚠ 同级 loom 项目必须用 `configuration: "namedElements"`（未 remap 的 dev 产物），

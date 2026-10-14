@@ -1,61 +1,23 @@
 package net.onixary.shapeShifterCurseFabric.render.render_layer;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.onixary.shapeShifterCurseFabric.client.ShapeShifterCurseFabricClient;
 import org.joml.Vector4f;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public abstract class FurColorGradientRenderLayer extends RenderType {
-    // 缓存 RenderLayer 实例以提高性能
-    private static final Map<String, RenderType> LAYER_CACHE = new HashMap<>();
-
-    private FurColorGradientRenderLayer(String name, VertexFormat vertexFormat, VertexFormat.Mode drawMode, int expectedBufferSize, boolean hasCrumbling, boolean translucent, Runnable startAction, Runnable endAction) {
-        super(name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, translucent, startAction, endAction);
-    }
-
-
+/**
+ * [未启用，勿再当作待办] 本分支已移除 Satin 依赖，原先那条「自定义 core shader + ShaderStateShard」的
+ * 路线（依赖 {@code ShapeShifterCurseFabricClient.getFurGradientShader()}）已整体撤掉，
+ * 此法退化为**普通半透明渲染**（颜色渐变效果不可用）。
+ *
+ * <p>关键事实：三个分支上 {@code getFurLayer} 都只有定义、**没有任何调用点**，整套从未接线启用；
+ * 且恢复需自定义 core shader，会与光影包（Iris 等）冲突，故不采用着色器方案。
+ * 如需恢复请先确认调用方与光影兼容性。做法与 {@code ver/1.21.11} 分支对齐。</p>
+ *
+ * <p>{@code startColor} / {@code endColor} 两个形参**保留但被忽略** —— 沿用上游签名，
+ * 将来若要恢复渐变，调用方不必跟着改。</p>
+ */
+public abstract class FurColorGradientRenderLayer {
     public static RenderType getFurLayer(ResourceLocation texture, Vector4f startColor, Vector4f endColor) {
-        // 使用所有可变参数生成唯一的缓存键
-        String cacheKey = "fur_layer_" + texture + startColor + endColor;
-
-        return LAYER_CACHE.computeIfAbsent(cacheKey, key -> {
-            // 创建一个自定义的 Shader 渲染阶段
-            // 这个阶段在被激活时，会设置我们的颜色 Uniforms
-            RenderStateShard.ShaderStateShard shaderPhase = new RenderStateShard.ShaderStateShard(() -> {
-                net.minecraft.client.renderer.ShaderInstance shader = ShapeShifterCurseFabricClient.getFurGradientShader();
-                if (shader != null) {
-                    // 在绑定着色器后，立即设置 Uniform 变量
-                    //shader.getUniform("StartColor").set(startColor);
-                    //shader.getUniform("EndColor").set(endColor);
-                }
-                return shader;
-            });
-
-            // 使用 MultiPhaseParameters 构建 RenderLayer 的所有状态
-            RenderType.CompositeState params = RenderType.CompositeState.builder()
-                    .setShaderState(shaderPhase) // 使用我们自定义的着色器阶段
-                    .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
-                    .setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)
-                    .setCullState(RenderType.NO_CULL)
-                    .setLightmapState(RenderType.LIGHTMAP)
-                    .setOverlayState(RenderType.OVERLAY)
-                    .createCompositeState(true);
-
-            // 使用 RenderLayer.of 创建一个复合渲染层
-            // 这是创建自定义 RenderLayer 的标准、兼容方式
-            return RenderType.create("fur_gradient_layer",
-                    DefaultVertexFormat.NEW_ENTITY,
-                    VertexFormat.Mode.QUADS,
-                    256,
-                    true, // hasCrumbling
-                    true, // translucent
-                    params);
-        });
+        return RenderType.entityTranslucent(texture);
     }
 }

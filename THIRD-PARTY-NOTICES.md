@@ -94,7 +94,7 @@ respective license text is available from the upstream repository.
 
 The remaining dependencies in `build.gradle` are resolved by Gradle at build time
 and are not redistributed as source in this repository. They keep their own
-licenses (Fabric API is Apache-2.0, GeckoLib, Satin is LGPL-3.0, Pehkui and
+licenses (Fabric API is Apache-2.0, GeckoLib, Pehkui and
 Cardinal Components API are MIT, and so on). Check each upstream project before
 redistributing a build that changes which libraries are bundled.
 
@@ -177,5 +177,5 @@ MixinExtras（MIT）、Gradle wrapper（Apache-2.0）。
 ## 仅声明依赖、未再分发
 
 `build.gradle` 中其余依赖由 Gradle 在构建时解析，本仓库未以源码形式再分发，
-各自遵循其授权（Fabric API 为 Apache-2.0、Satin 为 LGPL-3.0、Pehkui 与
+各自遵循其授权（Fabric API 为 Apache-2.0、Pehkui 与
 Cardinal Components API 为 MIT 等）。若改动打包的库，请先核对上游授权。

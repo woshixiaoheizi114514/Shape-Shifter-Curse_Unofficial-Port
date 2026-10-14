@@ -99,7 +99,7 @@ Notably:
   despite living in this repository. Redistributing or reusing them requires
   permission from XuHaoNan or Onixary.
 
-Dependencies declared in `build.gradle` (Fabric API, GeckoLib, Satin, Pehkui,
+Dependencies declared in `build.gradle` (Fabric API, GeckoLib, Pehkui,
 Cardinal Components API, Cloth Config, PlayerAnimator, and so on) are not
 redistributed as source here and keep their own licenses.
 
@@ -237,7 +237,7 @@ CC BY-SA 2.0，可按该协议的条款用于商业用途）。
   属于「保留所有权利」，**不是** MIT 授权。若要再分发或复用其中的代码，
   需要取得 XuHaoNan 或 Onixary 的许可。
 
-`build.gradle` 中声明的依赖（Fabric API、GeckoLib、Satin、Pehkui、Cardinal
+`build.gradle` 中声明的依赖（Fabric API、GeckoLib、Pehkui、Cardinal
 Components API、Cloth Config、PlayerAnimator 等）并未以源码形式在本仓库中再
 分发，各自遵循其授权。
 
