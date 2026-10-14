@@ -44,7 +44,9 @@ public class Form_Bat3_Sub_Avali extends NormalSubForm implements ModifyCapeRend
         return new Tuple<>(ResourceLocation.fromNamespaceAndPath("origins", "origin"), ResourceLocation.fromNamespaceAndPath(this.getFormID().getNamespace(), "form_" + this.getFormID().getPath()));
     }
 
-    // 以下暂时沿用 bat_3 的披风渲染参数
+    // 以下暂时沿用 bat_3 的披风渲染参数(划掉)
+    // ssc：然而不行 看起来很怪
+    // sscu：ssc的也不行 sscu需要自己调
 
     @Override
     public Vec3 getCapeIdleLoc(AbstractClientPlayer player) {
@@ -61,12 +63,12 @@ public class Form_Bat3_Sub_Avali extends NormalSubForm implements ModifyCapeRend
 
     @Override
     public float getCapeBaseRotateAngle(AbstractClientPlayer player) {
-        return 20.0f;
+        return 15.0f;
     }
 
     @Override
     public boolean NeedModifyXRotationAngle() {
-        return true;
+        return false;
     }
 
     // avali 专属动画 无 avali 版本的动画(jump/riding)沿用 bat 家族的缺失回退模式
