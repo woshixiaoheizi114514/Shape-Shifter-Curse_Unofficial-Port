@@ -1,29 +1,29 @@
 package net.onixary.shapeShifterCurseFabric.magic;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.onixary.shapeShifterCurseFabric.util.util.ISprite;
 import org.jetbrains.annotations.NotNull;
 
 public interface IMagic {
-    public Identifier getId();
+    public ResourceLocation getId();
 
     public ISprite getSprite();
 
     // 这几个个不准备在这个版本实现 留给拓展实现了 等拓展验证完成后再加入主线
-    public default void onInvokeCommon(@NotNull PlayerEntity player) {
+    public default void onInvokeCommon(@NotNull Player player) {
 
     }
 
-    public default void onInvokeServer(@NotNull PlayerEntity player) {
+    public default void onInvokeServer(@NotNull Player player) {
         this.onInvokeCommon(player);
     }
 
-    public default void onInvokeClient(@NotNull PlayerEntity player) {
+    public default void onInvokeClient(@NotNull Player player) {
         this.onInvokeCommon(player);
     }
 
-    public default boolean canInvoke(@NotNull PlayerEntity player) {
+    public default boolean canInvoke(@NotNull Player player) {
         return true;
     }
 
