@@ -58,11 +58,6 @@
   "accessWidener": "apoli.accesswidener",
 
   "depends": {
-    "java": ">=21",
-    "fabricloader": ">=0.16.7",
-    "fabric-api": ">=0.116.1",
-    "minecraft": ">=1.21.1",
-    "calio-legacy": "*",
-    "cloth-config": ">=15.0.127"
+    "minecraft": ">=1.21"
   }
 }
