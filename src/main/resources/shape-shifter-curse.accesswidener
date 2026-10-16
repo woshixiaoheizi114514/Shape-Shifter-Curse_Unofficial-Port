@@ -25,3 +25,4 @@ accessible field net/minecraft/world/level/levelgen/structure/Structure$Structur
 accessible field net/minecraft/world/entity/ai/targeting/TargetingConditions selector Ljava/util/function/Predicate;
 accessible field net/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal targetType Ljava/lang/Class;
 accessible method net/minecraft/world/entity/animal/Ocelot isTrusting ()Z
+accessible method net/minecraft/client/gui/GuiGraphics blit (Lnet/minecraft/resources/ResourceLocation;IIFFIIII)V
