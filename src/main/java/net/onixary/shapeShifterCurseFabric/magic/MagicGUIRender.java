@@ -1,19 +1,18 @@
 package net.onixary.shapeShifterCurseFabric.magic;
 
-import com.eliotlash.mclib.math.functions.limit.Min;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Pair;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.player.Player;
 import net.onixary.shapeShifterCurseFabric.ShapeShifterCurseFabric;
 import net.onixary.shapeShifterCurseFabric.client.ShapeShifterCurseFabricClient;
 import net.onixary.shapeShifterCurseFabric.util.UIPositionUtils;
 
 @Environment(EnvType.CLIENT)
 public class MagicGUIRender {
-    private static final MinecraftClient mc = MinecraftClient.getInstance();
+    private static final Minecraft mc = Minecraft.getInstance();
 
     private static final int CENTER_SIZE = 24;
     private static final int SIDE_SIZE = 16;
@@ -29,18 +28,18 @@ public class MagicGUIRender {
 
     // XuHaoNan:
     // 这AI写UI的水平就是比我强(我扣的扣半天 AI写的我只用审查一下代码 根据架构修一下性能) 我还得扣半天MatrixStack 结果可以用draw画 不会出现拉伸问题 学到了
-    public static void render(DrawContext context, float tickDelta) {
-        PlayerEntity player = mc.player;
+    public static void render(GuiGraphics context, float tickDelta) {
+        Player player = mc.player;
         if (player == null) return;
-        if (mc.options.hudHidden) return;
+        if (mc.options.hideGui) return;
         if (!MagicUtils.shouldShowMagicUI(player)) return;
 
-        Pair<Integer, Integer> pos = UIPositionUtils.getCorrectPosition(
+        Tuple<Integer, Integer> pos = UIPositionUtils.getCorrectPosition(
                 ShapeShifterCurseFabric.clientConfig.magicGUIPosType,
                 ShapeShifterCurseFabric.clientConfig.magicGUIPosOffsetX,
                 ShapeShifterCurseFabric.clientConfig.magicGUIPosOffsetY);
-        int ax = pos.getLeft();
-        int ay = pos.getRight();
+        int ax = pos.getA();
+        int ay = pos.getB();
 
         IMagic[] magics = MagicUtils.getPlayerMagic(player);
         int n = MagicUtils.MAGIC_SLOT_COUNT;
@@ -53,7 +52,7 @@ public class MagicGUIRender {
         renderSlot(context, magics, centerIdx, ax + CENTER_X, ay + CENTER_Y, CENTER_SIZE, tickDelta);
     }
 
-    private static void renderSlot(DrawContext context, IMagic[] magics, int index, int x, int y, int size, float tickDelta) {
+    private static void renderSlot(GuiGraphics context, IMagic[] magics, int index, int x, int y, int size, float tickDelta) {
         if (index < 0 || index >= magics.length) return;
         IMagic magic = magics[index];
         if (magic == null) return;
@@ -83,14 +82,14 @@ public class MagicGUIRender {
     private static final double scrollStep = -1.0f;
 
     public static void onClientTick() {
-        if (ShapeShifterCurseFabricClient.prevActiveSkillKeybind.isPressed() && !lastPASPressed) {
+        if (ShapeShifterCurseFabricClient.prevActiveSkillKeybind.isDown() && !lastPASPressed) {
             MagicUtils.nowSelectMagicIndex = (MagicUtils.nowSelectMagicIndex - 1 + MagicUtils.MAGIC_SLOT_COUNT) % MagicUtils.MAGIC_SLOT_COUNT;
         }
-        if (ShapeShifterCurseFabricClient.nextActiveSkillKeybind.isPressed() && !lastNASPressed) {
+        if (ShapeShifterCurseFabricClient.nextActiveSkillKeybind.isDown() && !lastNASPressed) {
             MagicUtils.nowSelectMagicIndex = (MagicUtils.nowSelectMagicIndex + 1) % MagicUtils.MAGIC_SLOT_COUNT;
         }
-        lastPASPressed = ShapeShifterCurseFabricClient.prevActiveSkillKeybind.isPressed();
-        lastNASPressed = ShapeShifterCurseFabricClient.nextActiveSkillKeybind.isPressed();
+        lastPASPressed = ShapeShifterCurseFabricClient.prevActiveSkillKeybind.isDown();
+        lastNASPressed = ShapeShifterCurseFabricClient.nextActiveSkillKeybind.isDown();
     }
 
     public static void onMouseScroll(double amount) {

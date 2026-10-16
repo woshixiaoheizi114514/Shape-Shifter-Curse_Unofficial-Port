@@ -1,7 +1,7 @@
 package net.onixary.shapeShifterCurseFabric.mixin;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.Mouse;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
 import net.onixary.shapeShifterCurseFabric.client.ShapeShifterCurseFabricClient;
 import net.onixary.shapeShifterCurseFabric.magic.MagicGUIRender;
 import org.spongepowered.asm.mixin.Final;
@@ -11,17 +11,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(Mouse.class)
+@Mixin(MouseHandler.class)
 public class MouseMixin {
     @Shadow
     @Final
-    private MinecraftClient client;
+    private Minecraft minecraft;
 
-    @Inject(method = "onMouseScroll", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
     private void ssc$onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci) {
-        if (window == MinecraftClient.getInstance().getWindow().getHandle()) {
-            double d = ((Boolean) this.client.options.getDiscreteMouseScroll().getValue() ? Math.signum(vertical) : vertical) * (Double) this.client.options.getMouseWheelSensitivity().getValue();
-            if (this.client.getOverlay() == null && this.client.currentScreen == null && ShapeShifterCurseFabricClient.scrollActiveSkillKeybind.isPressed()) {
+        if (window == Minecraft.getInstance().getWindow().getWindow()) {
+            double d = ((Boolean) this.minecraft.options.discreteMouseScroll().get() ? Math.signum(vertical) : vertical) * (Double) this.minecraft.options.mouseWheelSensitivity().get();
+            if (this.minecraft.getOverlay() == null && this.minecraft.screen == null && ShapeShifterCurseFabricClient.scrollActiveSkillKeybind.isDown()) {
                 MagicGUIRender.onMouseScroll(d);
                 ci.cancel();
             }
