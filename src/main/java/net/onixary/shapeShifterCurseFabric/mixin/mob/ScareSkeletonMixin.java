@@ -2,6 +2,7 @@ package net.onixary.shapeShifterCurseFabric.mixin.mob;
 
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
@@ -10,8 +11,12 @@ import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.level.Level;
 import net.onixary.shapeShifterCurseFabric.additional_power.AdditionalPowers;
+import net.onixary.shapeShifterCurseFabric.player_form.PlayerFormBodyType;
+import net.onixary.shapeShifterCurseFabric.player_form.utils.FormUtils;
+import net.onixary.shapeShifterCurseFabric.util.ArrowAimUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,6 +27,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ScareSkeletonMixin extends Monster implements RangedAttackMob {
     protected ScareSkeletonMixin(EntityType<? extends Monster> entityType, Level world) {
         super(entityType, world);
+    }
+
+    @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/AbstractArrow;shoot(DDDFF)V"))
+    private void aimAtFeralBody(AbstractArrow arrow, double x, double y, double z,
+                                float speed, float divergence, LivingEntity target, float pullProgress) {
+        if (target instanceof Player player
+                && FormUtils.getPlayerForm(player).getBodyType() == PlayerFormBodyType.FERAL) {
+            var direction = ArrowAimUtils.launchDirection(target.getBoundingBox().getCenter().subtract(arrow.position()), speed);
+            if (direction != null) {
+                x = direction.x;
+                y = direction.y;
+                z = direction.z;
+            }
+        }
+        arrow.shoot(x, y, z, speed, divergence);
     }
 
     @Inject(at = @At("TAIL"), method = "registerGoals")
