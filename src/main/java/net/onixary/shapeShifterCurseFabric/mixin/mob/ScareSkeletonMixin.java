@@ -29,7 +29,7 @@ public abstract class ScareSkeletonMixin extends Monster implements RangedAttack
         super(entityType, world);
     }
 
-    @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/AbstractArrow;shoot(DDDFF)V"))
+    @Redirect(method = "performRangedAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/AbstractArrow;shoot(DDDFF)V"))
     private void aimAtFeralBody(AbstractArrow arrow, double x, double y, double z,
                                 float speed, float divergence, LivingEntity target, float pullProgress) {
         if (target instanceof Player player
